@@ -219,7 +219,7 @@ uiEditor.components.TextComponent = (function () {
     /*************************************************/
 
     TextComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": undefined};
+        var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
@@ -395,7 +395,7 @@ uiEditor.components.TableComponent = (function () {
     /*************************************************/
 
     TableComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": undefined};
+        var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
@@ -540,7 +540,7 @@ uiEditor.components.ButtonComponent = (function () {
     /*************************************************/
 
     ButtonComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": undefined};
+        var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
@@ -637,7 +637,7 @@ uiEditor.components.PanelComponent = (function () {
 
     /*****************Getters************************/
     PanelComponent.prototype.getX = function () {
-        //return this.x;
+//return this.x;
         return this.properties['xPosition'];
     };
     PanelComponent.prototype.getY = function () {
@@ -704,71 +704,146 @@ uiEditor.components.PanelComponent = (function () {
     /*************************************************/
 
     PanelComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": undefined, "panel": undefined};
+        console.log("Panel: hittest");
+//        var result = {"hit": false, "component": undefined, "panel": undefined};
+//                if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+//                        y >= this.getY() + this.getHeaderHeight() &&
+//                        y <= this.getY() + this.getHeight()) {
+//            result.panel = this.getID();
+//            result.hit = true;
+//
+//            this.properties['children'].forEach(function (value, key) {
+//                var temp = value.hitTest(x, y);
+//                if (temp.hit) {
+//                    result.hit = true;
+//                    result.component = temp.component;
+//
+//                }
+//            });
+//        }
+//
+//        else if (!result.hit) {
+//            if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+//                    y >= this.getY() && y <= this.getY() + this.getHeaderHeight()) {
+//                result.hit = true;
+//                result.component = this.getID();
+//                result.panel = undefined;
+//            }
+//        }
+//        console.log(result);
+
+        var result = this.headerHitTest(x, y);
+        if (!result.hit) {
+            result = this.bodyHitTest(x, y);
+            if (result.hit) {
+                var temp = this.childHitTest(x, y);
+                if (temp.hit) {
+                    result.component = temp.component;
+                }
+            }
+        }
+        console.log(result);
+        console.log("End of hittest");
+        return result;
+    };
+    PanelComponent.prototype.childHitTest = function (x, y) {
+        var result = {"hit": false, "component": null, "panel": this.getID()};
+        this.properties['children'].forEach(function (value, key) {
+            var temp = value.hitTest(x, y);
+            if (temp.hit) {
+                result.hit = true;
+                result.component = temp.component;
+
+            }
+        });
+        return result;
+    };
+
+    PanelComponent.prototype.headerHitTest = function (x, y) {
+        var result = {"hit": false, "component": this.getID(), "panel": null};
+        if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+                y >= this.getY() && y <= this.getY() + this.getHeaderHeight()) {
+            result.hit = true;
+        }
+        return result;
+    };
+    PanelComponent.prototype.bodyHitTest = function (x, y) {
+        var result = {"hit": false, "component": null, "panel": this.getID()};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() + this.getHeaderHeight() &&
                 y <= this.getY() + this.getHeight()) {
-            result.panel = this.getID();
             result.hit = true;
-
-            this.properties['children'].forEach(function (value, key) {
-                var temp = value.hitTest(x, y);
-                if (temp.hit) {
-                    result.hit = true;
-                    result.component = temp.component;
-
-                }
-            });
-        }
-
-        else if (!result.hit) {
-            if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
-                    y >= this.getY() && y <= this.getY() + this.getHeaderHeight()) {
-                result.hit = true;
-                result.component = this.getID();
-                result.panel = undefined;
-            }
-        }
-
-        return result;
-    };
-    
-    PanelComponent.prototype.isComponentInside=function(testComponent){
-        var result = false;
-        if (this.getHeight() - this.getHeaderHeight() > testComponent.getHeight()
-                    && this.getY() < testComponent.getY()
-                    && this.getWidth() > testComponent.getWidth()
-                    && this.getX() < testComponent.getX()){
-                result = true;
         }
         return result;
     };
-
+    PanelComponent.prototype.isComponentInside = function (testComponent) {
+//        var result = false;
+//        if (this.getHeight() - this.getHeaderHeight() > testComponent.getHeight()
+//                && this.getY()+this.getHeaderHeight() < testComponent.getY()
+//                && this.getWidth() > testComponent.getWidth()
+//                && this.getX() < testComponent.getX()) {
+//            result = true;
+//        }
+//        return result;
+          var x = this.getX();
+          var y = this.getY()+this.getHeaderHeight();
+          var h = this.getHeight()-this.getHeaderHeight();
+          var w = this.getWidth();
+          
+          var X = testComponent.getX();
+          var Y = testComponent.getY();
+          var W = testComponent.getWidth();
+          var H = testComponent.getHeight();
+          
+      
+         if (X < x || Y < y) {
+             return false;
+         }
+         w += x;
+         W += X;
+         if (W <= X) {
+             // X+W overflowed or W was zero, return false if...
+             // either original w or W was zero or
+             // x+w did not overflow or
+             // the overflowed x+w is smaller than the overflowed X+W
+             if (w >= x || W > w) return false;
+         } else {
+             // X+W did not overflow and W was not zero, return false if...
+             // original w was zero or
+             // x+w did not overflow and x+w is smaller than X+W
+             if (w >= x && W > w) return false;
+         }
+         h += y;
+         H += Y;
+         if (H <= Y) {
+             if (h >= y || H > h) return false;
+         } else {
+             if (h >= y && H > h) return false;
+         }
+         return true;
+          
+          
+          
+    };
     PanelComponent.prototype.addChild = function (component) {
         this.properties['children'].set(component.getID(), component);
-        console.log("child added: " + component.getComponentType());
     };
-
     PanelComponent.prototype.removeChild = function (component) {
         this.properties['children'].delete(component.getID());
     };
-
     PanelComponent.prototype.getChild = function (componentID) {
         return this.properties['children'].get(componentID);
     };
-
     PanelComponent.prototype.moveChildren = function (dx, dy) {
         this.properties['children'].forEach(function (value, key) {
             value.move(dx, dy);
         });
     };
-
     PanelComponent.prototype.move = function (dx, dy) {
         this.setX(this.getX() + dx);
         this.setY(this.getY() + dy);
         this.moveChildren(dx, dy);
     };
-
     PanelComponent.prototype.draw = function (ctx) {
         this.properties['xPosition'] = Number(this.properties['xPosition']);
         this.properties['yPosition'] = Number(this.properties['yPosition']);
@@ -779,7 +854,6 @@ uiEditor.components.PanelComponent = (function () {
         ctx.fillStyle = "#f5f5f5";
         ctx.fillRect(this.getX() - 1, this.getY(), this.getWidth() + 2, this.getHeaderHeight());
         ctx.restore();
-
         //header text
         ctx.save();
         ctx.fillStyle = "#000";
@@ -787,22 +861,15 @@ uiEditor.components.PanelComponent = (function () {
         ctx.textAlign = "center";
         ctx.fillText(this.getHeaderText(), this.properties['xPosition'] + this.properties['width'] / 2, this.properties['yPosition'] + this.getHeaderHeight() / 2 + 5);
         ctx.restore();
-
         //panel's main part
         ctx.save();
         ctx.strokeStyle = "#d3d3d3";
         ctx.strokeRect(this.getX(), this.getY() + this.getHeaderHeight(), this.getWidth(), this.getHeight() - this.getHeaderHeight());
         ctx.restore();
-
-
         this.properties['children'].forEach(function (value, key) {
             value.draw(ctx);
         });
-
-
     };
-
-
     return PanelComponent;
 })();
 /******************************************************************************************/
