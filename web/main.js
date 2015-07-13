@@ -227,6 +227,7 @@ ns.draw = function (e) {
                 ns.drawingPanel = hitTestResult.panel;
                 ns.alteringComponent.component = 'component' + ns.componentCounter;
                 ns.alteringComponent.panel = hitTestResult.panel;
+                
             }
 
         }
@@ -259,68 +260,6 @@ ns.draw = function (e) {
         }
     }
 
-//    var hitComponent = hitTestResult.component;
-//    var hitPanel = hitTestResult.panel;
-//    if (hitComponent) {  //if mouse is pressed on the previously added component
-//
-//        ns.moveX = x;
-//        ns.moveY = y;
-//
-//        if (!hitPanel) {
-//            ns.movingComponent = hitComponent;
-//            ns.alteringComponent = hitComponent;
-//            ns.constructProperties(ns.components.get(ns.alteringComponent));
-//            ns.c.addEventListener('mousemove', ns.move, false); //event handler for changing component's position (move component)
-//            ns.c.addEventListener('mouseup', ns.moveDone, false); //finish moving component
-//        }
-//        else {
-//            ns.movingChildComponent.panel = hitPanel;
-//            ns.movingChildComponent.component = hitComponent;
-//            ns.constructProperties(ns.components.get(hitPanel).getChild(hitComponent));
-//            ns.c.addEventListener('mousemove', ns.moveFromPanel, false);
-//            ns.c.addEventListener('mouseup', ns.moveFromPanelDone, false);
-//        }
-//    }
-//    else if (ns.chosenComponentType !== null) { //if componentType is chosen from toolbox
-//        ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
-//        ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
-//        ns.w = ns.INITIAL_WIDTH; //initial width (global var)
-//        ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
-//        ns.isDrawing = true; //switch to draw mode
-//        ns.componentCounter++;
-
-    //rects['rectangle' + rectCounter] = new uiEditor.test.Rectangle(x, y, w, h);
-//        switch (ns.chosenComponentType) { //create component based on the type of chosen component
-//            case "button":
-//                ns.components.set('component' + ns.componentCounter, new uiEditor.components.ButtonComponent('component' + ns.componentCounter, x, y, ns.w, ns.h));
-//                break;
-//            case "text":
-//                ns.components.set('component' + ns.componentCounter, new uiEditor.components.TextComponent('component' + ns.componentCounter, x, y, ns.w, ns.h));
-//                break;
-//            case "table":
-//                ns.components.set('component' + ns.componentCounter, new uiEditor.components.TableComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, 6, 2));
-//                break;
-//            case "image":
-//                ns.components.set('component' + ns.componentCounter, new uiEditor.components.ImageComponent('component' + ns.componentCounter, x, y, ns.w, ns.h));
-//                break;
-//            case "panel":
-//                ns.components.set('component' + ns.componentCounter, new uiEditor.components.PanelComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, "header"));
-//                break;
-//        }
-
-//    var component = ns.createComponent(ns.chosenComponentType, x, y);
-//
-//    if (hitPanel === undefined) {
-//        ns.components.set(component.id, component.component);
-//    }
-//    else {
-//        var panel = ns.components.get(hitPanel);
-//        panel.addChild(component.component);
-//        ns.drawingPanel = hitPanel;
-//    }
-//
-//    ns.alteringComponent = 'component' + ns.componentCounter;
-//}
 };
 
 
@@ -328,27 +267,22 @@ ns.createComponent = function (componentType, x, y) {
     var component = {"id": undefined, "component": null};
     switch (componentType) {
         case "button":
-            //ns.components.set('component' + ns.componentCounter, new uiEditor.components.ButtonComponent('component' + ns.componentCounter, x, y, ns.w, ns.h));
             component.id = 'component' + ns.componentCounter;
             component.component = new uiEditor.components.ButtonComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
             break;
         case "text":
-            //ns.components.set('component' + ns.componentCounter, new uiEditor.components.TextComponent('component' + ns.componentCounter, x, y, ns.w, ns.h));
             component.id = 'component' + ns.componentCounter;
             component.component = new uiEditor.components.TextComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
             break;
         case "table":
-            //ns.components.set('component' + ns.componentCounter, new uiEditor.components.TableComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, 6, 2));
             component.id = 'component' + ns.componentCounter;
             component.component = new uiEditor.components.TableComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, 6, 2);
             break;
         case "image":
-            //ns.components.set('component' + ns.componentCounter, new uiEditor.components.ImageComponent('component' + ns.componentCounter, x, y, ns.w, ns.h));
             component.id = 'component' + ns.componentCounter;
             component.component = new uiEditor.components.ImageComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
             break;
         case "panel":
-            //ns.components.set('component' + ns.componentCounter, new uiEditor.components.PanelComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, "header"));
             component.id = 'component' + ns.componentCounter;
             component.component = new uiEditor.components.PanelComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, "header");
             break;
@@ -396,7 +330,6 @@ ns.hitToPanelTest = function (testX, testY, testComponent) {
     console.log("hitToPanelTest finished");
     return hitPanel;
 
-    //console.log('moving panel: '+ns.movingComponent);
 
 
 };
@@ -446,32 +379,6 @@ ns.constructProperties = function (component) {
             propertiesPanel.appendChild(div);
         }
     }
-//    var buttonDiv = document.createElement('div');
-//    buttonDiv.className = 'param right';
-//    var btn = document.createElement('button');
-//    btn.innerText = 'Save';
-//    btn.addEventListener('click', saveChanges, false);
-//    buttonDiv.appendChild(btn);
-//    propertiesPanel.appendChild(buttonDiv);
-};
-
-
-//event listener for button (currently removed. used to change properties on button click, 
-//not immediately after changing text input values)
-ns.saveChanges = function (e) {
-    var component = ns.components.get(ns.alteringComponent.component); //get the selected component
-    var type = component.getComponentType(); //get component's type
-    var propertyNames = ns.properties[type]; //get component's properties
-    //get inputs by their ids, and get their values 
-    //and update component with new property values
-    for (var i = 0; i < propertyNames.length; i++) {
-        var input = document.getElementById(propertyNames[i]['name']);
-        var propName = input.name;
-        var propValue = input.value;
-        component.setPropertyValue(propName, propValue);
-    }
-    ns.components.set(ns.alteringComponent.component, component);
-    ns.drawRectangles();
 };
 
 //move the component to another position
@@ -483,17 +390,6 @@ ns.move = function (e) {
         ns.y = e.layerY;
 
 
-//        var hittestResult = ns.hitTest(ns.x, ns.y);
-//        if (hittestResult !== undefined) {
-//            var hitComponent = ns.components.get(hittestResult);
-//            if (hitComponent.getComponentType() === "panel") {
-//                var component = ns.components.get(ns.movingComponent);
-//                ns.components.delete(ns.movingComponent);
-//                hitComponent.addChild(component);
-//                ns.movingComponent = null;
-//                ns.drawRectangles();
-//            }
-//            else {
         var dx = ns.x - ns.moveX;
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
@@ -502,17 +398,9 @@ ns.move = function (e) {
 
         ns.destinationPanel = ns.hitToPanelTest(ns.x, ns.y, ns.components.get(ns.movingComponent));
 
-//        console.log('hit panel: '+hitPanelTestResult);
-//        if(hitPanelTestResult!==undefined){
-//            ns.components.get(hitPanelTestResult).addChild(ns.components.get(ns.movingComponent));
-//            ns.components.delete(ns.movingComponent);
-//        }
 
         ns.drawRectangles();
         ns.constructProperties(ns.components.get(ns.movingComponent));
-//            }
-//        }
-
 
     }
 };
@@ -582,7 +470,6 @@ ns.mouseMove = function (e) {
         //in case if direction of rectangle was changed, i.e. top left corner become different corner
         ns.x = Math.min(e.layerX, ns.startX);
         ns.y = Math.min(e.layerY, ns.startY);
-        //ctx.clearRect(0, 0, c.width, c.height);
 
         //calculate width and height
         ns.w = Math.abs(e.layerX - ns.startX);
@@ -600,7 +487,6 @@ ns.mouseMove = function (e) {
         r.setY(ns.y);
         r.setWidth(ns.w);
         r.setHeight(ns.h);
-        //ns.components.set('component' + ns.componentCounter, r);
 
         if (ns.drawingPanel === undefined) {
             ns.components.set('component' + ns.componentCounter, r);
@@ -636,14 +522,13 @@ ns.cleanUp = function () {
 ns.mouseUp = function (e) {
     ns.isDrawing = false;
     ns.drawingPanel = undefined;
-    //chosenComponentType = null;
-    // constructProperties(components[alteringComponent]);
+
     ns.drawRectangles();
     if (ns.alteringComponent.panel === null) {
         ns.constructProperties(ns.components.get(ns.alteringComponent.component));
     }
     else{
-        var panel = ns.components.get(ns.alteringComponent.component);
+        var panel = ns.components.get(ns.alteringComponent.panel);
         var child = panel.getChild(ns.alteringComponent.component);
         ns.constructProperties(child);
     }

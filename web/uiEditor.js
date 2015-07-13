@@ -96,7 +96,7 @@ uiEditor.components.ImageComponent = (function () {
     /*************************************************/
 
     ImageComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": undefined};
+        var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
@@ -155,19 +155,15 @@ uiEditor.components.TextComponent = (function () {
         return this.radius;
     };
     TextComponent.prototype.getX = function () {
-        //return this.x;
         return this.properties['xPosition'];
     };
     TextComponent.prototype.getY = function () {
-        // return this.y;
         return this.properties['yPosition'];
     };
     TextComponent.prototype.getWidth = function () {
-        //return this.width;
         return this.properties['width'];
     };
     TextComponent.prototype.getHeight = function () {
-        //return this.height;
         return this.properties['height'];
     };
     TextComponent.prototype.getID = function () {
