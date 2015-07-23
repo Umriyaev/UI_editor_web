@@ -1,0 +1,188 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Jun 16, 2015, 1:25:06 PM
+    Author     : Shokhrukh
+*/
+
+body{
+
+}
+#main{
+    width: 99%;
+    height: 1000px;
+    margin: 5px;
+    background-color: hsl(0, 0%, 89%);
+}
+
+/*#menu{
+    width: 99%;
+    margin: 5px;
+    display: block;
+    background-color: hsl(0, 0%, 80%);
+    position: fixed;
+    
+}
+
+#menu ul{
+    list-style: none;
+    position: relative;
+    float: left;
+    margin: 0;
+    padding: 0;
+
+}
+
+#menu ul li{
+    position: relative;
+    float: left;
+    margin: 0;
+    padding: 0;
+    display: block;
+    color: #333;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 32px;
+    padding: 0 15px;
+    
+}
+
+#menu ul li.current-menu-item{
+    background: #ddd;
+}
+
+#menu ul li:hover{
+    background: #f6f6f6;
+}
+
+#menu ul ul{
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    padding: 0;
+}
+
+#menu ul ul li{
+    float: none;
+    width: 200px;
+}
+
+#menu ul ul ul{
+    top: 0;
+    left: 100%;
+}
+
+#menu ul li:hover > ul{
+    display:block;
+}*/
+
+
+.dropdown:hover > .dropdown-menu{
+    display: block;
+}
+
+.toolboxPanel{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    height: 800px;
+}
+
+.toolBoxChildPanel{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    height: 500px;
+}
+
+.toolboxPanel button{
+    height: 50px;
+    margin: 30px;
+}
+
+.canvasPanel {
+    height: 800px;
+}
+
+.canvasPanel #myCanvas{
+    margin: auto;
+    width: 600px;
+    height: 600px;
+    border: 1px solid #d3d3d3;
+
+}
+
+.propertiesPanel{
+    height: 800px;
+}
+
+
+
+.param{
+    margin-bottom: 20px;
+}
+
+.param input[type]{
+    width: 100%;
+    border: 1px solid #d3d3d3;
+}
+
+.right{
+    text-align: right;
+}
+
+.context-menu{
+    display: none;
+}
+
+
+.bb-alert {
+  position: fixed;
+  bottom: 25%;
+  right: 0;
+  margin-bottom: 0;
+  font-size: 1.2em;
+  padding: 1em 1.3em;
+  z-index: 2000;
+}
+
+
+.alert-info {
+  color: #31708f;
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+}
+
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.flex-form{
+    display: inline-flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-content: space-between;
+}
+
+.flex-item{
+    display: block;
+    width: 50px;
+    height: 50px;
+}
+
+.flex-item input[type="checkbox"]{
+    margin-left: -15px;
+}
+
+
+
+
