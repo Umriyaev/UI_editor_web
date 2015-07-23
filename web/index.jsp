@@ -14,6 +14,8 @@
         <link href="style.css" rel="stylesheet" />
         <script src="js/libs/jquery/jquery.js"></script>
         <script src="js/libs/twitter-bootstrap/js/bootstrap.js"></script>
+        <script src="js/libs/bootbox/bootbox.js"></script>
+        <script src="Notify.js"></script>
         <script src="uiEditor.js"></script>
         <script src="main.js"></script>
     </head>
@@ -79,11 +81,38 @@
                                 <h3 class="panel-title">Toolbox</h3>
                             </div>
                             <div class="panel-body toolboxPanel">
-                                <button onclick="uiEditor.mainApp.setChosenComponent('button')">Button</button>
-                                <button onclick="uiEditor.mainApp.setChosenComponent('image')">Image</button>
-                                <button onclick="uiEditor.mainApp.setChosenComponent('table')">Table</button>
-                                <button onclick="uiEditor.mainApp.setChosenComponent('text')">Text</button>
-                                <button onclick="uiEditor.mainApp.setChosenComponent('panel')">Panel</button>
+                                <div class="panel-group" id="accordion">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" data-parent="#accordion" href="#commonControls">Common controls</a>
+                                            </h4>
+                                        </div>
+                                        <div id="commonControls" class="panel-collapse collapse">
+                                            <div class="panel-body toolBoxChildPanel">
+                                                <button onclick="uiEditor.mainApp.setChosenComponent('button')">Button</button>
+                                                <button onclick="uiEditor.mainApp.setChosenComponent('image')">Image</button>
+
+                                                <button onclick="uiEditor.mainApp.setChosenComponent('text')">Text</button>
+                                                <button onclick="uiEditor.mainApp.setChosenComponent('panel')">Panel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" data-parent="#accordion" href="#screenControls">Screen controls</a>
+                                            </h4>
+                                        </div>
+                                        <div id="screenControls" class="panel-collapse collapse">
+                                            <div class="panel-body toolBoxChildPanel">
+                                                <button onclick="uiEditor.mainApp.setChosenComponent('table')">Table</button>
+                                                <button onclick="uiEditor.mainApp.setChosenComponent('screenControl')">Screen control</button>
+                                                <button onclick="uiEditor.mainApp.setChosenComponent('source')">Source</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -94,7 +123,7 @@
                             </div>
                             <div class="panel-body">
                                 <div>
-                                    <canvas id="myCanvas" width="1170" height="762" style="border: 1px solid #d3d3d3"></canvas>
+                                    <canvas id="myCanvas" width="1210" height="762" style="border: 1px solid #d3d3d3"></canvas>
                                 </div>                                
                             </div>
                         </div>
@@ -105,13 +134,13 @@
                                 <h3 class="panel-title">Properties</h3>
                             </div>
                             <div class="panel-body propertiesPanel" id="properties">
-                               
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>  
-            
+
             <nav class="context-menu">
                 <ul class="context-menu__items">
                     <li class="context-menu__item">
@@ -129,8 +158,11 @@
                             Delete
                         </a>
                     </li>
-                    
+
                 </ul>
-            </nav>
+            </nav>    
+            <div class="bb-alert alert alert-info" style="display: none;">
+                <span>Hello . You've chosen <b>Really awesome</b></span>
+            </div>
     </body>
 </html>
