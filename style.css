@@ -98,12 +98,11 @@ body{
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    height: 500px;
 }
 
 .toolboxPanel button{
     height: 50px;
-    margin: 30px;
+    margin: 15px;
 }
 
 .canvasPanel {
