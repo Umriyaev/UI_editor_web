@@ -85,10 +85,10 @@
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#accordion" href="#commonControls">Common controls</a>
+                                                Common controls
                                             </h4>
                                         </div>
-                                        <div id="commonControls" class="panel-collapse collapse">
+                                        <div id="commonControls" class="panel panel-default">
                                             <div class="panel-body toolBoxChildPanel">
                                                 <button onclick="uiEditor.mainApp.setChosenComponent('button')">Button</button>
                                                 <button onclick="uiEditor.mainApp.setChosenComponent('image')">Image</button>
@@ -101,10 +101,10 @@
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#accordion" href="#screenControls">Screen controls</a>
+                                                Screen controls
                                             </h4>
                                         </div>
-                                        <div id="screenControls" class="panel-collapse collapse">
+                                        <div id="screenControls" class="panel panel-default">
                                             <div class="panel-body toolBoxChildPanel">
                                                 <button onclick="uiEditor.mainApp.setChosenComponent('table')">Table</button>
                                                 <button onclick="uiEditor.mainApp.setChosenComponent('screenControl')">Screen control</button>
