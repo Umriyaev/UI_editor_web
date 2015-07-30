@@ -9,9 +9,9 @@ var uiEditor = uiEditor || {};
 uiEditor.mainApp = uiEditor.mainApp || {};
 var ns = uiEditor.mainApp;
 ns.startX, ns.startY;
+ns.idSpecifier = new uiEditor.helpers.IdSpecifier();
 ns.isDrawing = false;
 ns.w, ns.h, ns.x, ns.y, ns.c, ns.ctx;
-ns.componentCounter = 0;
 ns.components = new Map();
 ns.movingComponent = null;
 ns.alteringComponent = {"panel": null, "component": null};
@@ -24,7 +24,6 @@ ns.movingChildComponent = {"panel": null, "component": null};
  * isDrawing - true if we are drawing new component
  * w,h,x,y - width, height, posX and posY of the currently being drawn component
  * ctx - canvas context
- * componentCounter - number of all the components, which are already drawn
  * components - array of all the components
  * movingComponent - if we started moving component, it will point to that component
  * chosenComponentType - type of component to draw
@@ -35,7 +34,7 @@ ns.movingChildComponent = {"panel": null, "component": null};
 /*Chosen component might be
  * text
  * button
- * table
+ * display
  * panel
  * image
  * null*/
@@ -71,7 +70,7 @@ ns.properties = {
         {"name": "height", "type": "number"},
         {"name": "placeholder text", "type": "text"}
     ],
-    "table": [
+    "display": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
@@ -305,12 +304,11 @@ ns.draw = function (e) {
                 ns.w = ns.INITIAL_WIDTH; //initial width (global var)
                 ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
                 ns.isDrawing = true; //switch to draw mode
-                ns.componentCounter++;
                 var component = ns.createComponent(ns.chosenComponentType, x, y);
                 var panel = ns.components.get(hitTestResult.panel);
                 panel.addChild(component.component);
                 ns.drawingPanel = hitTestResult.panel;
-                ns.alteringComponent.component = 'component' + ns.componentCounter;
+                ns.alteringComponent.component = component.id;
                 ns.alteringComponent.panel = hitTestResult.panel;
 
             }
@@ -337,10 +335,9 @@ ns.draw = function (e) {
             ns.w = ns.INITIAL_WIDTH; //initial width (global var)
             ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
             ns.isDrawing = true; //switch to draw mode
-            ns.componentCounter++;
             var component = ns.createComponent(ns.chosenComponentType, x, y);
             ns.components.set(component.id, component.component);
-            ns.alteringComponent.component = 'component' + ns.componentCounter;
+            ns.alteringComponent.component = component.id;
             ns.alteringComponent.panel = null;
         }
     }
@@ -352,32 +349,32 @@ ns.createComponent = function (componentType, x, y) {
     var component = {"id": undefined, "component": null};
     switch (componentType) {
         case "button":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.ButtonComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
+            component.id = ns.idSpecifier.getIdForComponent("button");
+            component.component = new uiEditor.components.ButtonComponent(component.id, x, y, ns.w, ns.h);
             break;
         case "text":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.TextComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
+            component.id = ns.idSpecifier.getIdForComponent("text");
+            component.component = new uiEditor.components.TextComponent(component.id, x, y, ns.w, ns.h);
             break;
-        case "table":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.TableComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, 6, 2);
+        case "display":
+            component.id = ns.idSpecifier.getIdForComponent("display");
+            component.component = new uiEditor.components.DisplayComponent(component.id, x, y, ns.w, ns.h, 6, 2);
             break;
         case "image":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.ImageComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
+            component.id = ns.idSpecifier.getIdForComponent("image");
+            component.component = new uiEditor.components.ImageComponent(component.id, x, y, ns.w, ns.h);
             break;
         case "panel":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.PanelComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, "header");
+            component.id = ns.idSpecifier.getIdForComponent("panel");
+            component.component = new uiEditor.components.PanelComponent(component.id, x, y, ns.w, ns.h, "header");
             break;
         case "screenControl":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.ScreenControlComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, ["1x1", "2x2", "3x3"]);
+            component.id = ns.idSpecifier.getIdForComponent("screenControl");
+            component.component = new uiEditor.components.ScreenControlComponent(component.id, x, y, ns.w, ns.h, ["1x1", "2x2", "3x3"]);
             break;
         case "source":
-            component.id='component'+ns.componentCounter;
-            component.component=new uiEditor.components.SourceComponent('component'+ns.componentCounter, x, y, ns.w, ns.h, "not set", "");
+            component.id=ns.idSpecifier.getIdForComponent("source");
+            component.component=new uiEditor.components.SourceComponent(component.id, x, y, ns.w, ns.h, "not set", "");
             break;
     }
     return component;
@@ -570,10 +567,10 @@ ns.mouseMove = function (e) {
 
         var r;
         if (ns.drawingPanel === undefined) {
-            r = ns.components.get('component' + ns.componentCounter);
+            r = ns.components.get(ns.alteringComponent.component);
         }
         else {
-            r = ns.components.get(ns.drawingPanel).getChild('component' + ns.componentCounter);
+            r = ns.components.get(ns.drawingPanel).getChild(ns.alteringComponent.component);
         }
         r.setX(ns.x);
         r.setY(ns.y);
@@ -581,7 +578,7 @@ ns.mouseMove = function (e) {
         r.setHeight(ns.h);
 
         if (ns.drawingPanel === undefined) {
-            ns.components.set('component' + ns.componentCounter, r);
+            ns.components.set(ns.alteringComponent.component, r);
         }
         else {
             ns.components.get(ns.drawingPanel).addChild(r);
@@ -628,7 +625,7 @@ ns.mouseUp = function (e) {
 };
 
 ns.saveToJson = function () {
-    var obj = {"button": [], "text": [], "image": [], "table": [], "panel": []};
+    var obj = {"button": [], "text": [], "image": [], "display": [], "panel": []};
     ns.components.forEach(function (value, key) {
         switch (value.getComponentType()) {
             case "text":
@@ -640,8 +637,8 @@ ns.saveToJson = function () {
             case "image":
                 obj.image.push(value.getProperties());
                 break;
-            case "table":
-                obj.table.push(value.getProperties());
+            case "display":
+                obj.display.push(value.getProperties());
                 break;
             case "panel":
                 obj.panel.push(value.getProperties());
@@ -668,8 +665,8 @@ ns.setChosenComponent = function (e) {
         case "button":
             ns.chosenComponentType = "button";
             break;
-        case "table":
-            ns.chosenComponentType = "table";
+        case "display":
+            ns.chosenComponentType = "display";
             break;
         case "image":
             ns.chosenComponentType = "image";
@@ -687,6 +684,8 @@ ns.setChosenComponent = function (e) {
             ns.chosenComponentType = null;
     }
 };
+
+
 
 
 

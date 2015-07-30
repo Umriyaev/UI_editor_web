@@ -106,7 +106,7 @@
                                         </div>
                                         <div id="screenControls" class="panel panel-default">
                                             <div class="panel-body toolBoxChildPanel">
-                                                <button onclick="uiEditor.mainApp.setChosenComponent('table')">Table</button>
+                                                <button onclick="uiEditor.mainApp.setChosenComponent('display')">Display</button>
                                                 <button onclick="uiEditor.mainApp.setChosenComponent('screenControl')">Screen control</button>
                                                 <button onclick="uiEditor.mainApp.setChosenComponent('source')">Source</button>
                                             </div>

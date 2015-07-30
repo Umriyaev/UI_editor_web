@@ -7,6 +7,61 @@
 var uiEditor = uiEditor || {};
 //subnamespace for components
 uiEditor.components = uiEditor.components || {};
+uiEditor.helpers = uiEditor.helpers || {};
+
+uiEditor.helpers.IdSpecifier = (function(){
+    function IdSpecifier(){
+        this.buttonCount = 0;
+        this.textboxCount = 0;
+        this.displayCount = 0;
+        this.imageCount= 0;
+        this.panelCount = 0;
+        this.screenCountrolCount = 0;
+        this.sourceCount = 0;        
+    }
+    
+    IdSpecifier.prototype.getIdForComponent = function(componentType){
+        var id = null;
+        
+        switch(componentType){
+            case "button":
+                ++this.buttonCount;
+                id="button_"+this.buttonCount;
+                break;
+            case "text":
+                ++this.textboxCount;
+                id="text_"+this.textboxCount;
+                break;
+            case "display":
+                ++this.displayCount;
+                id="display_"+this.displayCount;
+                break;
+            case "image":
+                ++this.imageCount;
+                id="image_"+this.imageCount;
+                break;
+            case "panel":
+                ++this.panelCount;
+                id="panel_"+this.panelCount;
+                break;
+            case "screenControl":
+                ++this.screenCountrolCount;
+                id="screenControl_"+this.screenCountrolCount;
+                break;
+            case "source":
+                ++this.sourceCount;
+                id="source_"+this.sourceCount;
+                break;
+            default:
+                id=null;
+                break;
+        }
+        return id;
+    };
+    
+    return IdSpecifier;
+})();
+
 /*********************Image component class**********************/
 uiEditor.components.ImageComponent = (function () {
 
@@ -299,8 +354,8 @@ uiEditor.components.TextComponent = (function () {
 /***********************************************************/
 
 /*******************Table component class*********************/
-uiEditor.components.TableComponent = (function () {
-    function TableComponent(id, x, y, w, h, numberOfColumns, numberOfRows) {
+uiEditor.components.DisplayComponent = (function () {
+    function DisplayComponent(id, x, y, w, h, numberOfColumns, numberOfRows) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -311,7 +366,7 @@ uiEditor.components.TableComponent = (function () {
         this.zIndex = null; // numbers
         this.numberOfColumns = numberOfColumns;
         this.numberOfRows = numberOfRows;
-        this.componentType = "table";
+        this.componentType = "display";
         this.properties = {};
         this.properties['xPosition'] = x;
         this.properties['yPosition'] = y;
@@ -322,38 +377,38 @@ uiEditor.components.TableComponent = (function () {
     }
 
     /*****************Getters************************/
-    TableComponent.prototype.getX = function () {
+    DisplayComponent.prototype.getX = function () {
         //return this.x;
         return this.properties['xPosition'];
     };
-    TableComponent.prototype.getY = function () {
+    DisplayComponent.prototype.getY = function () {
         //return this.y;
         return this.properties['yPosition'];
     };
-    TableComponent.prototype.getWidth = function () {
+    DisplayComponent.prototype.getWidth = function () {
         //return this.width;
         return this.properties['width'];
     };
-    TableComponent.prototype.getHeight = function () {
+    DisplayComponent.prototype.getHeight = function () {
         //return this.height;
         return this.properties['height'];
     };
-    TableComponent.prototype.getID = function () {
+    DisplayComponent.prototype.getID = function () {
         return this.id;
     };
-    TableComponent.prototype.getNumberOfRows = function () {
+    DisplayComponent.prototype.getNumberOfRows = function () {
         return this.numberOfRows;
     };
-    TableComponent.prototype.getNumberOfColumns = function () {
+    DisplayComponent.prototype.getNumberOfColumns = function () {
         return this.numberOfColumns;
     };
-    TableComponent.prototype.getComponentType = function () {
+    DisplayComponent.prototype.getComponentType = function () {
         return this.componentType;
     };
-    TableComponent.prototype.getPropertyValue = function (propertyName) {
+    DisplayComponent.prototype.getPropertyValue = function (propertyName) {
         return this.properties[propertyName];
     };
-    TableComponent.prototype.getProperties = function () {
+    DisplayComponent.prototype.getProperties = function () {
         return this.properties;
     };
     /*************************************************/
@@ -361,36 +416,36 @@ uiEditor.components.TableComponent = (function () {
 
 
     /****************Setters**************************/
-    TableComponent.prototype.setX = function (x) {
+    DisplayComponent.prototype.setX = function (x) {
         this.x = x;
         this.properties['xPosition'] = x;
     };
-    TableComponent.prototype.setY = function (y) {
+    DisplayComponent.prototype.setY = function (y) {
         this.y = y;
         this.properties['yPosition'] = y;
     };
-    TableComponent.prototype.setWidth = function (w) {
+    DisplayComponent.prototype.setWidth = function (w) {
         this.width = w;
         this.properties['width'] = w;
     };
-    TableComponent.prototype.setHeight = function (h) {
+    DisplayComponent.prototype.setHeight = function (h) {
         this.height = h;
         this.properties['height'] = h;
     };
-    TableComponent.prototype.setNumberOfColumns = function (numberOfColumns) {
+    DisplayComponent.prototype.setNumberOfColumns = function (numberOfColumns) {
         this.numberOfColumns = numberOfColumns;
         this.properties['cols'] = numberOfColumns;
     };
-    TableComponent.prototype.setNumberOfRows = function (numberOfRows) {
+    DisplayComponent.prototype.setNumberOfRows = function (numberOfRows) {
         this.numberOfRows = numberOfRows;
         this.properties['rows'] = numberOfRows;
     };
-    TableComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
+    DisplayComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
     };
     /*************************************************/
 
-    TableComponent.prototype.hitTest = function (x, y) {
+    DisplayComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
@@ -399,12 +454,12 @@ uiEditor.components.TableComponent = (function () {
         return result;
     };
 
-    TableComponent.prototype.move = function (dx, dy) {
+    DisplayComponent.prototype.move = function (dx, dy) {
         this.setX(this.getX() + dx);
         this.setY(this.getY() + dy);
     };
 
-    TableComponent.prototype.draw = function (ctx) {
+    DisplayComponent.prototype.draw = function (ctx) {
         this.properties['width'] = Number(this.properties['width']);
         this.properties['height'] = Number(this.properties['height']);
         this.properties['xPosition'] = Number(this.properties['xPosition']);
@@ -446,7 +501,7 @@ uiEditor.components.TableComponent = (function () {
         ctx.closePath();
         ctx.stroke();
     };
-    return TableComponent;
+    return DisplayComponent;
 })();
 /*************************************************************/
 
