@@ -629,19 +629,19 @@ ns.saveToJson = function () {
     ns.components.forEach(function (value, key) {
         switch (value.getComponentType()) {
             case "text":
-                obj.text.push(value.getProperties());
+                obj.text.push(value.getPropertiesForJSON());
                 break;
             case "button":
-                obj.button.push(value.getProperties());
+                obj.button.push(value.getPropertiesForJSON());
                 break;
             case "image":
-                obj.image.push(value.getProperties());
+                obj.image.push(value.getPropertiesForJSON());
                 break;
             case "display":
-                obj.display.push(value.getProperties());
+                obj.display.push(value.getPropertiesForJSON());
                 break;
             case "panel":
-                obj.panel.push(value.getProperties());
+                obj.panel.push(value.getPropertiesForJSON());
                 break;
 
             default:

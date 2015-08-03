@@ -135,6 +135,10 @@ uiEditor.components.ImageComponent = (function () {
 
     /*************************************************/
 
+    ImageComponent.prototype.getPropertiesForJSON = function () {
+        return this.getProperties();
+    };
+
     ImageComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -242,6 +246,10 @@ uiEditor.components.TextComponent = (function () {
         this.properties[propertyName] = propertyValue;
     };
     /*************************************************/
+
+    TextComponent.prototype.getPropertiesForJSON = function () {
+        return this.getProperties();
+    };
 
     TextComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
@@ -402,6 +410,9 @@ uiEditor.components.DisplayComponent = (function () {
         this.properties[propertyName] = propertyValue;
     };
     /*************************************************/
+    DisplayComponent.prototype.getPropertiesForJSON = function () {
+        return this.getProperties();
+    };
 
     DisplayComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
@@ -471,9 +482,9 @@ uiEditor.components.ButtonComponent = (function () {
         this.zIndex = null; // numbers
         this.properties = {};
         this.properties['xPosition'] = x;
-        this.properties["radius"]=10;
-        this.properties["id"]=id;
-        this.properties["componentType"]="button";
+        this.properties["radius"] = 10;
+        this.properties["id"] = id;
+        this.properties["componentType"] = "button";
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
@@ -491,7 +502,7 @@ uiEditor.components.ButtonComponent = (function () {
     ButtonComponent.prototype.getWidth = function () {
         return this.properties['width'];
     };
-    ButtonComponent.prototype.getRadius = function(){
+    ButtonComponent.prototype.getRadius = function () {
         return this.properties["radius"];
     };
     ButtonComponent.prototype.getHeight = function () {
@@ -536,6 +547,9 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties[propertyName] = propertyValue;
     };
     /*************************************************/
+    ButtonComponent.prototype.getPropertiesForJSON = function () {
+        return this.getProperties();
+    };
 
     ButtonComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
@@ -616,13 +630,13 @@ uiEditor.components.PanelComponent = (function () {
         this.zIndex = null; // numbers
         this.properties = {};
         this.properties['headerHeight'] = 40;
-        this.properties["id"]=id;
+        this.properties["id"] = id;
         this.properties['xPosition'] = x;
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
         this.properties['headerText'] = headerText;
-        this.properties["componentType"]="panel";
+        this.properties["componentType"] = "panel";
         this.properties['children'] = new Map();
     }
 
@@ -684,6 +698,45 @@ uiEditor.components.PanelComponent = (function () {
         this.properties[propertyName] = propertyValue;
     };
     /*************************************************/
+    PanelComponent.prototype.getPropertiesForJSON = function () {
+        var panel = {};
+        panel.id = this.getID();
+        panel.xPos = this.getX();
+        panel.yPos = this.getY();
+        panel.width = this.getWidth();
+        panel.height = this.getHeight();
+        panel.headerText = this.getHeaderHeight();
+        panel.componentType = this.getComponentType();
+        panel.headerHeight = this.getHeaderHeight();
+        panel.children = {};
+        panel.children.button = [];
+        panel.children.text = [];
+        panel.children.image = [];
+        panel.children.panel = [];
+        this.getChildren().forEach(function(value, key){
+            switch(value.getComponentType()){
+                case "text":
+                panel.children.text.push(value.getPropertiesForJSON());
+                break;
+            case "button":
+                panel.children.button.push(value.getPropertiesForJSON());
+                break;
+            case "image":
+                panel.children.image.push(value.getPropertiesForJSON());
+                break;
+            case "display":
+                panel.children.display.push(value.getPropertiesForJSON());
+                break;
+            case "panel":
+                panel.children.panel.push(value.getPropertiesForJSON());
+                break;
+            default:
+                break;
+            }
+        });
+        
+        return panel;        
+    };
 
     PanelComponent.prototype.hitTest = function (x, y) {
         var result = this.headerHitTest(x, y);
@@ -824,8 +877,8 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.zIndex = null; // numbers
         this.properties = {};
         this.properties['xPosition'] = x;
-        this.properties["id"]=id;
-        this.properties["componentType"]="screenControl";
+        this.properties["id"] = id;
+        this.properties["componentType"] = "screenControl";
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
@@ -946,8 +999,8 @@ uiEditor.components.SourceComponent = (function () {
         this.zIndex = null; // numbers
         this.properties = {};
         this.properties['xPosition'] = x;
-        this.properties["id"]=id;
-        this.properties["componentType"]="source";
+        this.properties["id"] = id;
+        this.properties["componentType"] = "source";
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
