@@ -825,6 +825,17 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.removeChild = function (component) {
         this.properties['children'].delete(component.getID());
     };
+    PanelComponent.prototype.findAndRemoveComponents=function(componentType){
+        var toRemove = [];
+        this.properties["children"].forEach(function(value, key){
+           if(value.getComponentType()===componentType){
+               toRemove.push(key);
+           } 
+        });
+        for(var i=0; i<toRemove.length; i++){
+            this.properties["children"].delete(toRemove[i]);
+        }
+    }
     PanelComponent.prototype.getChild = function (componentID) {
         return this.properties['children'].get(componentID);
     };
@@ -938,7 +949,10 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties[propertyName] = propertyValue;
     };
     /*************************************************/
-
+    ScreenControlComponent.prototype.getPropertiesForJSON = function () {
+        return this.getProperties();
+    };
+    
     ScreenControlComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -1066,7 +1080,10 @@ uiEditor.components.SourceComponent = (function () {
         this.properties[propertyName] = propertyValue;
     };
     /*************************************************/
-
+    SourceComponent.prototype.getPropertiesForJSON = function () {
+        return this.getProperties();
+    };
+    
     SourceComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -1109,3 +1126,70 @@ uiEditor.components.SourceComponent = (function () {
     return SourceComponent;
 })();
 /******************************************************************************************/
+
+//TO DO:
+/*
+ * Change logic of creating screen object
+ * there should be only one screen object on page
+ * there might be many sources
+ * 
+ * Add getPropertiesForJSON to source and size 
+ * 
+ * if user creates display and size make display and size buttons unavailable
+ * 
+ * if user creates display or size or source, add them to screen object
+ * 
+ */
+uiEditor.components.ScreenObject = (function(){
+    function ScreenObject(){
+        this.display = null;
+        this.size = null;
+        this.source = [];
+    }
+    
+    /******************************Getters***************************************************/
+    ScreenObject.prototype.getDisplay=function(){
+        return this.display;
+    };
+    
+    ScreenObject.prototype.getSize = function(){
+        return this.size;
+    };
+    
+    ScreenObject.prototype.getSource = function(){
+        return this.source;
+    };
+    /****************************************************************************************/
+    
+    /******************************Setters***************************************************/
+    ScreenObject.prototype.setDisplay = function(display){
+        this.display=display;
+    };
+    
+    ScreenObject.prototype.setSize = function(size){
+        this.size = size;
+    };
+    
+    ScreenObject.prototype.setSource = function(source){
+        this.source.push(source);
+    };
+    /****************************************************************************************/
+    
+    ScreenObject.prototype.getPropertiesForJSON = function(){
+        var result = {};
+        console.log(this.getDisplay());
+        console.log(this.getSize());
+        result.display = this.getDisplay().getPropertiesForJSON();
+        result.size = this.getSize().getPropertiesForJSON();
+        result.source = [];
+        for(var i=0; i<this.getSource().length; i++){
+            result.source.push(this.getSource()[i].getPropertiesForJSON());
+        }
+        
+        return result;
+    };
+    
+    
+    
+    return ScreenObject;
+})();
