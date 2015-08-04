@@ -714,7 +714,10 @@ ns.saveToJson = function () {
         }
     });
     obj.screenObject = screenObject.getPropertiesForJSON();
-    console.log(JSON.stringify(obj, null, 5));
+    var jsonData =  JSON.stringify(obj, null, 5);
+    var url = 'data:text/json;charset=utf8,'+encodeURIComponent(jsonData);
+    window.open(url, '_blank');
+    window.focus();
 };
 
 
