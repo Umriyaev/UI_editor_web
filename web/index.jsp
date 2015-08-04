@@ -121,7 +121,7 @@
                             <div class="panel-heading text-center">
                                 <h3 class="panel-title">Canvas</h3>
                             </div>
-                            <div class="panel-body">
+                            <div class="panel-body canvasPanel">
                                 <div>
                                     <canvas id="myCanvas" width="1210" height="762" style="border: 1px solid #d3d3d3"></canvas>
                                 </div>                                
