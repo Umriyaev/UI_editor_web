@@ -9,9 +9,9 @@ var uiEditor = uiEditor || {};
 uiEditor.mainApp = uiEditor.mainApp || {};
 var ns = uiEditor.mainApp;
 ns.startX, ns.startY;
+ns.idSpecifier = new uiEditor.helpers.IdSpecifier();
 ns.isDrawing = false;
 ns.w, ns.h, ns.x, ns.y, ns.c, ns.ctx;
-ns.componentCounter = 0;
 ns.components = new Map();
 ns.movingComponent = null;
 ns.alteringComponent = {"panel": null, "component": null};
@@ -20,11 +20,12 @@ ns.moveX = null, ns.moveY = null;
 ns.drawingPanel = undefined;
 ns.destinationPanel = undefined;
 ns.movingChildComponent = {"panel": null, "component": null};
+ns.displayCreated = false;
+ns.sizeCreated = false;
 /*  startX, startY - nachal'ne koordinaty risovaniya komponenta
  * isDrawing - true if we are drawing new component
  * w,h,x,y - width, height, posX and posY of the currently being drawn component
  * ctx - canvas context
- * componentCounter - number of all the components, which are already drawn
  * components - array of all the components
  * movingComponent - if we started moving component, it will point to that component
  * chosenComponentType - type of component to draw
@@ -35,7 +36,7 @@ ns.movingChildComponent = {"panel": null, "component": null};
 /*Chosen component might be
  * text
  * button
- * table
+ * display
  * panel
  * image
  * null*/
@@ -71,7 +72,7 @@ ns.properties = {
         {"name": "height", "type": "number"},
         {"name": "placeholder text", "type": "text"}
     ],
-    "table": [
+    "display": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
@@ -106,9 +107,9 @@ ns.properties = {
 //initial setting of event handlers
 ns.init = function () {
     Notify.init({
-        "selector":".bb-alert"
+        "selector": ".bb-alert"
     });
-    
+
     ns.c = document.getElementById("myCanvas");
     ns.ctx = ns.c.getContext("2d");
     ns.c.addEventListener("mousedown", function (e) {
@@ -122,8 +123,8 @@ ns.init = function () {
     }, false);
     ns.c.addEventListener('contextmenu', ns.contextMenuHandler, false);
     window.addEventListener("keydown", ns.keyPressHandler, false);
-    
-    
+
+
 };
 
 
@@ -140,13 +141,52 @@ ns.contextMenuHandler = function (e) {
 //handle key press events
 ns.keyPressHandler = function (e) {
     if (e.keyCode === ns.DELETE_BUTTON) {
+        var deleteScreenObjectComponents = false;
         if (ns.alteringComponent.component) {
+
             if (ns.alteringComponent.panel) {
-                ns.components.get(ns.alteringComponent.panel).removeChild(ns.alteringComponent.component);
+                var component = ns.components.get(ns.alteringComponent.panel).getChild(ns.alteringComponent.component);
+                if (component.getComponentType() === "display") {
+                    ns.displayCreated = false;
+                    deleteScreenObjectComponents = true;
+                }
+                else if (component.getComponentType() === "screenControl") {
+                    ns.sizeCreated = false;
+                }
+                ns.components.get(ns.alteringComponent.panel).removeChild(component.getID());
             }
             else {
+                var component = ns.components.get(ns.alteringComponent.component);
+
+                if (component.getComponentType() === "display") {
+                    ns.displayCreated = false;
+                    deleteScreenObjectComponents = true;
+                }
+                else if (component.getComponentType() === "screenControl") {
+                    ns.sizeCreated = false;
+                }
+
                 ns.components.delete(ns.alteringComponent.component);
             }
+
+            if (deleteScreenObjectComponents) {
+                var toRemove = [];
+                ns.components.forEach(function (value, key) {
+                    if (value.getComponentType() === "panel") {
+                        value.findAndRemoveComponents("screenControl");
+                        value.findAndRemoveComponents("source");
+                    }
+                    else if (value.getComponentType() === "screenControl" || value.getComponentType() === "source") {
+                        toRemove.push(key);
+                    }
+                });
+                for (var i = 0; i < toRemove.length; i++) {
+                    ns.components.delete(toRemove[i]);
+                }
+                ns.sizeCreated = false;
+            }
+
+
         }
 
         ns.alteringComponent = {"panel": null, "component": null};
@@ -176,57 +216,57 @@ ns.textChanged = function (e) {
     ns.drawRectangles(); //redraw all the components
 };
 
-ns.promptSizes=function(e){
+ns.promptSizes = function (e) {
     var result = [];
     var input = e.target;
     var propertyName = input.name;
     bootbox.dialog({
         title: "Choose items",
-        message: '<div class="row">'+
-	'<div class="col-md-3">'+
-		'<form class="form-horizontal">'+
-			'<div class="form-group flex-form">'+
-				'<div class="checkbox flex-item">'+
-					'<label><input type="checkbox" name="sizes" value="1x1">1x1</label>'+
-				'</div>'+
-				'<div class="checkbox flex-item">'+
-					'<label><input type="checkbox" name="sizes" value="1x2">1x2</label>'+
-				'</div>'+
-				'<div class="checkbox flex-item">'+
-					'<label><input type="checkbox" name="sizes" value="2x1">2x1</label>'+
-				'</div>'+
-				'<div class="checkbox flex-item">'+
-					'<label><input type="checkbox" name="sizes" value="2x2">2x2</label>'+
-				'</div>'+
-				'<div class="checkbox flex-item">'+
-					'<label><input type="checkbox" name="sizes" value="2x3">2x3</label>'+
-				'</div>'+
-				'<div class="checkbox flex-item">'+
-					'<label><input type="checkbox" name="sizes" value="3x2">3x2</label>'+
-				'</div>'+
-				'<div class="checkbox flex-item">'+
-					'<label><input type="checkbox" name="sizes" value="3x3">3x3</label>'+
-				'</div>'+
-			'</div>'+
-		'</form>'+
-	'</div>'+
-'</div>',
-        buttons:{
-            success:{
+        message: '<div class="row">' +
+                '<div class="col-md-3">' +
+                '<form class="form-horizontal">' +
+                '<div class="form-group flex-form">' +
+                '<div class="checkbox flex-item">' +
+                '<label><input type="checkbox" name="sizes" value="1x1">1x1</label>' +
+                '</div>' +
+                '<div class="checkbox flex-item">' +
+                '<label><input type="checkbox" name="sizes" value="1x2">1x2</label>' +
+                '</div>' +
+                '<div class="checkbox flex-item">' +
+                '<label><input type="checkbox" name="sizes" value="2x1">2x1</label>' +
+                '</div>' +
+                '<div class="checkbox flex-item">' +
+                '<label><input type="checkbox" name="sizes" value="2x2">2x2</label>' +
+                '</div>' +
+                '<div class="checkbox flex-item">' +
+                '<label><input type="checkbox" name="sizes" value="2x3">2x3</label>' +
+                '</div>' +
+                '<div class="checkbox flex-item">' +
+                '<label><input type="checkbox" name="sizes" value="3x2">3x2</label>' +
+                '</div>' +
+                '<div class="checkbox flex-item">' +
+                '<label><input type="checkbox" name="sizes" value="3x3">3x3</label>' +
+                '</div>' +
+                '</div>' +
+                '</form>' +
+                '</div>' +
+                '</div>',
+        buttons: {
+            success: {
                 label: "Save",
-                callback: function(){
-                    $.each($("input[name='sizes']:checked"), function(){
-                        result.push( $(this).val());
+                callback: function () {
+                    $.each($("input[name='sizes']:checked"), function () {
+                        result.push($(this).val());
                     });
-                    
-                    if(ns.alteringComponent.component){
-                        if(ns.alteringComponent.panel){
+
+                    if (ns.alteringComponent.component) {
+                        if (ns.alteringComponent.panel) {
                             var panel = ns.components.get(ns.alteringComponent.panel);
                             var child = panel.getChild(ns.alteringComponent.component);
                             child.setPropertyValue(propertyName, result);
-                            panel.addChild(child); 
+                            panel.addChild(child);
                         }
-                        else{
+                        else {
                             ns.components.get(ns.alteringComponent.component).setPropertyValue(propertyName, result);
                         }
                     }
@@ -235,13 +275,13 @@ ns.promptSizes=function(e){
             }
         }
     });
-    
-    
-    
 
-    
-    
-    
+
+
+
+
+
+
 };
 
 
@@ -304,15 +344,16 @@ ns.draw = function (e) {
                 ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
                 ns.w = ns.INITIAL_WIDTH; //initial width (global var)
                 ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
-                ns.isDrawing = true; //switch to draw mode
-                ns.componentCounter++;
-                var component = ns.createComponent(ns.chosenComponentType, x, y);
-                var panel = ns.components.get(hitTestResult.panel);
-                panel.addChild(component.component);
-                ns.drawingPanel = hitTestResult.panel;
-                ns.alteringComponent.component = 'component' + ns.componentCounter;
-                ns.alteringComponent.panel = hitTestResult.panel;
 
+                var component = ns.createComponent(ns.chosenComponentType, x, y);
+                if (component.component) {
+                    ns.isDrawing = true; //switch to draw mode
+                    var panel = ns.components.get(hitTestResult.panel);
+                    panel.addChild(component.component);
+                    ns.drawingPanel = hitTestResult.panel;
+                    ns.alteringComponent.component = component.id;
+                    ns.alteringComponent.panel = hitTestResult.panel;
+                }
             }
 
         }
@@ -336,12 +377,14 @@ ns.draw = function (e) {
             ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
             ns.w = ns.INITIAL_WIDTH; //initial width (global var)
             ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
-            ns.isDrawing = true; //switch to draw mode
-            ns.componentCounter++;
+
             var component = ns.createComponent(ns.chosenComponentType, x, y);
-            ns.components.set(component.id, component.component);
-            ns.alteringComponent.component = 'component' + ns.componentCounter;
-            ns.alteringComponent.panel = null;
+            if (component.component) {
+                ns.isDrawing = true; //switch to draw mode
+                ns.components.set(component.id, component.component);
+                ns.alteringComponent.component = component.id;
+                ns.alteringComponent.panel = null;
+            }
         }
     }
 
@@ -352,32 +395,40 @@ ns.createComponent = function (componentType, x, y) {
     var component = {"id": undefined, "component": null};
     switch (componentType) {
         case "button":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.ButtonComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
+            component.id = ns.idSpecifier.getIdForComponent("button");
+            component.component = new uiEditor.components.ButtonComponent(component.id, x, y, ns.w, ns.h);
             break;
         case "text":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.TextComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
+            component.id = ns.idSpecifier.getIdForComponent("text");
+            component.component = new uiEditor.components.TextComponent(component.id, x, y, ns.w, ns.h);
             break;
-        case "table":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.TableComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, 6, 2);
+        case "display":
+            if (ns.displayCreated === false) {
+                component.id = ns.idSpecifier.getIdForComponent("display");
+                component.component = new uiEditor.components.DisplayComponent(component.id, x, y, ns.w, ns.h, 6, 2);
+                ns.displayCreated = true;
+            }
             break;
         case "image":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.ImageComponent('component' + ns.componentCounter, x, y, ns.w, ns.h);
+            component.id = ns.idSpecifier.getIdForComponent("image");
+            component.component = new uiEditor.components.ImageComponent(component.id, x, y, ns.w, ns.h);
             break;
         case "panel":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.PanelComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, "header");
+            component.id = ns.idSpecifier.getIdForComponent("panel");
+            component.component = new uiEditor.components.PanelComponent(component.id, x, y, ns.w, ns.h, "header");
             break;
         case "screenControl":
-            component.id = 'component' + ns.componentCounter;
-            component.component = new uiEditor.components.ScreenControlComponent('component' + ns.componentCounter, x, y, ns.w, ns.h, ["1x1", "2x2", "3x3"]);
+            if (ns.sizeCreated === false && ns.displayCreated === true) {
+                component.id = ns.idSpecifier.getIdForComponent("screenControl");
+                component.component = new uiEditor.components.ScreenControlComponent(component.id, x, y, ns.w, ns.h, ["1x1", "2x2", "3x3"]);
+                ns.sizeCreated = true;
+            }
             break;
         case "source":
-            component.id='component'+ns.componentCounter;
-            component.component=new uiEditor.components.SourceComponent('component'+ns.componentCounter, x, y, ns.w, ns.h, "not set", "");
+            if (ns.displayCreated === true) {
+                component.id = ns.idSpecifier.getIdForComponent("source");
+                component.component = new uiEditor.components.SourceComponent(component.id, x, y, ns.w, ns.h, "not set", "");
+            }
             break;
     }
     return component;
@@ -452,10 +503,10 @@ ns.constructProperties = function (component) {
 
                 //add event listener for file uploader
                 input.addEventListener('change', ns.fileChanged, false);
-            } 
-            else if(propertyNames[i]['type']=='promptDialog'){
-                input.type="button";
-                input.value="Choose sizes";
+            }
+            else if (propertyNames[i]['type'] == 'promptDialog') {
+                input.type = "button";
+                input.value = "Choose sizes";
                 input.addEventListener("click", ns.promptSizes, false);
             }
             else {
@@ -465,7 +516,7 @@ ns.constructProperties = function (component) {
                 input.addEventListener('change', ns.textChanged, false);
                 input.addEventListener('keypress', ns.textChanged, false);
                 input.addEventListener('paste', ns.textChanged, false);
-                input.addEventListener('input', ns.textChanged, false);       
+                input.addEventListener('input', ns.textChanged, false);
             }
             div.appendChild(input);
             propertiesPanel.appendChild(div);
@@ -570,10 +621,10 @@ ns.mouseMove = function (e) {
 
         var r;
         if (ns.drawingPanel === undefined) {
-            r = ns.components.get('component' + ns.componentCounter);
+            r = ns.components.get(ns.alteringComponent.component);
         }
         else {
-            r = ns.components.get(ns.drawingPanel).getChild('component' + ns.componentCounter);
+            r = ns.components.get(ns.drawingPanel).getChild(ns.alteringComponent.component);
         }
         r.setX(ns.x);
         r.setY(ns.y);
@@ -581,7 +632,7 @@ ns.mouseMove = function (e) {
         r.setHeight(ns.h);
 
         if (ns.drawingPanel === undefined) {
-            ns.components.set('component' + ns.componentCounter, r);
+            ns.components.set(ns.alteringComponent.component, r);
         }
         else {
             ns.components.get(ns.drawingPanel).addChild(r);
@@ -628,29 +679,41 @@ ns.mouseUp = function (e) {
 };
 
 ns.saveToJson = function () {
-    var obj = {"button": [], "text": [], "image": [], "table": [], "panel": []};
+    var screenObject = new uiEditor.components.ScreenObject();
+    var obj = {"button": [], "text": [], "image": [], "display": [], "panel": []};
     ns.components.forEach(function (value, key) {
         switch (value.getComponentType()) {
             case "text":
-                obj.text.push(value.getProperties());
+                obj.text.push(value.getPropertiesForJSON());
                 break;
             case "button":
-                obj.button.push(value.getProperties());
+                obj.button.push(value.getPropertiesForJSON());
                 break;
             case "image":
-                obj.image.push(value.getProperties());
+                obj.image.push(value.getPropertiesForJSON());
                 break;
-            case "table":
-                obj.table.push(value.getProperties());
-                break;
-            case "panel":
-                obj.panel.push(value.getProperties());
+            case "display":
+                console.log(value.getComponentType());
+                //obj.display.push(value.getPropertiesForJSON());
+                screenObject.setDisplay(value);
                 break;
 
+            case "panel":
+                obj.panel.push(value.getPropertiesForJSON());
+                break;
+            case "screenControl":
+                console.log(value.getComponentType());
+                screenObject.setSize(value);
+                break;
+            case "source":
+                console.log(value.getComponentType());
+                screenObject.setSource(value);
+                break;
             default:
                 break;
         }
     });
+    obj.screenObject = screenObject.getPropertiesForJSON();
     console.log(JSON.stringify(obj, null, 5));
 };
 
@@ -668,8 +731,10 @@ ns.setChosenComponent = function (e) {
         case "button":
             ns.chosenComponentType = "button";
             break;
-        case "table":
-            ns.chosenComponentType = "table";
+        case "display":
+            if (ns.displayCreated === false) {
+                ns.chosenComponentType = "display";
+            }
             break;
         case "image":
             ns.chosenComponentType = "image";
@@ -678,15 +743,21 @@ ns.setChosenComponent = function (e) {
             ns.chosenComponentType = "panel";
             break;
         case "screenControl":
-            ns.chosenComponentType = "screenControl";
+            if (ns.displayCreated === true && ns.sizeCreated === false) {
+                ns.chosenComponentType = "screenControl";
+            }
             break;
         case "source":
-            ns.chosenComponentType = "source";
+            if (ns.displayCreated === true) {
+                ns.chosenComponentType = "source";
+            }
             break;
         default:
             ns.chosenComponentType = null;
     }
 };
+
+
 
 
 
