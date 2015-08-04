@@ -713,29 +713,29 @@ uiEditor.components.PanelComponent = (function () {
         panel.children.text = [];
         panel.children.image = [];
         panel.children.panel = [];
-        this.getChildren().forEach(function(value, key){
-            switch(value.getComponentType()){
+        this.getChildren().forEach(function (value, key) {
+            switch (value.getComponentType()) {
                 case "text":
-                panel.children.text.push(value.getPropertiesForJSON());
-                break;
-            case "button":
-                panel.children.button.push(value.getPropertiesForJSON());
-                break;
-            case "image":
-                panel.children.image.push(value.getPropertiesForJSON());
-                break;
-            case "display":
-                panel.children.display.push(value.getPropertiesForJSON());
-                break;
-            case "panel":
-                panel.children.panel.push(value.getPropertiesForJSON());
-                break;
-            default:
-                break;
+                    panel.children.text.push(value.getPropertiesForJSON());
+                    break;
+                case "button":
+                    panel.children.button.push(value.getPropertiesForJSON());
+                    break;
+                case "image":
+                    panel.children.image.push(value.getPropertiesForJSON());
+                    break;
+                case "display":
+                    panel.children.display.push(value.getPropertiesForJSON());
+                    break;
+                case "panel":
+                    panel.children.panel.push(value.getPropertiesForJSON());
+                    break;
+                default:
+                    break;
             }
         });
-        
-        return panel;        
+
+        return panel;
     };
 
     PanelComponent.prototype.hitTest = function (x, y) {
@@ -825,14 +825,14 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.removeChild = function (component) {
         this.properties['children'].delete(component.getID());
     };
-    PanelComponent.prototype.findAndRemoveComponents=function(componentType){
+    PanelComponent.prototype.findAndRemoveComponents = function (componentType) {
         var toRemove = [];
-        this.properties["children"].forEach(function(value, key){
-           if(value.getComponentType()===componentType){
-               toRemove.push(key);
-           } 
+        this.properties["children"].forEach(function (value, key) {
+            if (value.getComponentType() === componentType) {
+                toRemove.push(key);
+            }
         });
-        for(var i=0; i<toRemove.length; i++){
+        for (var i = 0; i < toRemove.length; i++) {
             this.properties["children"].delete(toRemove[i]);
         }
     }
@@ -952,7 +952,7 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.getPropertiesForJSON = function () {
         return this.getProperties();
     };
-    
+
     ScreenControlComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -1083,7 +1083,7 @@ uiEditor.components.SourceComponent = (function () {
     SourceComponent.prototype.getPropertiesForJSON = function () {
         return this.getProperties();
     };
-    
+
     SourceComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -1140,56 +1140,60 @@ uiEditor.components.SourceComponent = (function () {
  * if user creates display or size or source, add them to screen object
  * 
  */
-uiEditor.components.ScreenObject = (function(){
-    function ScreenObject(){
+uiEditor.components.ScreenObject = (function () {
+    function ScreenObject() {
         this.display = null;
         this.size = null;
         this.source = [];
     }
-    
+
     /******************************Getters***************************************************/
-    ScreenObject.prototype.getDisplay=function(){
+    ScreenObject.prototype.getDisplay = function () {
         return this.display;
     };
-    
-    ScreenObject.prototype.getSize = function(){
+
+    ScreenObject.prototype.getSize = function () {
         return this.size;
     };
-    
-    ScreenObject.prototype.getSource = function(){
+
+    ScreenObject.prototype.getSource = function () {
         return this.source;
     };
     /****************************************************************************************/
-    
+
     /******************************Setters***************************************************/
-    ScreenObject.prototype.setDisplay = function(display){
-        this.display=display;
+    ScreenObject.prototype.setDisplay = function (display) {
+        this.display = display;
     };
-    
-    ScreenObject.prototype.setSize = function(size){
+
+    ScreenObject.prototype.setSize = function (size) {
         this.size = size;
     };
-    
-    ScreenObject.prototype.setSource = function(source){
+
+    ScreenObject.prototype.setSource = function (source) {
         this.source.push(source);
     };
     /****************************************************************************************/
-    
-    ScreenObject.prototype.getPropertiesForJSON = function(){
+
+    ScreenObject.prototype.getPropertiesForJSON = function () {
         var result = {};
-        console.log(this.getDisplay());
-        console.log(this.getSize());
-        result.display = this.getDisplay().getPropertiesForJSON();
-        result.size = this.getSize().getPropertiesForJSON();
-        result.source = [];
-        for(var i=0; i<this.getSource().length; i++){
-            result.source.push(this.getSource()[i].getPropertiesForJSON());
+        if (this.getDisplay() !== null) {
+            result.display = this.getDisplay().getPropertiesForJSON();
         }
-        
+        if (this.getSize() !== null) {
+            result.size = this.getSize().getPropertiesForJSON();
+        }
+        if (this.getSource().length > 0) {
+            result.source = [];
+            for (var i = 0; i < this.getSource().length; i++) {
+                result.source.push(this.getSource()[i].getPropertiesForJSON());
+            }
+        }
+
         return result;
     };
-    
-    
-    
+
+
+
     return ScreenObject;
 })();
