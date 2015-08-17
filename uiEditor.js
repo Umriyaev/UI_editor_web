@@ -78,6 +78,7 @@ uiEditor.components.ImageComponent = (function () {
         this.properties['width'] = w;
         this.properties['height'] = h;
         this.properties['image url'] = 'images/dummy-image.jpg';
+        this.selected = false;
     }
 
     /*****************Getters************************/
@@ -139,6 +140,14 @@ uiEditor.components.ImageComponent = (function () {
         return this.getProperties();
     };
 
+    ImageComponent.prototype.select = function () {
+        this.selected = true;
+    };
+
+    ImageComponent.prototype.deselect = function () {
+        this.selected = false;
+    };
+
     ImageComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -166,6 +175,13 @@ uiEditor.components.ImageComponent = (function () {
         var image = new Image();
         image.src = this.getBackgroundImage();
         ctx.drawImage(image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = "#ff0000";
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
     };
     return ImageComponent;
 })();
@@ -186,6 +202,7 @@ uiEditor.components.TextComponent = (function () {
         this.properties['width'] = w;
         this.properties['height'] = h;
         this.properties['placeholder text'] = "placeholder text";
+        this.selected = false;
     }
 
     /*****************Getters************************/
@@ -249,6 +266,14 @@ uiEditor.components.TextComponent = (function () {
 
     TextComponent.prototype.getPropertiesForJSON = function () {
         return this.getProperties();
+    };
+
+    TextComponent.prototype.select = function () {
+        this.selected = true;
+    };
+
+    TextComponent.prototype.deselect = function () {
+        this.selected = false;
     };
 
     TextComponent.prototype.hitTest = function (x, y) {
@@ -330,6 +355,13 @@ uiEditor.components.TextComponent = (function () {
             ctx.fillText(this.getPlaceholderText(), this.getX() + 20, this.getY() + this.getHeight() / 2 + 5);
             ctx.restore();
         }
+
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = "#ff0000";
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
     };
     return TextComponent;
 })();
@@ -350,6 +382,7 @@ uiEditor.components.DisplayComponent = (function () {
         this.properties['height'] = h;
         this.properties['rows'] = numberOfRows;
         this.properties['cols'] = numberOfColumns;
+        this.selected = false;
     }
 
     /*****************Getters************************/
@@ -414,6 +447,14 @@ uiEditor.components.DisplayComponent = (function () {
         return this.getProperties();
     };
 
+    DisplayComponent.prototype.select = function () {
+        this.selected = true;
+    };
+
+    DisplayComponent.prototype.deselect = function () {
+        this.selected = false;
+    };
+
     DisplayComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -469,6 +510,13 @@ uiEditor.components.DisplayComponent = (function () {
                 this.getY() + this.getHeight());
         ctx.closePath();
         ctx.stroke();
+
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = "#ff0000";
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
     };
     return DisplayComponent;
 })();
@@ -490,6 +538,7 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['height'] = h;
         this.properties['text'] = 'button';
         this.properties['radius'] = 10;
+        this.selected = false;
     }
 
     /*****************Getters************************/
@@ -549,6 +598,14 @@ uiEditor.components.ButtonComponent = (function () {
     /*************************************************/
     ButtonComponent.prototype.getPropertiesForJSON = function () {
         return this.getProperties();
+    };
+
+    ButtonComponent.prototype.select = function () {
+        this.selected = true;
+    };
+
+    ButtonComponent.prototype.deselect = function () {
+        this.selected = false;
     };
 
     ButtonComponent.prototype.hitTest = function (x, y) {
@@ -616,6 +673,13 @@ uiEditor.components.ButtonComponent = (function () {
             ctx.restore();
         }
         ctx.restore();
+
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = "#ff0000";
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
     };
     return ButtonComponent;
 })();
@@ -638,6 +702,7 @@ uiEditor.components.PanelComponent = (function () {
         this.properties['headerText'] = headerText;
         this.properties["componentType"] = "panel";
         this.properties['children'] = new Map();
+        this.selected = false;
     }
 
     /*****************Getters************************/
@@ -736,6 +801,14 @@ uiEditor.components.PanelComponent = (function () {
         });
 
         return panel;
+    };
+
+    PanelComponent.prototype.select = function () {
+        this.selected = true;
+    };
+
+    PanelComponent.prototype.deselect = function () {
+        this.selected = false;
     };
 
     PanelComponent.prototype.hitTest = function (x, y) {
@@ -874,6 +947,13 @@ uiEditor.components.PanelComponent = (function () {
         this.properties['children'].forEach(function (value, key) {
             value.draw(ctx);
         });
+
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = "#ff0000";
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
     };
     return PanelComponent;
 })();
@@ -895,6 +975,7 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties['height'] = h;
         this.properties['radius'] = 10;
         this.properties['sizes'] = sizes;
+        this.selected = false;
     }
 
     /*****************Getters************************/
@@ -953,6 +1034,14 @@ uiEditor.components.ScreenControlComponent = (function () {
         return this.getProperties();
     };
 
+    ScreenControlComponent.prototype.select = function () {
+        this.selected = true;
+    };
+
+    ScreenControlComponent.prototype.deselect = function () {
+        this.selected = false;
+    };
+
     ScreenControlComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -999,6 +1088,13 @@ uiEditor.components.ScreenControlComponent = (function () {
         }
 
         ctx.restore();
+
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = "#ff0000";
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
     };
     return ScreenControlComponent;
 })();
@@ -1020,6 +1116,7 @@ uiEditor.components.SourceComponent = (function () {
         this.properties['height'] = h;
         this.properties['text'] = text;
         this.properties['source'] = source;
+        this.selected = false;
     }
 
     /*****************Getters************************/
@@ -1084,6 +1181,14 @@ uiEditor.components.SourceComponent = (function () {
         return this.getProperties();
     };
 
+    SourceComponent.prototype.select = function () {
+        this.selected = true;
+    };
+
+    SourceComponent.prototype.deselect = function () {
+        this.selected = false;
+    }
+
     SourceComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
         if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
@@ -1122,6 +1227,13 @@ uiEditor.components.SourceComponent = (function () {
         ctx.fillText(this.getText(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
 
         ctx.restore();
+
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = "#ff0000";
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
     };
     return SourceComponent;
 })();
@@ -1196,4 +1308,142 @@ uiEditor.components.ScreenObject = (function () {
 
 
     return ScreenObject;
+})();
+
+
+uiEditor.components.GroupSelection = (function () {
+    function GroupSelection() {
+        this.selection = new Map();
+        this.width = "not set";
+        this.height = "not set";
+//        this.verticalOffset = "not set";
+//        this.horizontalOffset = "not set";
+    }
+
+    /*********************Getters***********************************/
+
+    GroupSelection.prototype.getWidth = function () {
+        return this.width;
+    };
+
+    GroupSelection.prototype.getHeight = function () {
+        return this.height;
+    };
+
+//    GroupSelection.prototype.getVerticalOffset = function () {
+//        return this.verticalOffset;
+//    };
+//
+//    GroupSelection.prototype.getHorizontalOffset = function () {
+//        return this.horizontalOffset;
+//    };
+
+    /***************************************************************/
+
+    /*********************Setters*******************************/
+    GroupSelection.prototype.setWidth = function (width, components) {
+        if (width != "not set") {
+            this.selection.forEach(function (value, key) {
+                components.get(value).setWidth(width);
+            });
+            this.width = width;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setHeight = function (height, components) {
+        if (height != "not set") {
+            this.selection.forEach(function (value, key) {
+                components.get(value).setHeight(height);
+            });
+            this.height = height;
+            return components;
+        }
+    };
+
+//    GroupSelection.prototype.setVerticalOffset = function (verticalOffset) {
+//
+//        this.selection.forEach(function(value, key))
+//    }
+    /***********************************************************/
+
+    GroupSelection.prototype.addToSelection = function (componentID, components) {
+        this.selection.set(componentID, componentID);
+        components.get(componentID).select();
+    };
+
+    GroupSelection.prototype.removeFromSelection = function (componentID, components) {
+        this.selection.delete(componentID);
+        components.get(componentID).deselect();
+    };
+
+    GroupSelection.prototype.move = function (dx, dy, components) {
+        this.selection.forEach(function (value, key) {
+            components.get(value).move(dx, dy);
+        });
+        return components;
+    };
+    
+    GroupSelection.prototype.deleteSelection = function(components){
+        var group = this;
+        this.selection.forEach(function(value,key){
+            var itemToDelete = value;
+            group.removeFromSelection(itemToDelete, components);
+            components.delete(itemToDelete);
+        });
+    };
+
+    GroupSelection.prototype.clearSelection = function (components) {
+        var group = this;
+        this.selection.forEach(function (value, key) {
+            group.removeFromSelection(value, components);
+        });
+    };
+
+    GroupSelection.prototype.getPropertyValue = function (propertyName) {
+        switch (propertyName) {
+            case "width":
+                return this.width;
+                break;
+            case "height":
+                return this.height;
+                break;
+            default:
+                return undefined;
+        }
+    };
+
+    GroupSelection.prototype.setPropertyValue = function (propertyName, propertyValue, components) {
+        switch (propertyName) {
+            case "width":
+                propertyValue = Number(propertyValue);
+                this.setWidth(propertyValue, components);
+                break;
+            case "height":
+                propertyValue = Number(propertyValue);
+                this.setHeight(propertyValue, components)
+                break;
+            default:
+                return undefined;
+        }
+    }
+
+    GroupSelection.prototype.hitTest = function (x, y, components) {
+        var result = false;
+        this.selection.forEach(function (value, key) {
+            var component = components.get(value);
+            var hitTest = component.hitTest(x, y);
+            if (hitTest.hit) {
+                result = true;
+            }
+        });
+        return result;
+    };
+
+    GroupSelection.prototype.isInSelection = function (componentID) {
+        return this.selection.has(componentID);
+    };
+
+
+    return GroupSelection;
 })();
