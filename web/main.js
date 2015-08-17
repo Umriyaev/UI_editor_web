@@ -22,7 +22,9 @@ ns.destinationPanel = undefined;
 ns.movingChildComponent = {"panel": null, "component": null};
 ns.displayCreated = false;
 ns.sizeCreated = false;
-/*  startX, startY - nachal'ne koordinaty risovaniya komponenta
+ns.selection = null;
+/*  startX, startY - initial coordinates where the drawing of component is started
+ * idSpecifier - class which sets ids of newly created components
  * isDrawing - true if we are drawing new component
  * w,h,x,y - width, height, posX and posY of the currently being drawn component
  * ctx - canvas context
@@ -31,7 +33,8 @@ ns.sizeCreated = false;
  * chosenComponentType - type of component to draw
  * drawingPanel - panel on which we are drawing. If drawing panel is undefined, then we draw on canvas
  * destinationPanel - panel on which we are moving the component
- * movingChildComponent - component, which is being moved from inside of panel*/
+ * movingChildComponent - component, which is being moved from inside of panel
+ * displayCreated and sizeCreated - there should be only one copy of them. therefore we need these properties*/
 
 /*Chosen component might be
  * text
@@ -101,6 +104,10 @@ ns.properties = {
         {"name": "height", "type": "number"},
         {"name": "text", "type": "text"},
         {"name": "source", "type": "text"}
+    ],
+    "selection": [
+        {"name": "width", "type": "number"},
+        {"name": "height", "type": "number"}
     ]
 };
 
@@ -143,8 +150,13 @@ ns.keyPressHandler = function (e) {
     if (e.keyCode === ns.DELETE_BUTTON) {
         var deleteScreenObjectComponents = false;
         if (ns.alteringComponent.component) {
+            
+            if(ns.alteringComponent.component=="selection"){
+                ns.selection.deleteSelection(ns.components);
+                ns.selection=null;
+            }
 
-            if (ns.alteringComponent.panel) {
+            else if (ns.alteringComponent.panel) {
                 var component = ns.components.get(ns.alteringComponent.panel).getChild(ns.alteringComponent.component);
                 if (component.getComponentType() === "display") {
                     ns.displayCreated = false;
@@ -190,7 +202,7 @@ ns.keyPressHandler = function (e) {
         }
 
         ns.alteringComponent = {"panel": null, "component": null};
-        ns.constructProperties(undefined);
+        ns.constructProperties(undefined, "kePressHandler");
         ns.drawRectangles();
     }
     return false;
@@ -198,19 +210,27 @@ ns.keyPressHandler = function (e) {
 
 //update properties of the components after changing values on properties panel
 ns.textChanged = function (e) {
-    var input = e.target;  //target which fired the event
-    var propertyName = input.name;  //get the name of property
-    var propertyValue = input.value; //get value of property
-    if (ns.alteringComponent.component) {
-        if (ns.alteringComponent.panel) {
-            var panel = ns.components.get(ns.alteringComponent.panel);
-            var child = panel.getChild(ns.alteringComponent.component);
-            child.setPropertyValue(propertyName, propertyValue);
-            panel.addChild(child);
+    if (ns.alteringComponent.component != "selection") {
+        var input = e.target;  //target which fired the event
+        var propertyName = input.name;  //get the name of property
+        var propertyValue = input.value; //get value of property
+        if (ns.alteringComponent.component) {
+            if (ns.alteringComponent.panel) {
+                var panel = ns.components.get(ns.alteringComponent.panel);
+                var child = panel.getChild(ns.alteringComponent.component);
+                child.setPropertyValue(propertyName, propertyValue);
+                panel.addChild(child);
+            }
+            else {
+                ns.components.get(ns.alteringComponent.component).setPropertyValue(propertyName, propertyValue); //update component with new property value
+            }
         }
-        else {
-            ns.components.get(ns.alteringComponent.component).setPropertyValue(propertyName, propertyValue); //update component with new property value
-        }
+    }
+    else {
+        var input = e.target;  //target which fired the event
+        var propertyName = input.name;  //get the name of property
+        var propertyValue = input.value; //get value of property
+        ns.selection.setPropertyValue(propertyName, propertyValue, ns.components);
     }
 
     ns.drawRectangles(); //redraw all the components
@@ -313,32 +333,97 @@ ns.fileChanged = function (e) {
  *          events for drawing new component
  * component is drawn if componentType is chosen from toolbox, if nothing is chosen draw will not happen*/
 ns.draw = function (e) {
+
     var x = e.layerX;
     var y = e.layerY;
     ns.startX = x;
     ns.startY = y;
     var hitTestResult = ns.hitTest(x, y);
+    if (!e.ctrlKey) {
+        if (hitTestResult.hit) {
+            if (hitTestResult.panel !== null && hitTestResult.component !== null) {
+                //component inside the panel was hit
+                //start moving component  
+                ns.moveX = x;
+                ns.moveY = y;
+                ns.movingChildComponent.panel = hitTestResult.panel;
+                ns.movingChildComponent.component = hitTestResult.component;
+                ns.alteringComponent.panel = hitTestResult.panel;
+                ns.alteringComponent.component = hitTestResult.component;
+                var panel = ns.components.get(ns.alteringComponent.panel);
+                var child = panel.getChild(ns.alteringComponent.component);
+                ns.constructProperties(child, "draw_component inside the panel was hit");
+                ns.c.addEventListener('mousemove', ns.moveFromPanel, false);
+                ns.c.addEventListener('mouseup', ns.moveFromPanelDone, false);
 
-    if (hitTestResult.hit) {
-        if (hitTestResult.panel !== null && hitTestResult.component !== null) {
-            //component inside the panel was hit
-            //start moving component  
-            ns.moveX = x;
-            ns.moveY = y;
-            ns.movingChildComponent.panel = hitTestResult.panel;
-            ns.movingChildComponent.component = hitTestResult.component;
-            ns.alteringComponent.panel = hitTestResult.panel;
-            ns.alteringComponent.component = hitTestResult.component;
-            var panel = ns.components.get(ns.alteringComponent.panel);
-            var child = panel.getChild(ns.alteringComponent.component);
-            ns.constructProperties(child);
-            ns.c.addEventListener('mousemove', ns.moveFromPanel, false);
-            ns.c.addEventListener('mouseup', ns.moveFromPanelDone, false);
+            }
+            else if (hitTestResult.panel !== null) {
+                //panel's main body was hit
+                //start drawing inside the panel
+                if (ns.selection !== null) {
+                    ns.selection.clearSelection(ns.components);
+                    ns.drawRectangles();
+                    ns.selection = null;
+                }
 
+                if (ns.chosenComponentType !== null) {
+                    ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
+                    ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
+                    ns.w = ns.INITIAL_WIDTH; //initial width (global var)
+                    ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
+
+                    var component = ns.createComponent(ns.chosenComponentType, x, y);
+                    if (component.component) {
+                        ns.isDrawing = true; //switch to draw mode
+                        var panel = ns.components.get(hitTestResult.panel);
+                        panel.addChild(component.component);
+                        ns.drawingPanel = hitTestResult.panel;
+                        ns.alteringComponent.component = component.id;
+                        ns.alteringComponent.panel = hitTestResult.panel;
+                    }
+                }
+
+            }
+            else {
+                //component was hit
+                //start moving component
+                if (hitTestResult.isInSelection) {
+
+                    ns.movingComponent = "selection";
+                    ns.alteringComponent.component = "selection";
+                    ns.alteringComponent.panel = null;
+                    //TODO
+                    //construct properties
+                    ns.constructProperties(ns.alteringComponent.component, "draw_component was hit");
+                }
+                else {
+                    if (ns.selection !== null) {
+                        ns.selection.clearSelection(ns.components);
+                        ns.drawRectangles();
+                        ns.selection = null;
+                    }
+
+                    ns.movingComponent = hitTestResult.component;
+                    ns.alteringComponent.component = hitTestResult.component;
+                    ns.alteringComponent.panel = null;
+                    ns.constructProperties(ns.components.get(ns.alteringComponent.component, "draw_selection was hit"));
+                }
+                ns.moveX = x;
+                ns.moveY = y;
+                ns.c.addEventListener('mousemove', ns.move, false); //event handler for changing component's position (move component)
+                ns.c.addEventListener('mouseup', ns.moveDone, false); //finish moving component
+                //TODO
+                //add logic for moving selection
+            }
         }
-        else if (hitTestResult.panel !== null) {
-            //panel's main body was hit
-            //start drawing inside the panel
+        else {
+            //canvas was hit. Start drawing
+            if (ns.selection !== null) {
+                ns.selection.clearSelection(ns.components);
+                ns.drawRectangles();
+                ns.selection = null;
+            }
+
             if (ns.chosenComponentType !== null) {
                 ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
                 ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
@@ -348,46 +433,33 @@ ns.draw = function (e) {
                 var component = ns.createComponent(ns.chosenComponentType, x, y);
                 if (component.component) {
                     ns.isDrawing = true; //switch to draw mode
-                    var panel = ns.components.get(hitTestResult.panel);
-                    panel.addChild(component.component);
-                    ns.drawingPanel = hitTestResult.panel;
+                    ns.components.set(component.id, component.component);
                     ns.alteringComponent.component = component.id;
-                    ns.alteringComponent.panel = hitTestResult.panel;
+                    ns.alteringComponent.panel = null;
                 }
             }
-
-        }
-        else {
-            //component was hit
-            //start moving component
-            ns.moveX = x;
-            ns.moveY = y;
-            ns.movingComponent = hitTestResult.component;
-            ns.alteringComponent.component = hitTestResult.component;
-            ns.alteringComponent.panel = null;
-            ns.constructProperties(ns.components.get(ns.alteringComponent.component));
-            ns.c.addEventListener('mousemove', ns.move, false); //event handler for changing component's position (move component)
-            ns.c.addEventListener('mouseup', ns.moveDone, false); //finish moving component
         }
     }
     else {
-        //canvas was hit. Start drawing
-        if (ns.chosenComponentType !== null) {
-            ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
-            ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
-            ns.w = ns.INITIAL_WIDTH; //initial width (global var)
-            ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
-
-            var component = ns.createComponent(ns.chosenComponentType, x, y);
-            if (component.component) {
-                ns.isDrawing = true; //switch to draw mode
-                ns.components.set(component.id, component.component);
-                ns.alteringComponent.component = component.id;
-                ns.alteringComponent.panel = null;
+        if (hitTestResult.hit && hitTestResult.panel === null) {
+            if (ns.selection === null) {
+                ns.selection = new uiEditor.components.GroupSelection();
             }
+            if (ns.selection.isInSelection(hitTestResult.component)) {
+                ns.selection.removeFromSelection(hitTestResult.component, ns.components);
+                //ToDo
+                //add selection color to edges of component
+            }
+            else {
+                ns.selection.addToSelection(hitTestResult.component, ns.components);
+                //ToDo
+                //remove selection color from edges of component
+            }
+            ns.alteringComponent.component = "selection";
+            ns.alteringComponent.panel = null;
+            ns.constructProperties(ns.alteringComponent.component, "draw_add to selection");
         }
     }
-
 };
 
 
@@ -445,6 +517,15 @@ ns.hitTest = function (testX, testY) {
         }
 
     });
+
+    if (result.hit && result.panel === null) {
+        if (ns.selection !== null) {
+            if (ns.selection.isInSelection(result.component)) {
+                result.isInSelection = true;
+            }
+        }
+    }
+
     return result;
 };
 
@@ -476,8 +557,8 @@ ns.hitToPanelTest = function (testX, testY, testComponent) {
 };
 
 //construct properties panel
-ns.constructProperties = function (component) {
-
+ns.constructProperties = function (component, callFrom) {
+    console.log("Construct properties: call from " + callFrom);
     var propertiesPanel = document.getElementById('properties');
 
     //clear properties panel
@@ -485,41 +566,68 @@ ns.constructProperties = function (component) {
         propertiesPanel.removeChild(propertiesPanel.firstChild);
     }
     if (component !== undefined) {
-        //get property names for the selected component
-        var propertyNames = ns.properties[component.getComponentType()];
+        if (component !== "selection") {
+            //get property names for the selected component
+            var propertyNames = ns.properties[component.getComponentType()];
 
-        //create div and input controls for every property
-        for (var i = 0; i < propertyNames.length; i++) {
-            var div = document.createElement('div');
-            div.className = 'param';
-            div.appendChild(document.createTextNode(propertyNames[i]['name']));
-            div.innerHTML += '<br>';
-            var input = document.createElement('input');
-            input.type = propertyNames[i]['type'];
-            input.id = propertyNames[i]['name'];
-            input.name = propertyNames[i]['name'];
-            if (propertyNames[i]['type'] === 'file') {
-                input.filename = component.getPropertyValue(propertyNames[i]['name']);
+            //create div and input controls for every property
+            for (var i = 0; i < propertyNames.length; i++) {
+                var div = document.createElement('div');
+                div.className = 'param';
+                div.appendChild(document.createTextNode(propertyNames[i]['name']));
+                div.innerHTML += '<br>';
+                var input = document.createElement('input');
+                input.type = propertyNames[i]['type'];
+                input.id = propertyNames[i]['name'];
+                input.name = propertyNames[i]['name'];
+                if (propertyNames[i]['type'] === 'file') {
+                    input.filename = component.getPropertyValue(propertyNames[i]['name']);
 
-                //add event listener for file uploader
-                input.addEventListener('change', ns.fileChanged, false);
-            }
-            else if (propertyNames[i]['type'] == 'promptDialog') {
-                input.type = "button";
-                input.value = "Choose sizes";
-                input.addEventListener("click", ns.promptSizes, false);
-            }
-            else {
-                input.value = component.getPropertyValue(propertyNames[i]['name']);
+                    //add event listener for file uploader
+                    input.addEventListener('change', ns.fileChanged, false);
+                }
+                else if (propertyNames[i]['type'] == 'promptDialog') {
+                    input.type = "button";
+                    input.value = "Choose sizes";
+                    input.addEventListener("click", ns.promptSizes, false);
+                }
+                else {
+                    input.value = component.getPropertyValue(propertyNames[i]['name']);
 
-                //add change event listener for every event of the text input
-                input.addEventListener('change', ns.textChanged, false);
-                input.addEventListener('keypress', ns.textChanged, false);
-                input.addEventListener('paste', ns.textChanged, false);
-                input.addEventListener('input', ns.textChanged, false);
+                    //add change event listener for every event of the text input
+                    input.addEventListener('change', ns.textChanged, false);
+                    input.addEventListener('keypress', ns.textChanged, false);
+                    input.addEventListener('paste', ns.textChanged, false);
+                    input.addEventListener('input', ns.textChanged, false);
+                }
+                div.appendChild(input);
+                propertiesPanel.appendChild(div);
             }
-            div.appendChild(input);
-            propertiesPanel.appendChild(div);
+        }
+        else {
+            var propertyNames = ns.properties[component];
+
+            for (var i = 0; i < propertyNames.length; i++) {
+                var div = document.createElement('div');
+                div.className = 'param';
+                div.appendChild(document.createTextNode(propertyNames[i]['name']));
+                div.innerHTML += '<br>';
+                var input = document.createElement('input');
+                input.type = propertyNames[i]['type'];
+                input.id = propertyNames[i]['name'];
+                input.name = propertyNames[i]['name'];
+                if (propertyNames[i]["type"] == "number") {
+                    input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
+
+                    input.addEventListener('change', ns.textChanged, false);
+                    input.addEventListener('keypress', ns.textChanged, false);
+                    input.addEventListener('paste', ns.textChanged, false);
+                    input.addEventListener('input', ns.textChanged, false);
+                }
+                div.appendChild(input);
+                propertiesPanel.appendChild(div);
+            }
+
         }
     }
 };
@@ -527,7 +635,6 @@ ns.constructProperties = function (component) {
 //move the component to another position
 ns.move = function (e) {
     if (ns.movingComponent) {
-
 
         ns.x = e.layerX;
         ns.y = e.layerY;
@@ -537,14 +644,20 @@ ns.move = function (e) {
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
         ns.moveY = ns.y;
-        ns.components.get(ns.movingComponent).move(dx, dy);
+        if (ns.movingComponent !== "selection")
+        {
+            ns.components.get(ns.movingComponent).move(dx, dy);
 
-        ns.destinationPanel = ns.hitToPanelTest(ns.x, ns.y, ns.components.get(ns.movingComponent));
+            ns.destinationPanel = ns.hitToPanelTest(ns.x, ns.y, ns.components.get(ns.movingComponent));
 
 
+            ns.constructProperties(ns.components.get(ns.movingComponent), "move");
+        }
+        else {
+            ns.selection.move(dx, dy, ns.components);
+            ns.constructProperties(ns.alteringComponent.component, "move");
+        }
         ns.drawRectangles();
-        ns.constructProperties(ns.components.get(ns.movingComponent));
-
     }
 };
 
@@ -563,7 +676,7 @@ ns.moveFromPanel = function (e) {
         ns.destinationPanel = ns.hitToPanelTest(ns.x, ns.y, child);
 
         ns.drawRectangles();
-        ns.constructProperties(child);
+        ns.constructProperties(child, "moveFromPanel");
     }
 };
 
@@ -667,13 +780,19 @@ ns.mouseUp = function (e) {
     ns.drawingPanel = undefined;
 
     ns.drawRectangles();
-    if (ns.alteringComponent.panel === null) {
-        ns.constructProperties(ns.components.get(ns.alteringComponent.component));
+    if (ns.alteringComponent.component == "selection") {
+        ns.constructProperties(ns.alteringComponent.component, "mouseUp_selection");
+    }
+    else if (ns.alteringComponent.panel === null) {
+        ns.constructProperties(ns.components.get(ns.alteringComponent.component), "mouseUp_panel=null");
     }
     else {
-        var panel = ns.components.get(ns.alteringComponent.panel);
-        var child = panel.getChild(ns.alteringComponent.component);
-        ns.constructProperties(child);
+        if (ns.alteringComponent.component !== "selection") {
+            var panel = ns.components.get(ns.alteringComponent.panel);
+            var child = panel.getChild(ns.alteringComponent.component);
+            ns.constructProperties(child, "mouseUp_panel!=null");
+        }
+
     }
 
 };
@@ -714,8 +833,8 @@ ns.saveToJson = function () {
         }
     });
     obj.screenObject = screenObject.getPropertiesForJSON();
-    var jsonData =  JSON.stringify(obj, null, 5);
-    var url = 'data:text/json;charset=utf8,'+encodeURIComponent(jsonData);
+    var jsonData = JSON.stringify(obj, null, 5);
+    var url = 'data:text/json;charset=utf8,' + encodeURIComponent(jsonData);
     window.open(url, '_blank');
     window.focus();
 };
