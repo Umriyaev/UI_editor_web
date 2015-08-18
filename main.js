@@ -224,7 +224,11 @@ ns.keyPressHandler = function (e) {
     else if (e.keyCode === ns.ESC_BUTTON) {
         if (ns.isDrawing) {
             ns.deleteComponent();
-            ns.isDrawing = false;
+            ns.isDrawing = false;        
+            
+        }
+        if(ns.chosenComponentType!=null){
+            ns.chosenComponentType=null;
         }
     }
     return false;
