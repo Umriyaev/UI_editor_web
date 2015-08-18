@@ -1076,7 +1076,7 @@ uiEditor.components.ScreenControlComponent = (function () {
         for (var i = 0; i < sizeCount; i++) {
             ctx.beginPath();
             ctx.fillStyle = gradient;
-            var xPos = this.getX() + i * (itemWidth + 5);
+            var xPos = this.getX() + i * (itemWidth);
             var yPos = this.getY();
             ctx.rect(xPos, yPos, itemWidth, itemHeight);
             ctx.stroke();
