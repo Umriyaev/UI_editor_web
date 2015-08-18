@@ -227,7 +227,7 @@ ns.keyPressHandler = function (e) {
             ns.isDrawing = false;        
             
         }
-        if(ns.chosenComponentType!=null){
+        else if(ns.chosenComponentType!=null){
             ns.chosenComponentType=null;
         }
     }
