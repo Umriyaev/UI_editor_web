@@ -11,6 +11,7 @@ var ns = uiEditor.mainApp;
 ns.startX, ns.startY;
 ns.idSpecifier = new uiEditor.helpers.IdSpecifier();
 ns.isDrawing = false;
+ns.currentDrawingComponent = {"panel": null, "component": null};
 ns.w, ns.h, ns.x, ns.y, ns.c, ns.ctx;
 ns.components = new Map();
 ns.movingComponent = null;
@@ -47,6 +48,7 @@ ns.selection = null;
 
 //constants
 ns.DELETE_BUTTON = 46;
+ns.ESC_BUTTON = 27;
 ns.INITIAL_WIDTH = 0;
 ns.INITIAL_HEIGHT = 0;
 ns.MINIMUM_WIDTH = 50;
@@ -111,6 +113,16 @@ ns.properties = {
     ]
 };
 
+ns.componentSizes = {
+    "image": {"width": 300, "height": 200},
+    "button": {"width": 140, "height": 60},
+    "text": {"width": 300, "height": 60},
+    "panel": {"width": 500, "height": 400},
+    "display": {"width": 600, "height": 200},
+    "screenControl": {"width": 300, "height": 60},
+    "source": {"width": 140, "height": 60}
+};
+
 //initial setting of event handlers
 ns.init = function () {
     Notify.init({
@@ -144,66 +156,76 @@ ns.contextMenuHandler = function (e) {
     e.preventDefault();
 };
 
+ns.deleteComponent = function () {
+    var deleteScreenObjectComponents = false;
+    if (ns.alteringComponent.component) {
+
+        if (ns.alteringComponent.component == "selection") {
+            ns.selection.deleteSelection(ns.components);
+            ns.selection = null;
+        }
+
+        else if (ns.alteringComponent.panel) {
+            var component = ns.components.get(ns.alteringComponent.panel).getChild(ns.alteringComponent.component);
+            if (component.getComponentType() === "display") {
+                ns.displayCreated = false;
+                deleteScreenObjectComponents = true;
+            }
+            else if (component.getComponentType() === "screenControl") {
+                ns.sizeCreated = false;
+            }
+            ns.components.get(ns.alteringComponent.panel).removeChild(component.getID());
+        }
+        else {
+            var component = ns.components.get(ns.alteringComponent.component);
+
+            if (component.getComponentType() === "display") {
+                ns.displayCreated = false;
+                deleteScreenObjectComponents = true;
+            }
+            else if (component.getComponentType() === "screenControl") {
+                ns.sizeCreated = false;
+            }
+
+            ns.components.delete(ns.alteringComponent.component);
+        }
+
+        if (deleteScreenObjectComponents) {
+            var toRemove = [];
+            ns.components.forEach(function (value, key) {
+                if (value.getComponentType() === "panel") {
+                    value.findAndRemoveComponents("screenControl");
+                    value.findAndRemoveComponents("source");
+                }
+                else if (value.getComponentType() === "screenControl" || value.getComponentType() === "source") {
+                    toRemove.push(key);
+                }
+            });
+            for (var i = 0; i < toRemove.length; i++) {
+                ns.components.delete(toRemove[i]);
+            }
+            ns.sizeCreated = false;
+        }
+
+
+    }
+
+    ns.alteringComponent = {"panel": null, "component": null};
+    ns.constructProperties(undefined, "kePressHandler");
+    ns.drawRectangles();
+}
+
 
 //handle key press events
 ns.keyPressHandler = function (e) {
     if (e.keyCode === ns.DELETE_BUTTON) {
-        var deleteScreenObjectComponents = false;
-        if (ns.alteringComponent.component) {
-            
-            if(ns.alteringComponent.component=="selection"){
-                ns.selection.deleteSelection(ns.components);
-                ns.selection=null;
-            }
-
-            else if (ns.alteringComponent.panel) {
-                var component = ns.components.get(ns.alteringComponent.panel).getChild(ns.alteringComponent.component);
-                if (component.getComponentType() === "display") {
-                    ns.displayCreated = false;
-                    deleteScreenObjectComponents = true;
-                }
-                else if (component.getComponentType() === "screenControl") {
-                    ns.sizeCreated = false;
-                }
-                ns.components.get(ns.alteringComponent.panel).removeChild(component.getID());
-            }
-            else {
-                var component = ns.components.get(ns.alteringComponent.component);
-
-                if (component.getComponentType() === "display") {
-                    ns.displayCreated = false;
-                    deleteScreenObjectComponents = true;
-                }
-                else if (component.getComponentType() === "screenControl") {
-                    ns.sizeCreated = false;
-                }
-
-                ns.components.delete(ns.alteringComponent.component);
-            }
-
-            if (deleteScreenObjectComponents) {
-                var toRemove = [];
-                ns.components.forEach(function (value, key) {
-                    if (value.getComponentType() === "panel") {
-                        value.findAndRemoveComponents("screenControl");
-                        value.findAndRemoveComponents("source");
-                    }
-                    else if (value.getComponentType() === "screenControl" || value.getComponentType() === "source") {
-                        toRemove.push(key);
-                    }
-                });
-                for (var i = 0; i < toRemove.length; i++) {
-                    ns.components.delete(toRemove[i]);
-                }
-                ns.sizeCreated = false;
-            }
-
-
+        ns.deleteComponent();
+    }
+    else if (e.keyCode === ns.ESC_BUTTON) {
+        if (ns.isDrawing) {
+            ns.deleteComponent();
+            ns.isDrawing = false;
         }
-
-        ns.alteringComponent = {"panel": null, "component": null};
-        ns.constructProperties(undefined, "kePressHandler");
-        ns.drawRectangles();
     }
     return false;
 };
@@ -468,38 +490,45 @@ ns.createComponent = function (componentType, x, y) {
     switch (componentType) {
         case "button":
             component.id = ns.idSpecifier.getIdForComponent("button");
-            component.component = new uiEditor.components.ButtonComponent(component.id, x, y, ns.w, ns.h);
+            component.component = new uiEditor.components.ButtonComponent(component.id, x, y,
+                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height);
             break;
         case "text":
             component.id = ns.idSpecifier.getIdForComponent("text");
-            component.component = new uiEditor.components.TextComponent(component.id, x, y, ns.w, ns.h);
+            component.component = new uiEditor.components.TextComponent(component.id, x, y,
+                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height);
             break;
         case "display":
             if (ns.displayCreated === false) {
                 component.id = ns.idSpecifier.getIdForComponent("display");
-                component.component = new uiEditor.components.DisplayComponent(component.id, x, y, ns.w, ns.h, 6, 2);
+                component.component = new uiEditor.components.DisplayComponent(component.id, x, y,
+                        ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, 6, 2);
                 ns.displayCreated = true;
             }
             break;
         case "image":
             component.id = ns.idSpecifier.getIdForComponent("image");
-            component.component = new uiEditor.components.ImageComponent(component.id, x, y, ns.w, ns.h);
+            component.component = new uiEditor.components.ImageComponent(component.id, x, y,
+                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height);
             break;
         case "panel":
             component.id = ns.idSpecifier.getIdForComponent("panel");
-            component.component = new uiEditor.components.PanelComponent(component.id, x, y, ns.w, ns.h, "header");
+            component.component = new uiEditor.components.PanelComponent(component.id, x, y,
+                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, "header");
             break;
         case "screenControl":
             if (ns.sizeCreated === false && ns.displayCreated === true) {
                 component.id = ns.idSpecifier.getIdForComponent("screenControl");
-                component.component = new uiEditor.components.ScreenControlComponent(component.id, x, y, ns.w, ns.h, ["1x1", "2x2", "3x3"]);
+                component.component = new uiEditor.components.ScreenControlComponent(component.id, x, y,
+                        ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, ["1x1", "2x2", "3x3"]);
                 ns.sizeCreated = true;
             }
             break;
         case "source":
             if (ns.displayCreated === true) {
                 component.id = ns.idSpecifier.getIdForComponent("source");
-                component.component = new uiEditor.components.SourceComponent(component.id, x, y, ns.w, ns.h, "not set", "");
+                component.component = new uiEditor.components.SourceComponent(component.id, x, y,
+                        ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, "not set", "");
             }
             break;
     }
@@ -741,6 +770,14 @@ ns.mouseMove = function (e) {
         }
         r.setX(ns.x);
         r.setY(ns.y);
+        if (ns.w < ns.componentSizes[ns.chosenComponentType].width) {
+            ns.w = ns.componentSizes[ns.chosenComponentType].width
+        }
+        ;
+        if (ns.h < ns.componentSizes[ns.chosenComponentType].height) {
+            ns.h = ns.componentSizes[ns.chosenComponentType].height
+        }
+        ;
         r.setWidth(ns.w);
         r.setHeight(ns.h);
 
@@ -757,7 +794,7 @@ ns.mouseMove = function (e) {
 
 //used to draw all the components {needs to rename}
 ns.drawRectangles = function () {
-    ns.cleanUp();
+    //ns.cleanUp();
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
     ns.components.forEach(function (value, key) {
         value.draw(ns.ctx);
