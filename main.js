@@ -132,8 +132,24 @@ ns.init = function () {
     ns.c = document.getElementById("myCanvas");
     ns.ctx = ns.c.getContext("2d");
     ns.c.addEventListener("mousedown", function (e) {
+        /****************test****************************/
+        console.log("Click event: ");
+        console.log("PageX: "+e.pageX+"     PageY: "+e.pageY);
+        console.log("ClientX: "+e.clientX+"     ClientY: "+e.clientY);
+        console.log("LayerX: "+e.layerX+"       LayerY: "+e.layerY);
+        console.log("OffsetX: "+e.offsetX+"      OffsetY: "+e.offsetY);
+        console.log("ScreenX: "+e.screenX+"      ScreenY: "+e.screenY);
+        console.log("X: "+e.x+"    Y: "+e.y);
+        console.log("**************************************");
+        
+        
+        /************************************************/
+        
         ns.draw(e);
     }, false);
+    
+    $(window).resize(ns.respondResize)
+    ns.respondResize();
     ns.c.addEventListener("mousemove", function (e) {
         ns.mouseMove(e);
     }, false);
@@ -144,10 +160,20 @@ ns.init = function () {
     window.addEventListener("keydown", ns.keyPressHandler, false);
 
 
+    /***********************test*********************************/
+    var testComponent = ns.createComponent("button", 500, 500);
+    testComponent.component.setText(".");
+    ns.components.set(testComponent.id, testComponent.component);
+    ns.drawRectangles();
+    /************************************************************/
 };
 
 
-
+ns.respondResize = function(){
+        ns.c.width=$(".canvasPanel").width();
+        ns.c.height = $(".canvasPanel").height();
+        ns.drawRectangles();
+    }
 
 
 ns.contextMenuHandler = function (e) {
@@ -360,8 +386,10 @@ ns.fileChanged = function (e) {
  * component is drawn if componentType is chosen from toolbox, if nothing is chosen draw will not happen*/
 ns.draw = function (e) {
 
-    var x = e.layerX;
+   var x = e.layerX;
     var y = e.layerY;
+   // var x = e.offsetX;
+   // var y = e.offsetY;
     ns.startX = x;
     ns.startY = y;
     var hitTestResult = ns.hitTest(x, y);
@@ -671,6 +699,8 @@ ns.move = function (e) {
 
         ns.x = e.layerX;
         ns.y = e.layerY;
+      // ns.x = e.offsetX;
+       //ns.y = e.offsetY;
 
 
         var dx = ns.x - ns.moveX;
@@ -698,6 +728,8 @@ ns.moveFromPanel = function (e) {
     if (ns.movingChildComponent.component && ns.movingChildComponent.panel) {
         ns.x = e.layerX;
         ns.y = e.layerY;
+       //ns.x = e.offsetX;
+       //ns.y = e.offsetY;
         var dx = ns.x - ns.moveX;
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
@@ -755,14 +787,20 @@ ns.mouseMove = function (e) {
 // get mouse position
         ns.x = e.layerX;
         ns.y = e.layerY;
+       // ns.x = e.offsetX;
+       // ns.y = e.offsetY;
         //alter mouse position
         //in case if direction of rectangle was changed, i.e. top left corner become different corner
         ns.x = Math.min(e.layerX, ns.startX);
         ns.y = Math.min(e.layerY, ns.startY);
+      // ns.x = Math.min(e.offsetX, ns.startX);
+      // ns.y = Math.min(e.offsetY, ns.startY);
 
         //calculate width and height
         ns.w = Math.abs(e.layerX - ns.startX);
         ns.h = Math.abs(e.layerY - ns.startY);
+        // ns.w = Math.abs(e.offsetX - ns.startX);
+       //  ns.h = Math.abs(e.offsetY-ns.startY);
         //set width and height of current rectangle to the calculated value
 
         var r;

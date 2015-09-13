@@ -110,13 +110,13 @@ body{
     height: 800px;
 }
 
-#myCanvas{
+/*#myCanvas{
     margin: auto;
     width: 100%;
-    height: auto;
+    height: 100%;
     border: 1px solid #d3d3d3;
 
-}
+}*/
 
 .propertiesPanel{
     height: 800px;
