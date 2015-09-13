@@ -148,7 +148,7 @@ ns.init = function () {
         ns.draw(e);
     }, false);
     
-    $(window).resize(ns.respondResize)
+    $(window).resize(ns.respondResize);
     ns.respondResize();
     ns.c.addEventListener("mousemove", function (e) {
         ns.mouseMove(e);
@@ -161,10 +161,10 @@ ns.init = function () {
 
 
     /***********************test*********************************/
-    var testComponent = ns.createComponent("button", 500, 500);
-    testComponent.component.setText(".");
-    ns.components.set(testComponent.id, testComponent.component);
-    ns.drawRectangles();
+    //var testComponent = ns.createComponent("button", 500, 500);
+  //  testComponent.component.setText(".");
+  //  ns.components.set(testComponent.id, testComponent.component);
+   // ns.drawRectangles();
     /************************************************************/
 };
 
