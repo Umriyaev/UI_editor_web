@@ -18,10 +18,12 @@ uiEditor.helpers.IdSpecifier = (function () {
         this.panelCount = 0;
         this.screenCountrolCount = 0;
         this.sourceCount = 0;
+        this.groupCount = 0;
     }
 
     IdSpecifier.prototype.getIdForComponent = function (componentType) {
         var id = null;
+        console.log("getIDForComponent: "+componentType);
 
         switch (componentType) {
             case "button":
@@ -52,10 +54,15 @@ uiEditor.helpers.IdSpecifier = (function () {
                 ++this.sourceCount;
                 id = "source_" + this.sourceCount;
                 break;
+            case "group":
+                ++this.groupCount;
+                id = "group_" + this.groupCount;
+                break;
             default:
                 id = null;
                 break;
         }
+        console.log(id);
         return id;
     };
 
@@ -1323,6 +1330,10 @@ uiEditor.components.GroupSelection = (function () {
 
     /*********************Getters***********************************/
 
+    GroupSelection.prototype.getSelection = function () {
+        return this.selection;
+    }
+
     GroupSelection.prototype.getWidth = function () {
         return this.width;
     };
@@ -1371,15 +1382,15 @@ uiEditor.components.GroupSelection = (function () {
     GroupSelection.prototype.addToSelection = function (componentID, components) {
         this.selection.set(componentID, componentID);
         components.get(componentID).select();
-        if(this.firstItem==null){
-            this.firstItem=components.get(componentID);
+        if (this.firstItem == null) {
+            this.firstItem = components.get(componentID);
         }
     };
-    
-    
+
+
     /********************Alignment operations******************************/
-    GroupSelection.prototype.alignSize=function(components){
-        if(this.firstItem==null){
+    GroupSelection.prototype.alignSize = function (components) {
+        if (this.firstItem == null) {
             return;
         }
         var width = this.firstItem.getWidth();
@@ -1388,42 +1399,42 @@ uiEditor.components.GroupSelection = (function () {
         components = this.setHeight(height, components);
         return components;
     };
-    
-    GroupSelection.prototype.alignVertical = function(components){
-        if(this.firstItem==null){
+
+    GroupSelection.prototype.alignVertical = function (components) {
+        if (this.firstItem == null) {
             return;
         }
-        
+
         var width = this.firstItem.getWidth();
         var x = this.firstItem.getX();
-        this.selection.forEach(function(value, key){
+        this.selection.forEach(function (value, key) {
             var component = components.get(value);
             var w2 = component.getWidth();
-            component.setX(x+(width-w2)/2);
+            component.setX(x + (width - w2) / 2);
             components.set(value, component);
         });
-        
-        return components;        
+
+        return components;
     };
-    
-    GroupSelection.prototype.alignHorizontal = function(components){
-        if(this.firstItem==null){
+
+    GroupSelection.prototype.alignHorizontal = function (components) {
+        if (this.firstItem == null) {
             return;
         }
-        
+
         var height = this.firstItem.getHeight();
         var y = this.firstItem.getY();
-        this.selection.forEach(function(value,key){
-           var component = components.get(value);
-           var h2 = component.getHeight();
-           component.setY(y+(height - h2)/2);
-           components.set(value, component);
+        this.selection.forEach(function (value, key) {
+            var component = components.get(value);
+            var h2 = component.getHeight();
+            component.setY(y + (height - h2) / 2);
+            components.set(value, component);
         });
-        
+
         return components;
     }
-    
-    
+
+
     /**********************************************************************/
 
     GroupSelection.prototype.removeFromSelection = function (componentID, components) {
@@ -1437,20 +1448,20 @@ uiEditor.components.GroupSelection = (function () {
         });
         return components;
     };
-    
-    GroupSelection.prototype.deleteSelection = function(components){
+
+    GroupSelection.prototype.deleteSelection = function (components) {
         var group = this;
-        this.firstItem=null;
-        this.selection.forEach(function(value,key){
+        this.firstItem = null;
+        this.selection.forEach(function (value, key) {
             var itemToDelete = value;
             group.removeFromSelection(itemToDelete, components);
             components.delete(itemToDelete);
         });
     };
 
-    GroupSelection.prototype.clearSelection = function (components) {        
+    GroupSelection.prototype.clearSelection = function (components) {
         var group = this;
-        this.firstItem=null;
+        this.firstItem = null;
         this.selection.forEach(function (value, key) {
             group.removeFromSelection(value, components);
         });
@@ -1504,10 +1515,149 @@ uiEditor.components.GroupSelection = (function () {
     return GroupSelection;
 })();
 
-uiEditor.components.Group = (function(){
-    function Group(selection){
-        
+uiEditor.components.Group = (function () {
+    function Group(id, selection, components) {
+        this.properties = {};
+        this.properties['id'] = id;
+        this.properties['componentType']="group";
+        this.properties['components'] = new Map();
+        var leftX = 1000000, leftY = 100000000, rightX = 0, rightY = 0;
+        console.log("In group constructor...");
+        console.log(id);
+        console.log(selection);
+        console.log(components);
+        var groupComponents = this.properties['components'];
+        selection.forEach(function (value, key) {
+            var component = components.get(key);
+            component.deselect();
+            var currentX = component.getX();
+            var currentY = component.getY();
+            var currentRightX = component.getWidth() + currentX;
+            var currentRightY = component.getHeight() + currentY;
+            if (leftX > currentX)
+                leftX = currentX;
+            if (leftY > currentY)
+                leftY = currentY;
+            if (rightX < currentRightX)
+                rightX = currentRightX;
+            if (rightY < currentRightY)
+                rightY = currentRightY;
+            groupComponents.set(key, component);
+            components.delete(key);
+        });
+
+        this.properties['xPosition'] = leftX - 10;
+        this.properties['yPosition'] = leftY - 10;
+        this.properties['width'] = rightX - leftX + 10;
+        this.properties['height'] = rightY - leftY + 10;
+        this.selected = false;
+    }
+
+    /**********************Getters****************************/
+    Group.prototype.getComponentType = function(){
+        return this.properties["componentType"];
     }
     
+    Group.prototype.getX = function () {
+        return this.properties['xPosition'];
+    }
+
+    Group.prototype.getY = function () {
+        return this.properties['yPosition'];
+    }
+
+    Group.prototype.getWidth = function () {
+        return this.properties['width'];
+    }
+
+    Group.prototype.getHeight = function () {
+        return this.properties['height'];
+    }
+
+    Group.prototype.getID = function () {
+        return this.properties['id'];
+    }
+
+    Group.prototype.getComponents = function () {
+        return this.properties['components'];
+    }
+    /*********************************************************/
+
+    /**********************Setters****************************/
+    Group.prototype.setX = function (x) {
+        this.properties['xPosition'] = Number(x);
+    }
+
+    Group.prototype.setY = function (y) {
+        this.properties['yPosition'] = Number(y);
+    }
+
+    Group.prototype.setWidth = function (width) {
+        this.properties['width'] = Number(width);
+    }
+
+    Group.prototype.setHeight = function (height) {
+        this.properties['height'] = Number(height);
+    }
+    /*********************************************************/
+
+    Group.prototype.select = function () {
+        this.selected = true;
+    }
+
+    Group.prototype.deselect = function () {
+        this.selected = false;
+    }
+
+    Group.prototype.hitTest = function (x, y) {
+        var result = {"hit": false, "component": this.getID(), "panel": null};
+        if (x >= this.getX() && x <= this.getX() + this.getWidth() && y >= this.getY() && y <= this.getY() + this.getHeight()) {
+            result.hit = true;
+            console.log("group hit...");
+        }
+
+        return result;
+    }
+
+    Group.prototype.move = function (dx, dy) {
+        console.log("moving....");
+        this.setX(this.getX() + dx);
+        this.setY(this.getY() + dy);
+        this.properties['components'].forEach(function (value, key) {
+            value.move(dx, dy);
+        })
+    }
+
+    Group.prototype.draw = function (ctx) {
+        
+        ctx.save();
+        ctx.fillStyle="#f8f8f8";
+        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        ctx.restore();
+        
+        this.properties['components'].forEach(function (value, key) {
+            value.draw(ctx);
+        })
+
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = "#ff0000";
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
+    }
+
+    Group.prototype.unGroup = function (components) {
+        var componentsBuffer = this.getComponents();
+        this.properties['components'].forEach(function (value, key) {
+            components.set(key, value);
+            componentsBuffer.delete(key);
+        })
+
+        components.delete(this.getID());
+    }
+
+
+
     return Group;
 })();
