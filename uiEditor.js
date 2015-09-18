@@ -1316,6 +1316,7 @@ uiEditor.components.GroupSelection = (function () {
         this.selection = new Map();
         this.width = "not set";
         this.height = "not set";
+        this.firstItem = null;
 //        this.verticalOffset = "not set";
 //        this.horizontalOffset = "not set";
     }
@@ -1370,7 +1371,60 @@ uiEditor.components.GroupSelection = (function () {
     GroupSelection.prototype.addToSelection = function (componentID, components) {
         this.selection.set(componentID, componentID);
         components.get(componentID).select();
+        if(this.firstItem==null){
+            this.firstItem=components.get(componentID);
+        }
     };
+    
+    
+    /********************Alignment operations******************************/
+    GroupSelection.prototype.alignSize=function(components){
+        if(this.firstItem==null){
+            return;
+        }
+        var width = this.firstItem.getWidth();
+        var height = this.firstItem.getHeight();
+        components = this.setWidth(width, components);
+        components = this.setHeight(height, components);
+        return components;
+    };
+    
+    GroupSelection.prototype.alignVertical = function(components){
+        if(this.firstItem==null){
+            return;
+        }
+        
+        var width = this.firstItem.getWidth();
+        var x = this.firstItem.getX();
+        this.selection.forEach(function(value, key){
+            var component = components.get(value);
+            var w2 = component.getWidth();
+            component.setX(x+(width-w2)/2);
+            components.set(value, component);
+        });
+        
+        return components;        
+    };
+    
+    GroupSelection.prototype.alignHorizontal = function(components){
+        if(this.firstItem==null){
+            return;
+        }
+        
+        var height = this.firstItem.getHeight();
+        var y = this.firstItem.getY();
+        this.selection.forEach(function(value,key){
+           var component = components.get(value);
+           var h2 = component.getHeight();
+           component.setY(y+(height - h2)/2);
+           components.set(value, component);
+        });
+        
+        return components;
+    }
+    
+    
+    /**********************************************************************/
 
     GroupSelection.prototype.removeFromSelection = function (componentID, components) {
         this.selection.delete(componentID);
@@ -1386,6 +1440,7 @@ uiEditor.components.GroupSelection = (function () {
     
     GroupSelection.prototype.deleteSelection = function(components){
         var group = this;
+        this.firstItem=null;
         this.selection.forEach(function(value,key){
             var itemToDelete = value;
             group.removeFromSelection(itemToDelete, components);
@@ -1393,8 +1448,9 @@ uiEditor.components.GroupSelection = (function () {
         });
     };
 
-    GroupSelection.prototype.clearSelection = function (components) {
+    GroupSelection.prototype.clearSelection = function (components) {        
         var group = this;
+        this.firstItem=null;
         this.selection.forEach(function (value, key) {
             group.removeFromSelection(value, components);
         });
@@ -1446,4 +1502,12 @@ uiEditor.components.GroupSelection = (function () {
 
 
     return GroupSelection;
+})();
+
+uiEditor.components.Group = (function(){
+    function Group(selection){
+        
+    }
+    
+    return Group;
 })();

@@ -54,6 +54,7 @@ ns.INITIAL_HEIGHT = 0;
 ns.MINIMUM_WIDTH = 50;
 ns.MINIMUM_HEIGHT = 50;
 
+
 //properties for constructing properties panel based on the type of component
 ns.properties = {
     "image": [
@@ -132,22 +133,9 @@ ns.init = function () {
     ns.c = document.getElementById("myCanvas");
     ns.ctx = ns.c.getContext("2d");
     ns.c.addEventListener("mousedown", function (e) {
-        /****************test****************************/
-        console.log("Click event: ");
-        console.log("PageX: "+e.pageX+"     PageY: "+e.pageY);
-        console.log("ClientX: "+e.clientX+"     ClientY: "+e.clientY);
-        console.log("LayerX: "+e.layerX+"       LayerY: "+e.layerY);
-        console.log("OffsetX: "+e.offsetX+"      OffsetY: "+e.offsetY);
-        console.log("ScreenX: "+e.screenX+"      ScreenY: "+e.screenY);
-        console.log("X: "+e.x+"    Y: "+e.y);
-        console.log("**************************************");
-        
-        
-        /************************************************/
-        
         ns.draw(e);
     }, false);
-    
+
     $(window).resize(ns.respondResize);
     ns.respondResize();
     ns.c.addEventListener("mousemove", function (e) {
@@ -162,18 +150,18 @@ ns.init = function () {
 
     /***********************test*********************************/
     //var testComponent = ns.createComponent("button", 500, 500);
-  //  testComponent.component.setText(".");
-  //  ns.components.set(testComponent.id, testComponent.component);
-   // ns.drawRectangles();
+    //  testComponent.component.setText(".");
+    //  ns.components.set(testComponent.id, testComponent.component);
+    // ns.drawRectangles();
     /************************************************************/
 };
 
 
-ns.respondResize = function(){
-        ns.c.width=$(".canvasPanel").width();
-        ns.c.height = $(".canvasPanel").height();
-        ns.drawRectangles();
-    }
+ns.respondResize = function () {
+    ns.c.width = $(".canvasPanel").width();
+    ns.c.height = $(".canvasPanel").height();
+    ns.drawRectangles();
+}
 
 
 ns.contextMenuHandler = function (e) {
@@ -244,19 +232,22 @@ ns.deleteComponent = function () {
 
 //handle key press events
 ns.keyPressHandler = function (e) {
+    console.log(e.keyCode);
+    console.log(e);
     if (e.keyCode === ns.DELETE_BUTTON) {
         ns.deleteComponent();
     }
     else if (e.keyCode === ns.ESC_BUTTON) {
         if (ns.isDrawing) {
             ns.deleteComponent();
-            ns.isDrawing = false;        
-            
+            ns.isDrawing = false;
+
         }
-        else if(ns.chosenComponentType!=null){
-            ns.chosenComponentType=null;
+        else if (ns.chosenComponentType != null) {
+            ns.chosenComponentType = null;
         }
     }
+
     return false;
 };
 
@@ -386,10 +377,10 @@ ns.fileChanged = function (e) {
  * component is drawn if componentType is chosen from toolbox, if nothing is chosen draw will not happen*/
 ns.draw = function (e) {
 
-   var x = e.layerX;
+    var x = e.layerX;
     var y = e.layerY;
-   // var x = e.offsetX;
-   // var y = e.offsetY;
+    // var x = e.offsetX;
+    // var y = e.offsetY;
     ns.startX = x;
     ns.startY = y;
     var hitTestResult = ns.hitTest(x, y);
@@ -506,6 +497,7 @@ ns.draw = function (e) {
             }
             else {
                 ns.selection.addToSelection(hitTestResult.component, ns.components);
+
                 //ToDo
                 //remove selection color from edges of component
             }
@@ -666,29 +658,31 @@ ns.constructProperties = function (component, callFrom) {
             }
         }
         else {
-            var propertyNames = ns.properties[component];
+            if (ns.selection !== null) {
+                var propertyNames = ns.properties[component];
 
-            for (var i = 0; i < propertyNames.length; i++) {
-                var div = document.createElement('div');
-                div.className = 'param';
-                div.appendChild(document.createTextNode(propertyNames[i]['name']));
-                div.innerHTML += '<br>';
-                var input = document.createElement('input');
-                input.type = propertyNames[i]['type'];
-                input.id = propertyNames[i]['name'];
-                input.name = propertyNames[i]['name'];
-                if (propertyNames[i]["type"] == "number") {
-                    input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
+                for (var i = 0; i < propertyNames.length; i++) {
+                    var div = document.createElement('div');
+                    div.className = 'param';
+                    div.appendChild(document.createTextNode(propertyNames[i]['name']));
+                    div.innerHTML += '<br>';
+                    var input = document.createElement('input');
+                    input.type = propertyNames[i]['type'];
+                    input.id = propertyNames[i]['name'];
+                    input.name = propertyNames[i]['name'];
+                    if (propertyNames[i]["type"] == "number") {
+                        input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
 
-                    input.addEventListener('change', ns.textChanged, false);
-                    input.addEventListener('keypress', ns.textChanged, false);
-                    input.addEventListener('paste', ns.textChanged, false);
-                    input.addEventListener('input', ns.textChanged, false);
+                        input.addEventListener('change', ns.textChanged, false);
+                        input.addEventListener('keypress', ns.textChanged, false);
+                        input.addEventListener('paste', ns.textChanged, false);
+                        input.addEventListener('input', ns.textChanged, false);
+                    }
+                    div.appendChild(input);
+                    propertiesPanel.appendChild(div);
                 }
-                div.appendChild(input);
-                propertiesPanel.appendChild(div);
-            }
 
+            }
         }
     }
 };
@@ -699,8 +693,8 @@ ns.move = function (e) {
 
         ns.x = e.layerX;
         ns.y = e.layerY;
-      // ns.x = e.offsetX;
-       //ns.y = e.offsetY;
+        // ns.x = e.offsetX;
+        //ns.y = e.offsetY;
 
 
         var dx = ns.x - ns.moveX;
@@ -728,8 +722,8 @@ ns.moveFromPanel = function (e) {
     if (ns.movingChildComponent.component && ns.movingChildComponent.panel) {
         ns.x = e.layerX;
         ns.y = e.layerY;
-       //ns.x = e.offsetX;
-       //ns.y = e.offsetY;
+        //ns.x = e.offsetX;
+        //ns.y = e.offsetY;
         var dx = ns.x - ns.moveX;
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
@@ -787,20 +781,20 @@ ns.mouseMove = function (e) {
 // get mouse position
         ns.x = e.layerX;
         ns.y = e.layerY;
-       // ns.x = e.offsetX;
-       // ns.y = e.offsetY;
+        // ns.x = e.offsetX;
+        // ns.y = e.offsetY;
         //alter mouse position
         //in case if direction of rectangle was changed, i.e. top left corner become different corner
         ns.x = Math.min(e.layerX, ns.startX);
         ns.y = Math.min(e.layerY, ns.startY);
-      // ns.x = Math.min(e.offsetX, ns.startX);
-      // ns.y = Math.min(e.offsetY, ns.startY);
+        // ns.x = Math.min(e.offsetX, ns.startX);
+        // ns.y = Math.min(e.offsetY, ns.startY);
 
         //calculate width and height
         ns.w = Math.abs(e.layerX - ns.startX);
         ns.h = Math.abs(e.layerY - ns.startY);
         // ns.w = Math.abs(e.offsetX - ns.startX);
-       //  ns.h = Math.abs(e.offsetY-ns.startY);
+        //  ns.h = Math.abs(e.offsetY-ns.startY);
         //set width and height of current rectangle to the calculated value
 
         var r;
@@ -957,6 +951,50 @@ ns.setChosenComponent = function (e) {
             ns.chosenComponentType = null;
     }
 };
+
+
+/**********************Alignment operations************************/
+ns.alignSizes = function () {
+    if (ns.selection === null) {
+        return;
+    }
+
+    ns.selection.alignSize(ns.components);
+    ns.drawRectangles();
+
+    if (ns.chosenComponentType !== null) {
+        ns.chosenComponentType = null;
+    }
+}
+
+ns.alignVertical = function () {
+    if (ns.selection === null) {
+        return;
+    }
+
+    ns.selection.alignVertical(ns.components);
+    ns.drawRectangles();
+
+    if (ns.chosenComponentType !== null) {
+        ns.chosenComponentType = null;
+    }
+}
+
+ns.alignHorizontal = function () {
+    if (ns.selection === null) {
+        return;
+    }
+
+    ns.selection.alignHorizontal(ns.components);
+    ns.drawRectangles();
+
+    if (ns.chosenComponentType !== null) {
+        ns.chosenComponentType = null;
+    }
+
+}
+
+/******************************************************************/
 
 
 
