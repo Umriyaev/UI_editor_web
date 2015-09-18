@@ -1585,11 +1585,13 @@ uiEditor.components.Group = (function () {
 
     /**********************Setters****************************/
     Group.prototype.setX = function (x) {
-        this.properties['xPosition'] = Number(x);
+        var dx = x-this.getX();
+        this.move(dx,0);
     }
 
     Group.prototype.setY = function (y) {
-        this.properties['yPosition'] = Number(y);
+       var dy = y-this.getY();
+       this.move(0, dy);
     }
 
     Group.prototype.setWidth = function (width) {
@@ -1621,8 +1623,8 @@ uiEditor.components.Group = (function () {
 
     Group.prototype.move = function (dx, dy) {
         console.log("moving....");
-        this.setX(this.getX() + dx);
-        this.setY(this.getY() + dy);
+        this.properties['xPosition']+=dx;
+        this.properties['yPosition']+=dy;
         this.properties['components'].forEach(function (value, key) {
             value.move(dx, dy);
         })
