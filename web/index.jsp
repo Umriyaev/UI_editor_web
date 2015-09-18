@@ -44,18 +44,9 @@
                             </li>
                             <li class="dropdown"><a>Alignment</a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Horizontal alignment - left</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Horizontal alignment - right</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Horizontal alignment - center</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Vertical alignment - top</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Vertical alignment - bottom</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Vertical alignment - center</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Move - forward</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Move - backward</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Move - to the front</a></li>
-                                    <li><a class="dropdown-toggle" data-toggle="dropdown">Move - to the bottom</a></li>
-
-                                </ul>
+                                    <li><a class="dropdown-toggle" data-toggle="dropdown" onclick="ns.alignSizes()">Size alignment</a></li>
+                                    <li><a class="dropdown-toggle" data-toggle="dropdown" onclick="ns.alignHorizontal()">Horizontal alignment</a></li>  
+                                    <li><a class="dropdown-toggle" data-toggle="dropdown" onclick="ns.alignVertical()">Vertical alignment</a></li>                                </ul>
                             </li>
                             <li class="dropdown"><a>View</a>
                                 <ul class="dropdown-menu">
