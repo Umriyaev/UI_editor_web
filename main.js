@@ -47,6 +47,8 @@ ns.selection = null;
 
 
 //constants
+ns.G_BUTTON = 71;
+ns.U_BUTTON = 85;
 ns.DELETE_BUTTON = 46;
 ns.ESC_BUTTON = 27;
 ns.INITIAL_WIDTH = 0;
@@ -111,7 +113,8 @@ ns.properties = {
     "selection": [
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"}
-    ]
+    ],
+    "group":[]
 };
 
 ns.componentSizes = {
@@ -232,8 +235,8 @@ ns.deleteComponent = function () {
 
 //handle key press events
 ns.keyPressHandler = function (e) {
-    console.log(e.keyCode);
-    console.log(e);
+    //console.log(e.keyCode);
+    //console.log(e);
     if (e.keyCode === ns.DELETE_BUTTON) {
         ns.deleteComponent();
     }
@@ -245,6 +248,32 @@ ns.keyPressHandler = function (e) {
         }
         else if (ns.chosenComponentType != null) {
             ns.chosenComponentType = null;
+        }
+    }
+
+    else if (e.keyCode === ns.G_BUTTON) {
+        if (e.altKey && e.ctrlKey) {
+            if (ns.selection !== null) {
+                console.log("grouping.....");
+                var components = ns.selection.getSelection();
+                var groupID = ns.idSpecifier.getIdForComponent("group");
+                var group = new uiEditor.components.Group(groupID, components, ns.components);
+                ns.components.set(groupID, group);
+                ns.selection = null;
+                ns.drawRectangles();
+            }
+        }
+    }
+
+    else if (e.keyCode === ns.U_BUTTON) {
+        if (e.altKey && e.ctrlKey) {
+            var component = ns.components.get(ns.alteringComponent.component);
+            if (component.getComponentType() === "group") {
+                component.unGroup(ns.components);
+                ns.alteringComponent = {"panel": null, "component": null};
+                ns.constructProperties(undefined, "keyPressHandler");
+                ns.drawRectangles();
+            }
         }
     }
 
@@ -449,6 +478,7 @@ ns.draw = function (e) {
                     }
 
                     ns.movingComponent = hitTestResult.component;
+                    console.log(ns.movingComponent);
                     ns.alteringComponent.component = hitTestResult.component;
                     ns.alteringComponent.panel = null;
                     ns.constructProperties(ns.components.get(ns.alteringComponent.component, "draw_selection was hit"));
@@ -690,6 +720,7 @@ ns.constructProperties = function (component, callFrom) {
 //move the component to another position
 ns.move = function (e) {
     if (ns.movingComponent) {
+        console.log(ns.movingComponent);
 
         ns.x = e.layerX;
         ns.y = e.layerY;
