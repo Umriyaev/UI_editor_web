@@ -23,7 +23,7 @@ uiEditor.helpers.IdSpecifier = (function () {
 
     IdSpecifier.prototype.getIdForComponent = function (componentType) {
         var id = null;
-        console.log("getIDForComponent: "+componentType);
+        console.log("getIDForComponent: " + componentType);
 
         switch (componentType) {
             case "button":
@@ -1356,7 +1356,8 @@ uiEditor.components.GroupSelection = (function () {
     GroupSelection.prototype.setWidth = function (width, components) {
         if (width != "not set") {
             this.selection.forEach(function (value, key) {
-                components.get(value).setWidth(width);
+                if (components.get(value).getComponentType() !== "group")
+                    components.get(value).setWidth(width);
             });
             this.width = width;
             return components;
@@ -1366,7 +1367,8 @@ uiEditor.components.GroupSelection = (function () {
     GroupSelection.prototype.setHeight = function (height, components) {
         if (height != "not set") {
             this.selection.forEach(function (value, key) {
-                components.get(value).setHeight(height);
+                if (components.get(value).getComponentType() !== "group")
+                    components.get(value).setHeight(height);
             });
             this.height = height;
             return components;
@@ -1519,7 +1521,7 @@ uiEditor.components.Group = (function () {
     function Group(id, selection, components) {
         this.properties = {};
         this.properties['id'] = id;
-        this.properties['componentType']="group";
+        this.properties['componentType'] = "group";
         this.properties['components'] = new Map();
         var leftX = 1000000, leftY = 100000000, rightX = 0, rightY = 0;
         console.log("In group constructor...");
@@ -1554,10 +1556,10 @@ uiEditor.components.Group = (function () {
     }
 
     /**********************Getters****************************/
-    Group.prototype.getComponentType = function(){
+    Group.prototype.getComponentType = function () {
         return this.properties["componentType"];
     }
-    
+
     Group.prototype.getX = function () {
         return this.properties['xPosition'];
     }
@@ -1585,13 +1587,13 @@ uiEditor.components.Group = (function () {
 
     /**********************Setters****************************/
     Group.prototype.setX = function (x) {
-        var dx = x-this.getX();
-        this.move(dx,0);
+        var dx = x - this.getX();
+        this.move(dx, 0);
     }
 
     Group.prototype.setY = function (y) {
-       var dy = y-this.getY();
-       this.move(0, dy);
+        var dy = y - this.getY();
+        this.move(0, dy);
     }
 
     Group.prototype.setWidth = function (width) {
@@ -1623,20 +1625,20 @@ uiEditor.components.Group = (function () {
 
     Group.prototype.move = function (dx, dy) {
         console.log("moving....");
-        this.properties['xPosition']+=dx;
-        this.properties['yPosition']+=dy;
+        this.properties['xPosition'] += dx;
+        this.properties['yPosition'] += dy;
         this.properties['components'].forEach(function (value, key) {
             value.move(dx, dy);
         })
     }
 
     Group.prototype.draw = function (ctx) {
-        
+
         ctx.save();
-        ctx.fillStyle="#f8f8f8";
+        ctx.fillStyle = "#f8f8f8";
         ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         ctx.restore();
-        
+
         this.properties['components'].forEach(function (value, key) {
             value.draw(ctx);
         })
