@@ -114,7 +114,7 @@ ns.properties = {
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"}
     ],
-    "group":[]
+    "group": []
 };
 
 ns.componentSizes = {
@@ -903,7 +903,7 @@ ns.mouseUp = function (e) {
 
 ns.saveToJson = function () {
     var screenObject = new uiEditor.components.ScreenObject();
-    var obj = {"button": [], "text": [], "image": [], "display": [], "panel": []};
+    var obj = {"button": [], "text": [], "image": [], "display": [], "panel": [], "group": []};
     ns.components.forEach(function (value, key) {
         switch (value.getComponentType()) {
             case "text":
@@ -920,9 +920,12 @@ ns.saveToJson = function () {
                 //obj.display.push(value.getPropertiesForJSON());
                 screenObject.setDisplay(value);
                 break;
-
             case "panel":
                 obj.panel.push(value.getPropertiesForJSON());
+                break;
+
+            case "group":
+                obj.group.push(value.getPropertiesForJSON());
                 break;
             case "screenControl":
                 console.log(value.getComponentType());

@@ -785,6 +785,7 @@ uiEditor.components.PanelComponent = (function () {
         panel.children.text = [];
         panel.children.image = [];
         panel.children.panel = [];
+        panel.children.group = [];
         this.getChildren().forEach(function (value, key) {
             switch (value.getComponentType()) {
                 case "text":
@@ -796,12 +797,11 @@ uiEditor.components.PanelComponent = (function () {
                 case "image":
                     panel.children.image.push(value.getPropertiesForJSON());
                     break;
-                case "display":
-                    panel.children.display.push(value.getPropertiesForJSON());
-                    break;
                 case "panel":
                     panel.children.panel.push(value.getPropertiesForJSON());
                     break;
+                case "group":
+                    panel.children.group.push(value.getPropertiesForJSON());
                 default:
                     break;
             }
@@ -1659,6 +1659,45 @@ uiEditor.components.Group = (function () {
         })
 
         components.delete(this.getID());
+    }
+    
+    Group.prototype.getPropertiesForJSON = function(){
+        var group = {};
+        group.id = this.getID();
+        group.xPos = this.getX();
+        group.yPos = this.getY();
+        group.width = this.getWidth();
+        group.height = this.getHeight();
+        group.componentType = this.getComponentType();
+        group.items = {};
+        group.items.button=[];
+        group.items.text = [];
+        group.items.image = [];
+        group.items.panel = [];
+        group.items.group = [];
+        this.getComponents().forEach(function(value,key){
+            switch(value.getComponentType()){
+                case "text":
+                    group.items.text.push(value.getPropertiesForJSON());
+                    break;
+                case "button":
+                    group.items.button.push(value.getPropertiesForJSON());
+                    break;
+                case "image":
+                    group.items.image.push(value.getPropertiesForJSON());
+                    break;
+                case "panel":
+                    group.items.panel.push(value.getPropertiesForJSON());
+                    break;
+                case "group":
+                    group.items.group.push(value.getPropertiesForJSON());
+                    break;
+                default:
+                    break;                 
+            }
+        });
+        
+        return group;
     }
 
 
