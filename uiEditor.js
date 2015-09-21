@@ -915,7 +915,7 @@ uiEditor.components.PanelComponent = (function () {
         for (var i = 0; i < toRemove.length; i++) {
             this.properties["children"].delete(toRemove[i]);
         }
-    }
+    };
     PanelComponent.prototype.getChild = function (componentID) {
         return this.properties['children'].get(componentID);
     };
@@ -1012,7 +1012,7 @@ uiEditor.components.ScreenControlComponent = (function () {
     };
     ScreenControlComponent.prototype.getSizes = function () {
         return this.properties['sizes'];
-    }
+    };
     /*************************************************/
 
 
@@ -1156,7 +1156,7 @@ uiEditor.components.SourceComponent = (function () {
     };
     SourceComponent.prototype.getSource = function () {
         return this.properties['source'];
-    }
+    };
     /*************************************************/
 
 
@@ -1194,7 +1194,7 @@ uiEditor.components.SourceComponent = (function () {
 
     SourceComponent.prototype.deselect = function () {
         this.selected = false;
-    }
+    };
 
     SourceComponent.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
@@ -1332,7 +1332,7 @@ uiEditor.components.GroupSelection = (function () {
 
     GroupSelection.prototype.getSelection = function () {
         return this.selection;
-    }
+    };
 
     GroupSelection.prototype.getWidth = function () {
         return this.width;
@@ -1354,7 +1354,7 @@ uiEditor.components.GroupSelection = (function () {
 
     /*********************Setters*******************************/
     GroupSelection.prototype.setWidth = function (width, components) {
-        if (width != "not set") {
+        if (width !== "not set") {
             this.selection.forEach(function (value, key) {
                 if (components.get(value).getComponentType() !== "group")
                     components.get(value).setWidth(width);
@@ -1365,7 +1365,7 @@ uiEditor.components.GroupSelection = (function () {
     };
 
     GroupSelection.prototype.setHeight = function (height, components) {
-        if (height != "not set") {
+        if (height !== "not set") {
             this.selection.forEach(function (value, key) {
                 if (components.get(value).getComponentType() !== "group")
                     components.get(value).setHeight(height);
@@ -1384,7 +1384,7 @@ uiEditor.components.GroupSelection = (function () {
     GroupSelection.prototype.addToSelection = function (componentID, components) {
         this.selection.set(componentID, componentID);
         components.get(componentID).select();
-        if (this.firstItem == null) {
+        if (this.firstItem === null) {
             this.firstItem = components.get(componentID);
         }
     };
@@ -1392,7 +1392,7 @@ uiEditor.components.GroupSelection = (function () {
 
     /********************Alignment operations******************************/
     GroupSelection.prototype.alignSize = function (components) {
-        if (this.firstItem == null) {
+        if (this.firstItem === null) {
             return;
         }
         var width = this.firstItem.getWidth();
@@ -1403,7 +1403,7 @@ uiEditor.components.GroupSelection = (function () {
     };
 
     GroupSelection.prototype.alignVertical = function (components) {
-        if (this.firstItem == null) {
+        if (this.firstItem === null) {
             return;
         }
 
@@ -1420,7 +1420,7 @@ uiEditor.components.GroupSelection = (function () {
     };
 
     GroupSelection.prototype.alignHorizontal = function (components) {
-        if (this.firstItem == null) {
+        if (this.firstItem === null) {
             return;
         }
 
@@ -1434,7 +1434,7 @@ uiEditor.components.GroupSelection = (function () {
         });
 
         return components;
-    }
+    };
 
 
     /**********************************************************************/
@@ -1490,12 +1490,12 @@ uiEditor.components.GroupSelection = (function () {
                 break;
             case "height":
                 propertyValue = Number(propertyValue);
-                this.setHeight(propertyValue, components)
+                this.setHeight(propertyValue, components);
                 break;
             default:
                 return undefined;
         }
-    }
+    };
 
     GroupSelection.prototype.hitTest = function (x, y, components) {
         var result = false;
@@ -1558,60 +1558,60 @@ uiEditor.components.Group = (function () {
     /**********************Getters****************************/
     Group.prototype.getComponentType = function () {
         return this.properties["componentType"];
-    }
+    };
 
     Group.prototype.getX = function () {
         return this.properties['xPosition'];
-    }
+    };
 
     Group.prototype.getY = function () {
         return this.properties['yPosition'];
-    }
+    };
 
     Group.prototype.getWidth = function () {
         return this.properties['width'];
-    }
+    };
 
     Group.prototype.getHeight = function () {
         return this.properties['height'];
-    }
+    };
 
     Group.prototype.getID = function () {
         return this.properties['id'];
-    }
+    };
 
     Group.prototype.getComponents = function () {
         return this.properties['components'];
-    }
+    };
     /*********************************************************/
 
     /**********************Setters****************************/
     Group.prototype.setX = function (x) {
         var dx = x - this.getX();
         this.move(dx, 0);
-    }
+    };
 
     Group.prototype.setY = function (y) {
         var dy = y - this.getY();
         this.move(0, dy);
-    }
+    };
 
     Group.prototype.setWidth = function (width) {
         this.properties['width'] = Number(width);
-    }
+    };
 
     Group.prototype.setHeight = function (height) {
         this.properties['height'] = Number(height);
-    }
+    };
     /*********************************************************/
 
     Group.prototype.select = function () {
         this.selected = true;
-    }
+    };
 
     Group.prototype.deselect = function () {
         this.selected = false;
-    }
+    };
 
     Group.prototype.hitTest = function (x, y) {
         var result = {"hit": false, "component": this.getID(), "panel": null};
@@ -1621,7 +1621,7 @@ uiEditor.components.Group = (function () {
         }
 
         return result;
-    }
+    };
 
     Group.prototype.move = function (dx, dy) {
         console.log("moving....");
@@ -1629,19 +1629,19 @@ uiEditor.components.Group = (function () {
         this.properties['yPosition'] += dy;
         this.properties['components'].forEach(function (value, key) {
             value.move(dx, dy);
-        })
-    }
+        });
+    };
 
     Group.prototype.draw = function (ctx) {
 
-        ctx.save();
-        ctx.fillStyle = "#f8f8f8";
-        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        ctx.restore();
+        //ctx.save();
+        //ctx.fillStyle = "#f8f8f8";
+        //ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        //ctx.restore();
 
         this.properties['components'].forEach(function (value, key) {
             value.draw(ctx);
-        })
+        });
 
         if (this.selected) {
             ctx.save();
@@ -1649,17 +1649,17 @@ uiEditor.components.Group = (function () {
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
-    }
+    };
 
     Group.prototype.unGroup = function (components) {
         var componentsBuffer = this.getComponents();
         this.properties['components'].forEach(function (value, key) {
             components.set(key, value);
             componentsBuffer.delete(key);
-        })
+        });
 
         components.delete(this.getID());
-    }
+    };
     
     Group.prototype.getPropertiesForJSON = function(){
         var group = {};
@@ -1698,7 +1698,7 @@ uiEditor.components.Group = (function () {
         });
         
         return group;
-    }
+    };
 
 
 
