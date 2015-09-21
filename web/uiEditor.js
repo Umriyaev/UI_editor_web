@@ -1634,10 +1634,10 @@ uiEditor.components.Group = (function () {
 
     Group.prototype.draw = function (ctx) {
 
-        ctx.save();
-        ctx.fillStyle = "#f8f8f8";
-        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        ctx.restore();
+        //ctx.save();
+        //ctx.fillStyle = "#f8f8f8";
+        //ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        //ctx.restore();
 
         this.properties['components'].forEach(function (value, key) {
             value.draw(ctx);
