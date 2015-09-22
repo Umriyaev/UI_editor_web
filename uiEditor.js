@@ -86,6 +86,7 @@ uiEditor.components.ImageComponent = (function () {
         this.properties['height'] = h;
         this.properties['image url'] = 'images/dummy-image.jpg';
         this.selected = false;
+        this.firstSelected = false;
     }
 
     /*****************Getters************************/
@@ -151,8 +152,14 @@ uiEditor.components.ImageComponent = (function () {
         this.selected = true;
     };
 
+    ImageComponent.prototype.firstSelect = function () {
+        this.firstSelected = true;
+    };
+
     ImageComponent.prototype.deselect = function () {
         this.selected = false;
+        if (this.firstSelected)
+            this.firstSelected = false;
     };
 
     ImageComponent.prototype.hitTest = function (x, y) {
@@ -185,7 +192,10 @@ uiEditor.components.ImageComponent = (function () {
 
         if (this.selected) {
             ctx.save();
-            ctx.strokeStyle = "#ff0000";
+            if (!this.firstSelected)
+                ctx.strokeStyle = "#ff0000";
+            else
+                ctx.strokeStyle = "#f202ca"
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
@@ -210,6 +220,7 @@ uiEditor.components.TextComponent = (function () {
         this.properties['height'] = h;
         this.properties['placeholder text'] = "placeholder text";
         this.selected = false;
+        this.firstSelected = false;
     }
 
     /*****************Getters************************/
@@ -279,8 +290,14 @@ uiEditor.components.TextComponent = (function () {
         this.selected = true;
     };
 
+    TextComponent.prototype.firstSelect = function () {
+        this.firstSelected = true;
+    };
+
     TextComponent.prototype.deselect = function () {
         this.selected = false;
+        if (this.firstSelected)
+            this.firstSelected = false;
     };
 
     TextComponent.prototype.hitTest = function (x, y) {
@@ -365,7 +382,10 @@ uiEditor.components.TextComponent = (function () {
 
         if (this.selected) {
             ctx.save();
-            ctx.strokeStyle = "#ff0000";
+            if (!this.firstSelected)
+                ctx.strokeStyle = "#ff0000";
+            else
+                ctx.strokeStyle = "#f202ca";
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
@@ -390,6 +410,7 @@ uiEditor.components.DisplayComponent = (function () {
         this.properties['rows'] = numberOfRows;
         this.properties['cols'] = numberOfColumns;
         this.selected = false;
+        this.firstSelected = false;
     }
 
     /*****************Getters************************/
@@ -458,8 +479,14 @@ uiEditor.components.DisplayComponent = (function () {
         this.selected = true;
     };
 
+    DisplayComponent.prototype.firstSelect = function () {
+        this.firstSelected = true;
+    };
+
     DisplayComponent.prototype.deselect = function () {
         this.selected = false;
+        if (this.firstSelected)
+            this.firstSelected = false;
     };
 
     DisplayComponent.prototype.hitTest = function (x, y) {
@@ -520,7 +547,10 @@ uiEditor.components.DisplayComponent = (function () {
 
         if (this.selected) {
             ctx.save();
-            ctx.strokeStyle = "#ff0000";
+            if (!this.firstSelected)
+                ctx.strokeStyle = "#ff0000";
+            else
+                ctx.strokeStyle = "#f202ca";
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
@@ -546,6 +576,7 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['text'] = 'button';
         this.properties['radius'] = 10;
         this.selected = false;
+        this.firstSelected = false;
     }
 
     /*****************Getters************************/
@@ -611,8 +642,14 @@ uiEditor.components.ButtonComponent = (function () {
         this.selected = true;
     };
 
+    ButtonComponent.prototype.firstSelect = function () {
+        this.firstSelected = true;
+    };
+
     ButtonComponent.prototype.deselect = function () {
         this.selected = false;
+        if (this.firstSelected)
+            this.firstSelected = false;
     };
 
     ButtonComponent.prototype.hitTest = function (x, y) {
@@ -683,7 +720,10 @@ uiEditor.components.ButtonComponent = (function () {
 
         if (this.selected) {
             ctx.save();
-            ctx.strokeStyle = "#ff0000";
+            if (!this.firstSelected)
+                ctx.strokeStyle = "#ff0000";
+            else
+                ctx.strokeStyle = "#f202ca";
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
@@ -710,6 +750,7 @@ uiEditor.components.PanelComponent = (function () {
         this.properties["componentType"] = "panel";
         this.properties['children'] = new Map();
         this.selected = false;
+        this.firstSelected = false;
     }
 
     /*****************Getters************************/
@@ -814,8 +855,14 @@ uiEditor.components.PanelComponent = (function () {
         this.selected = true;
     };
 
+    PanelComponent.prototype.firstSelect = function () {
+        this.firstSelected = true;
+    };
+
     PanelComponent.prototype.deselect = function () {
         this.selected = false;
+        if (this.firstSelected)
+            this.firstSelected = false;
     };
 
     PanelComponent.prototype.hitTest = function (x, y) {
@@ -957,7 +1004,10 @@ uiEditor.components.PanelComponent = (function () {
 
         if (this.selected) {
             ctx.save();
-            ctx.strokeStyle = "#ff0000";
+            if (!this.firstSelected)
+                ctx.strokeStyle = "#ff0000";
+            else
+                ctx.strokeStyle = "#f202ca";
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
@@ -983,6 +1033,7 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties['radius'] = 10;
         this.properties['sizes'] = sizes;
         this.selected = false;
+        this.firstSelected = false;
     }
 
     /*****************Getters************************/
@@ -1045,8 +1096,14 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.selected = true;
     };
 
+    ScreenControlComponent.prototype.firstSelect = function () {
+        this.firstSelected = true;
+    };
+
     ScreenControlComponent.prototype.deselect = function () {
         this.selected = false;
+        if (this.firstSelected)
+            this.firstSelected = false;
     };
 
     ScreenControlComponent.prototype.hitTest = function (x, y) {
@@ -1098,7 +1155,10 @@ uiEditor.components.ScreenControlComponent = (function () {
 
         if (this.selected) {
             ctx.save();
-            ctx.strokeStyle = "#ff0000";
+            if (!this.firstSelected)
+                ctx.strokeStyle = "#ff0000";
+            else
+                ctx.strokeStyle = "#f202ca";
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
@@ -1124,6 +1184,7 @@ uiEditor.components.SourceComponent = (function () {
         this.properties['text'] = text;
         this.properties['source'] = source;
         this.selected = false;
+        this.firstSelected = false;
     }
 
     /*****************Getters************************/
@@ -1192,8 +1253,14 @@ uiEditor.components.SourceComponent = (function () {
         this.selected = true;
     };
 
+    SourceComponent.prototype.firstSelect = function () {
+        this.firstSelected = true;
+    };
+
     SourceComponent.prototype.deselect = function () {
         this.selected = false;
+        if (this.firstSelected)
+            this.firstSelected = false;
     };
 
     SourceComponent.prototype.hitTest = function (x, y) {
@@ -1237,7 +1304,10 @@ uiEditor.components.SourceComponent = (function () {
 
         if (this.selected) {
             ctx.save();
-            ctx.strokeStyle = "#ff0000";
+            if (!this.firstSelected)
+                ctx.strokeStyle = "#ff0000";
+            else
+                ctx.strokeStyle = "#f202ca";
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
@@ -1386,6 +1456,7 @@ uiEditor.components.GroupSelection = (function () {
         components.get(componentID).select();
         if (this.firstItem === null) {
             this.firstItem = components.get(componentID);
+            this.firstItem.firstSelect();
         }
     };
 
@@ -1553,6 +1624,7 @@ uiEditor.components.Group = (function () {
         this.properties['width'] = rightX - leftX + 10;
         this.properties['height'] = rightY - leftY + 10;
         this.selected = false;
+        this.firstSelected = false;
     }
 
     /**********************Getters****************************/
@@ -1609,8 +1681,14 @@ uiEditor.components.Group = (function () {
         this.selected = true;
     };
 
+    Group.prototype.firstSelect = function () {
+        this.firstSelected = true;
+    };
+
     Group.prototype.deselect = function () {
         this.selected = false;
+        if (this.firstSelected)
+            this.firstSelected = false;
     };
 
     Group.prototype.hitTest = function (x, y) {
@@ -1645,10 +1723,23 @@ uiEditor.components.Group = (function () {
 
         if (this.selected) {
             ctx.save();
-            ctx.strokeStyle = "#ff0000";
+            if (!this.firstSelected)
+                ctx.strokeStyle = "#ff0000";
+            else
+                ctx.strokeStyle = "#f202ca";
+            ctx.setLineDash([3,2]);
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
+        
+        else{
+            ctx.save();
+            ctx.setLineDash([3,2]);
+            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
+        
+        
     };
 
     Group.prototype.unGroup = function (components) {
@@ -1660,8 +1751,8 @@ uiEditor.components.Group = (function () {
 
         components.delete(this.getID());
     };
-    
-    Group.prototype.getPropertiesForJSON = function(){
+
+    Group.prototype.getPropertiesForJSON = function () {
         var group = {};
         group.id = this.getID();
         group.xPos = this.getX();
@@ -1670,13 +1761,13 @@ uiEditor.components.Group = (function () {
         group.height = this.getHeight();
         group.componentType = this.getComponentType();
         group.items = {};
-        group.items.button=[];
+        group.items.button = [];
         group.items.text = [];
         group.items.image = [];
         group.items.panel = [];
         group.items.group = [];
-        this.getComponents().forEach(function(value,key){
-            switch(value.getComponentType()){
+        this.getComponents().forEach(function (value, key) {
+            switch (value.getComponentType()) {
                 case "text":
                     group.items.text.push(value.getPropertiesForJSON());
                     break;
@@ -1693,10 +1784,10 @@ uiEditor.components.Group = (function () {
                     group.items.group.push(value.getPropertiesForJSON());
                     break;
                 default:
-                    break;                 
+                    break;
             }
         });
-        
+
         return group;
     };
 
