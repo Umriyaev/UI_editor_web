@@ -9,6 +9,27 @@ var uiEditor = uiEditor || {};
 uiEditor.components = uiEditor.components || {};
 uiEditor.helpers = uiEditor.helpers || {};
 
+uiEditor.helpers.drawSelection = function (ctx, componentX, componentY, componentWidth, componentHeight, color) {
+    var selectionWidth = 20;
+    var selectionHeight = 20;
+    var x1 = componentX - selectionWidth / 2;
+    var y1 = componentY - selectionHeight / 2;
+    var x2 = x1 + componentWidth;
+    var y2 = y1;
+    var x3 = x1;
+    var y3 = y1 + componentHeight;
+    var x4 = x2;
+    var y4 = y3;
+
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.fillRect(x1, y1, selectionWidth, selectionHeight);
+    ctx.fillRect(x2, y2, selectionWidth, selectionHeight);
+    ctx.fillRect(x3, y3, selectionWidth, selectionHeight);
+    ctx.fillRect(x4, y4, selectionWidth, selectionHeight);
+    ctx.restore();
+};
+
 uiEditor.helpers.IdSpecifier = (function () {
     function IdSpecifier() {
         this.buttonCount = 0;
@@ -191,13 +212,10 @@ uiEditor.components.ImageComponent = (function () {
         ctx.drawImage(image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 
         if (this.selected) {
-            ctx.save();
             if (!this.firstSelected)
-                ctx.strokeStyle = "#ff0000";
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
             else
-                ctx.strokeStyle = "#f202ca"
-            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            ctx.restore();
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
         }
     };
     return ImageComponent;
@@ -381,13 +399,10 @@ uiEditor.components.TextComponent = (function () {
         }
 
         if (this.selected) {
-            ctx.save();
             if (!this.firstSelected)
-                ctx.strokeStyle = "#ff0000";
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
             else
-                ctx.strokeStyle = "#f202ca";
-            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            ctx.restore();
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
         }
     };
     return TextComponent;
@@ -546,13 +561,10 @@ uiEditor.components.DisplayComponent = (function () {
         ctx.stroke();
 
         if (this.selected) {
-            ctx.save();
             if (!this.firstSelected)
-                ctx.strokeStyle = "#ff0000";
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
             else
-                ctx.strokeStyle = "#f202ca";
-            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            ctx.restore();
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
         }
     };
     return DisplayComponent;
@@ -719,13 +731,10 @@ uiEditor.components.ButtonComponent = (function () {
         ctx.restore();
 
         if (this.selected) {
-            ctx.save();
             if (!this.firstSelected)
-                ctx.strokeStyle = "#ff0000";
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
             else
-                ctx.strokeStyle = "#f202ca";
-            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            ctx.restore();
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
         }
     };
     return ButtonComponent;
@@ -1003,13 +1012,10 @@ uiEditor.components.PanelComponent = (function () {
         });
 
         if (this.selected) {
-            ctx.save();
             if (!this.firstSelected)
-                ctx.strokeStyle = "#ff0000";
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
             else
-                ctx.strokeStyle = "#f202ca";
-            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            ctx.restore();
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
         }
     };
     return PanelComponent;
@@ -1154,13 +1160,10 @@ uiEditor.components.ScreenControlComponent = (function () {
         ctx.restore();
 
         if (this.selected) {
-            ctx.save();
             if (!this.firstSelected)
-                ctx.strokeStyle = "#ff0000";
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
             else
-                ctx.strokeStyle = "#f202ca";
-            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            ctx.restore();
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
         }
     };
     return ScreenControlComponent;
@@ -1303,13 +1306,10 @@ uiEditor.components.SourceComponent = (function () {
         ctx.restore();
 
         if (this.selected) {
-            ctx.save();
-            if (!this.firstSelected)
-                ctx.strokeStyle = "#ff0000";
+           if (!this.firstSelected)
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
             else
-                ctx.strokeStyle = "#f202ca";
-            ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            ctx.restore();
+                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
         }
     };
     return SourceComponent;
@@ -1727,19 +1727,19 @@ uiEditor.components.Group = (function () {
                 ctx.strokeStyle = "#ff0000";
             else
                 ctx.strokeStyle = "#f202ca";
-            ctx.setLineDash([3,2]);
+            ctx.setLineDash([3, 2]);
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
-        
-        else{
+
+        else {
             ctx.save();
-            ctx.setLineDash([3,2]);
+            ctx.setLineDash([3, 2]);
             ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             ctx.restore();
         }
-        
-        
+
+
     };
 
     Group.prototype.unGroup = function (components) {
@@ -1795,3 +1795,6 @@ uiEditor.components.Group = (function () {
 
     return Group;
 })();
+
+
+
