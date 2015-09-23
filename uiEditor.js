@@ -1306,7 +1306,7 @@ uiEditor.components.SourceComponent = (function () {
         ctx.restore();
 
         if (this.selected) {
-           if (!this.firstSelected)
+            if (!this.firstSelected)
                 uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
             else
                 uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
@@ -1506,6 +1506,108 @@ uiEditor.components.GroupSelection = (function () {
 
         return components;
     };
+
+    GroupSelection.prototype.alignIntervalHorizontal = function (components) {
+        if (this.firstItem === null) {
+            return;
+        }
+
+        var selectionItems = [];
+        this.selection.forEach(function (value, key) {
+            selectionItems.push(components.get(value));
+        });
+
+        selectionItems.sort(function (a, b) {
+            if (a.getX() < b.getX()) {
+                return -1;
+            }
+            if (a.getX() > b.getX()) {
+                return 1;
+            }
+            if (a.getY() < b.getY()) {
+                return -1;
+            }
+            if (a.getY() > b.getY()) {
+                return 1;
+            }
+            return 0;
+        });
+
+        console.log("after sort");
+        for (var i = 0; i < selectionItems.length; i++) {
+            console.log(selectionItems[i].getID());
+        }
+
+        var max = 0;
+        var buf = 0;
+        for (var i = 0; i < selectionItems.length - 1; i++) {
+            buf = Math.abs(selectionItems[i].getWidth() / 2 - selectionItems[i + 1].getWidth() / 2);
+            if (buf > max) {
+                console.log("max changed");
+                max = buf;
+            }
+        }
+
+        console.log("max interval is: " + max);
+
+
+        for (var i = 0; i < selectionItems.length - 1; i++) {
+            var align = max + selectionItems[i + 1].getWidth() / 2 + selectionItems[i].getWidth() / 2 + 20;
+            selectionItems[i + 1].setX(selectionItems[i].getX() + selectionItems[i].getWidth() + align);
+        }
+    };
+    
+    GroupSelection.prototype.alignIntervalVertical = function (components) {
+        if (this.firstItem === null) {
+            return;
+        }
+
+        var selectionItems = [];
+        this.selection.forEach(function (value, key) {
+            selectionItems.push(components.get(value));
+        });
+
+        selectionItems.sort(function (a, b) {
+            if (a.getY() < b.getY()) {
+                return -1;
+            }
+            if (a.getY() > b.getY()) {
+                return 1;
+            }
+            if (a.getX() < b.getX()) {
+                return -1;
+            }
+            if (a.getX() > b.getX()) {
+                return 1;
+            }
+            return 0;
+        });
+
+        console.log("after sort");
+        for (var i = 0; i < selectionItems.length; i++) {
+            console.log(selectionItems[i].getID());
+        }
+
+        var max = 0;
+        var buf = 0;
+        for (var i = 0; i < selectionItems.length - 1; i++) {
+            buf = Math.abs(selectionItems[i].getHeight() / 2 - selectionItems[i + 1].getHeight() / 2);
+            if (buf > max) {
+                console.log("max changed");
+                max = buf;
+            }
+        }
+
+        console.log("max interval is: " + max);
+
+
+        for (var i = 0; i < selectionItems.length - 1; i++) {
+            var align = max + selectionItems[i + 1].getHeight() / 2 + selectionItems[i].getHeight() / 2 + 20;
+            selectionItems[i + 1].setY(selectionItems[i].getY() + selectionItems[i].getHeight() + align);
+        }
+    };
+    
+    
 
 
     /**********************************************************************/
