@@ -999,7 +999,7 @@ ns.alignSizes = function () {
     if (ns.chosenComponentType !== null) {
         ns.chosenComponentType = null;
     }
-}
+};
 
 ns.alignVertical = function () {
     if (ns.selection === null) {
@@ -1012,7 +1012,7 @@ ns.alignVertical = function () {
     if (ns.chosenComponentType !== null) {
         ns.chosenComponentType = null;
     }
-}
+};
 
 ns.alignHorizontal = function () {
     if (ns.selection === null) {
@@ -1025,8 +1025,33 @@ ns.alignHorizontal = function () {
     if (ns.chosenComponentType !== null) {
         ns.chosenComponentType = null;
     }
+};
 
-}
+ns.alignIntervalsHorizontal = function () {
+    if (ns.selection === null) {
+        return;
+    }
+
+    ns.selection.alignIntervalHorizontal(ns.components);
+    ns.drawRectangles();
+
+    if (ns.chosenComponentType !== null) {
+        ns.chosenComponentType = null;
+    }
+};
+
+ns.alignIntervalsVertical = function () {
+    if (ns.selection === null) {
+        return;
+    }
+
+    ns.selection.alignIntervalVertical(ns.components);
+    ns.drawRectangles();
+
+    if (ns.chosenComponentType !== null) {
+        ns.chosenComponentType = null;
+    }
+};
 
 /******************************************************************/
 
