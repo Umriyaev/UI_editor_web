@@ -404,6 +404,22 @@ ns.fileChanged = function (e) {
  * else if mouse is pressed on empty space of canvas, then events are set to the
  *          events for drawing new component
  * component is drawn if componentType is chosen from toolbox, if nothing is chosen draw will not happen*/
+
+ns.clearSelection = function () {
+    if (ns.alteringComponent.component !== null) {
+        if (ns.alteringComponent.panel !== null) {
+            var panel = ns.components.get(ns.alteringComponent.panel);
+            var child = panel.getChild(ns.alteringComponent.component);
+            child.deselect();
+        }
+        else {
+            var component = ns.components.get(ns.alteringComponent.component);
+            if (component)
+                component.deselect();
+        }
+    }
+};
+
 ns.draw = function (e) {
 
     var x = e.layerX;
@@ -422,6 +438,7 @@ ns.draw = function (e) {
                 ns.moveY = y;
                 ns.movingChildComponent.panel = hitTestResult.panel;
                 ns.movingChildComponent.component = hitTestResult.component;
+                ns.clearSelection();
                 ns.alteringComponent.panel = hitTestResult.panel;
                 ns.alteringComponent.component = hitTestResult.component;
                 var panel = ns.components.get(ns.alteringComponent.panel);
@@ -439,6 +456,8 @@ ns.draw = function (e) {
                     ns.drawRectangles();
                     ns.selection = null;
                 }
+
+                ns.clearSelection();
 
                 if (ns.chosenComponentType !== null) {
                     ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
@@ -464,6 +483,7 @@ ns.draw = function (e) {
                 if (hitTestResult.isInSelection) {
 
                     ns.movingComponent = "selection";
+                    ns.clearSelection();
                     ns.alteringComponent.component = "selection";
                     ns.alteringComponent.panel = null;
                     //TODO
@@ -477,10 +497,13 @@ ns.draw = function (e) {
                         ns.selection = null;
                     }
 
+                    ns.clearSelection();
                     ns.movingComponent = hitTestResult.component;
                     console.log(ns.movingComponent);
                     ns.alteringComponent.component = hitTestResult.component;
                     ns.alteringComponent.panel = null;
+                    ns.components.get(ns.alteringComponent.component).select();
+                    ns.components.get(ns.alteringComponent.component).firstSelect();
                     ns.constructProperties(ns.components.get(ns.alteringComponent.component, "draw_selection was hit"));
                 }
                 ns.moveX = x;
@@ -498,6 +521,8 @@ ns.draw = function (e) {
                 ns.drawRectangles();
                 ns.selection = null;
             }
+
+            ns.clearSelection();
 
             if (ns.chosenComponentType !== null) {
                 ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
@@ -526,6 +551,9 @@ ns.draw = function (e) {
                 //add selection color to edges of component
             }
             else {
+                if (ns.alteringComponent.component !== null && ns.alteringComponent.panel === null && ns.selection.isEmpty()) {
+                    ns.selection.addToSelection(ns.alteringComponent.component, ns.components);
+                }
                 ns.selection.addToSelection(hitTestResult.component, ns.components);
 
                 //ToDo
@@ -720,7 +748,10 @@ ns.constructProperties = function (component, callFrom) {
 //move the component to another position
 ns.move = function (e) {
     if (ns.movingComponent) {
-        console.log(ns.movingComponent);
+        console.log("****************************************");
+        console.log('moving component: '+ ns.movingComponent);
+        console.log("altering component: "+ns.alteringComponent);
+        console.log("*******************************************");
 
         ns.x = e.layerX;
         ns.y = e.layerY;

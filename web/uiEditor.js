@@ -10,8 +10,8 @@ uiEditor.components = uiEditor.components || {};
 uiEditor.helpers = uiEditor.helpers || {};
 
 uiEditor.helpers.drawSelection = function (ctx, componentX, componentY, componentWidth, componentHeight, color) {
-    var selectionWidth = 20;
-    var selectionHeight = 20;
+    var selectionWidth = 10;
+    var selectionHeight = 10;
     var x1 = componentX - selectionWidth / 2;
     var y1 = componentY - selectionHeight / 2;
     var x2 = x1 + componentWidth;
@@ -1685,6 +1685,10 @@ uiEditor.components.GroupSelection = (function () {
     GroupSelection.prototype.isInSelection = function (componentID) {
         return this.selection.has(componentID);
     };
+    
+    GroupSelection.prototype.isEmpty = function(){
+        return this.selection.size==0;
+    }
 
 
     return GroupSelection;
