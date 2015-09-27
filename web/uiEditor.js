@@ -585,7 +585,7 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
-        this.properties['text'] = 'button';
+        this.properties['text'] = id;
         this.properties['radius'] = 10;
         this.selected = false;
         this.firstSelected = false;
@@ -1531,32 +1531,24 @@ uiEditor.components.GroupSelection = (function () {
                 return 1;
             }
             return 0;
-        });
+        });      
 
-        console.log("after sort");
-        for (var i = 0; i < selectionItems.length; i++) {
-            console.log(selectionItems[i].getID());
+        var count = 0;
+        var d = selectionItems[selectionItems.length-1].getX();
+        
+        for (var i = selectionItems.length-2; i >= 1; i--) {
+            d-=selectionItems[i].getWidth();
+            count++;
         }
+        
+        d-=selectionItems[0].getX();
+        d/=count+2;
 
-        var max = 0;
-        var buf = 0;
-        for (var i = 0; i < selectionItems.length - 1; i++) {
-            buf = Math.abs(selectionItems[i].getWidth() / 2 - selectionItems[i + 1].getWidth() / 2);
-            if (buf > max) {
-                console.log("max changed");
-                max = buf;
-            }
-        }
-
-        console.log("max interval is: " + max);
-
-
-        for (var i = 0; i < selectionItems.length - 1; i++) {
-            var align = max + selectionItems[i + 1].getWidth() / 2 + selectionItems[i].getWidth() / 2 + 20;
-            selectionItems[i + 1].setX(selectionItems[i].getX() + selectionItems[i].getWidth() + align);
+        for (var i = 1; i < selectionItems.length - 1; i++) {
+            selectionItems[i].setX(selectionItems[i-1].getX() + selectionItems[i-1].getWidth() + d);
         }
     };
-    
+
     GroupSelection.prototype.alignIntervalVertical = function (components) {
         if (this.firstItem === null) {
             return;
@@ -1583,32 +1575,21 @@ uiEditor.components.GroupSelection = (function () {
             return 0;
         });
 
-        console.log("after sort");
-        for (var i = 0; i < selectionItems.length; i++) {
-            console.log(selectionItems[i].getID());
+        var count = 0;
+        var d = selectionItems[selectionItems.length - 1].getY();
+
+        for (var i = selectionItems.length - 2; i >= 1; i--) {
+            d -= selectionItems[i].getHeight();
+            count++;
         }
 
-        var max = 0;
-        var buf = 0;
-        for (var i = 0; i < selectionItems.length - 1; i++) {
-            buf = Math.abs(selectionItems[i].getHeight() / 2 - selectionItems[i + 1].getHeight() / 2);
-            if (buf > max) {
-                console.log("max changed");
-                max = buf;
-            }
-        }
+        d -= selectionItems[0].getY();
+        d /= count+2;
 
-        console.log("max interval is: " + max);
-
-
-        for (var i = 0; i < selectionItems.length - 1; i++) {
-            var align = max + selectionItems[i + 1].getHeight() / 2 + selectionItems[i].getHeight() / 2 + 20;
-            selectionItems[i + 1].setY(selectionItems[i].getY() + selectionItems[i].getHeight() + align);
+        for (var i = 1; i < selectionItems.length - 1; i++) {
+            selectionItems[i].setY(selectionItems[i - 1].getY() + selectionItems[i - 1].getHeight() + d);
         }
     };
-    
-    
-
 
     /**********************************************************************/
 
@@ -1685,9 +1666,9 @@ uiEditor.components.GroupSelection = (function () {
     GroupSelection.prototype.isInSelection = function (componentID) {
         return this.selection.has(componentID);
     };
-    
-    GroupSelection.prototype.isEmpty = function(){
-        return this.selection.size==0;
+
+    GroupSelection.prototype.isEmpty = function () {
+        return this.selection.size == 0;
     }
 
 
