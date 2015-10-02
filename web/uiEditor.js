@@ -1541,8 +1541,15 @@ uiEditor.components.GroupSelection = (function () {
             count++;
         }
         
-        d-=selectionItems[0].getX();
-        d/=count+2;
+        d-=selectionItems[0].getX()+selectionItems[0].getWidth();
+        d/=count+1;
+        
+        //Test D
+        //d = selectionItems[selectionItems.length-1].getX() - selectionItems[0].getX() - selectionItems[0].getWidth();
+        
+        //d/=selectionItems.length-2;
+        
+        console.log('d='+d);
 
         for (var i = 1; i < selectionItems.length - 1; i++) {
             selectionItems[i].setX(selectionItems[i-1].getX() + selectionItems[i-1].getWidth() + d);
@@ -1583,8 +1590,8 @@ uiEditor.components.GroupSelection = (function () {
             count++;
         }
 
-        d -= selectionItems[0].getY();
-        d /= count+2;
+        d -= selectionItems[0].getY()+selectionItems[0].getHeight();
+        d /= count+1;
 
         for (var i = 1; i < selectionItems.length - 1; i++) {
             selectionItems[i].setY(selectionItems[i - 1].getY() + selectionItems[i - 1].getHeight() + d);
