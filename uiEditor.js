@@ -1025,7 +1025,7 @@ uiEditor.components.PanelComponent = (function () {
 
 /*******************************Screen control*********************************************/
 uiEditor.components.ScreenControlComponent = (function () {
-    function ScreenControlComponent(id, x, y, w, h, sizes) {
+    function ScreenControlComponent(id, x, y, w, h, rows, cols, sizes) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.zIndex = null; // numbers
@@ -1037,7 +1037,12 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties['width'] = w;
         this.properties['height'] = h;
         this.properties['radius'] = 10;
+        this.properties['itemWidth'] = 60;
+        this.properties['itemHeight'] = 40;
+        this.properties['offset'] = 0;
         this.properties['sizes'] = sizes;
+        this.properties['rows'] = rows;
+        this.properties['cols'] = cols;
         this.selected = false;
         this.firstSelected = false;
     }
@@ -1052,11 +1057,26 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.getWidth = function () {
         return this.properties['width'];
     };
+    ScreenControlComponent.prototype.getOffset = function () {
+        return this.properties['offset'];
+    };
     ScreenControlComponent.prototype.getHeight = function () {
         return this.properties['height'];
     };
+    ScreenControlComponent.prototype.getItemWidth = function () {
+        return this.properties['itemWidth'];
+    };
+    ScreenControlComponent.prototype.getItemHeight = function () {
+        return this.properties['itemHeight'];
+    };
     ScreenControlComponent.prototype.getID = function () {
         return this.properties["id"];
+    };
+    ScreenControlComponent.prototype.getRows = function () {
+        return this.properties['rows'];
+    };
+    ScreenControlComponent.prototype.getCols = function () {
+        return this.properties['cols'];
     };
     ScreenControlComponent.prototype.getComponentType = function () {
         return this.properties["componentType"];
@@ -1087,6 +1107,15 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.setHeight = function (h) {
         this.properties['height'] = h;
     };
+    ScreenControlComponent.prototype.setOffset = function (offset) {
+        this.properties['offset'] = Number(offset);
+    };
+    ScreenControlComponent.prototype.setRows = function (rows) {
+        this.properties['rows'] = Number(rows);
+    };
+    ScreenControlComponent.prototype.setCols = function (cols) {
+        this.properties['cols'] = Number(cols);
+    }
     ScreenControlComponent.prototype.setSizes = function (sizes) {
         this.properties['sizes'] = sizes;
     };
@@ -1127,14 +1156,17 @@ uiEditor.components.ScreenControlComponent = (function () {
     };
 
     ScreenControlComponent.prototype.draw = function (ctx) {
+        this.setOffset(Number(this.getOffset()))
         this.setX(Number(this.getX()));
         this.setY(Number(this.getY()));
         this.setWidth(Number(this.getWidth()));
         this.setHeight(Number(this.getHeight()));
 
         var sizeCount = this.getSizes().length;
-        var itemWidth = this.getWidth() / sizeCount;
-        var itemHeight = this.getHeight();
+        // var itemWidth = this.getWidth() / sizeCount;
+        //  var itemHeight = this.getHeight();
+        var itemWidth = this.getItemWidth();
+        var itemHeight = this.getItemHeight();
 
         ctx.save();
 
@@ -1143,19 +1175,41 @@ uiEditor.components.ScreenControlComponent = (function () {
         gradient.addColorStop(0, "#f1f1f1");
         ctx.textAlign = "center";
 
-        for (var i = 0; i < sizeCount; i++) {
-            ctx.beginPath();
-            ctx.fillStyle = gradient;
-            var xPos = this.getX() + i * (itemWidth);
-            var yPos = this.getY();
-            ctx.rect(xPos, yPos, itemWidth, itemHeight);
-            ctx.stroke();
-            ctx.fill();
-            ctx.fillStyle = "black";
-            ctx.font = "20px Arial";
-            ctx.fillText(this.getSizes()[i], xPos + itemWidth / 2, yPos + itemHeight / 2 + 3);
-            ctx.closePath();
+        /*for (var i = 0; i < sizeCount; i++) {
+         ctx.beginPath();
+         ctx.fillStyle = gradient;
+         var xPos = this.getX() + i * (itemWidth);
+         var yPos = this.getY();
+         ctx.rect(xPos, yPos, itemWidth, itemHeight);
+         ctx.stroke();
+         ctx.fill();
+         ctx.fillStyle = "black";
+         ctx.font = "20px Arial";
+         ctx.fillText(this.getSizes()[i], xPos + itemWidth / 2, yPos + itemHeight / 2 + 3);
+         ctx.closePath();
+         }*/
+        for (var i = 0; i < this.getRows(); i++) {
+            for (var j = 0; j < this.getCols(); j++) {
+                var itemNum = j * this.getRows() + i;
+                if (itemNum >= this.getSizes().length) {
+                    break;
+                }
+                ctx.beginPath();
+                ctx.fillStyle = gradient;
+                var xPos = this.getX() + i * (itemWidth + this.getOffset());
+                var yPos = this.getY() + j * (itemHeight+this.getOffset());
+                ctx.rect(xPos, yPos, itemWidth, itemHeight);
+                ctx.stroke();
+                ctx.fill();
+                ctx.fillStyle = "black";
+                ctx.font = "20px Arial";
+                ctx.fillText(this.getSizes()[itemNum], xPos + itemWidth / 2, yPos + itemHeight / 2 + 3);
+                ctx.closePath();
+            }
         }
+        
+        this.setWidth(this.getItemWidth()*this.getRows()+this.getOffset()*(this.getRows()-1));
+        this.setHeight(this.getItemHeight()*this.getCols()+this.getOffset()*(this.getCols()-1));
 
         ctx.restore();
 
@@ -1531,28 +1585,28 @@ uiEditor.components.GroupSelection = (function () {
                 return 1;
             }
             return 0;
-        });      
+        });
 
         var count = 0;
-        var d = selectionItems[selectionItems.length-1].getX();
-        
-        for (var i = selectionItems.length-2; i >= 1; i--) {
-            d-=selectionItems[i].getWidth();
+        var d = selectionItems[selectionItems.length - 1].getX();
+
+        for (var i = selectionItems.length - 2; i >= 1; i--) {
+            d -= selectionItems[i].getWidth();
             count++;
         }
-        
-        d-=selectionItems[0].getX()+selectionItems[0].getWidth();
-        d/=count+1;
-        
+
+        d -= selectionItems[0].getX() + selectionItems[0].getWidth();
+        d /= count + 1;
+
         //Test D
         //d = selectionItems[selectionItems.length-1].getX() - selectionItems[0].getX() - selectionItems[0].getWidth();
-        
+
         //d/=selectionItems.length-2;
-        
-        console.log('d='+d);
+
+        console.log('d=' + d);
 
         for (var i = 1; i < selectionItems.length - 1; i++) {
-            selectionItems[i].setX(selectionItems[i-1].getX() + selectionItems[i-1].getWidth() + d);
+            selectionItems[i].setX(selectionItems[i - 1].getX() + selectionItems[i - 1].getWidth() + d);
         }
     };
 
@@ -1590,8 +1644,8 @@ uiEditor.components.GroupSelection = (function () {
             count++;
         }
 
-        d -= selectionItems[0].getY()+selectionItems[0].getHeight();
-        d /= count+1;
+        d -= selectionItems[0].getY() + selectionItems[0].getHeight();
+        d /= count + 1;
 
         for (var i = 1; i < selectionItems.length - 1; i++) {
             selectionItems[i].setY(selectionItems[i - 1].getY() + selectionItems[i - 1].getHeight() + d);

@@ -55,6 +55,8 @@ ns.INITIAL_WIDTH = 0;
 ns.INITIAL_HEIGHT = 0;
 ns.MINIMUM_WIDTH = 50;
 ns.MINIMUM_HEIGHT = 50;
+ns.INITIAL_SCREEN_CONTROL_ROWS = 1;
+ns.INITIAL_SCREEN_CONTROL_COLS = 3;
 
 
 //properties for constructing properties panel based on the type of component
@@ -100,6 +102,9 @@ ns.properties = {
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
+        {"name": "offset", "type": "number"},
+        {"name": "rows", "type": "number"},
+        {"name": "cols", "type": "number"},
         {"name": "sizes", "type": "promptDialog"}
     ],
     "source": [
@@ -602,7 +607,8 @@ ns.createComponent = function (componentType, x, y) {
             if (ns.sizeCreated === false && ns.displayCreated === true) {
                 component.id = ns.idSpecifier.getIdForComponent("screenControl");
                 component.component = new uiEditor.components.ScreenControlComponent(component.id, x, y,
-                        ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, ["1x1", "2x2", "3x3"]);
+                        ns.componentSizes[componentType].width, ns.componentSizes[componentType].height,
+                        ns.INITIAL_SCREEN_CONTROL_ROWS, ns.INITIAL_SCREEN_CONTROL_COLS, ["1x1", "2x2", "3x3"]);
                 ns.sizeCreated = true;
             }
             break;
@@ -749,8 +755,8 @@ ns.constructProperties = function (component, callFrom) {
 ns.move = function (e) {
     if (ns.movingComponent) {
         console.log("****************************************");
-        console.log('moving component: '+ ns.movingComponent);
-        console.log("altering component: "+ns.alteringComponent);
+        console.log('moving component: ' + ns.movingComponent);
+        console.log("altering component: " + ns.alteringComponent);
         console.log("*******************************************");
 
         ns.x = e.layerX;
@@ -972,7 +978,8 @@ ns.saveToJson = function () {
     });
     obj.screenObject = screenObject.getPropertiesForJSON();
     var jsonData = JSON.stringify(obj, null, 5);
-    var url = 'data:text/json;charset=utf8,' + encodeURIComponent(jsonData);
+    //var url = 'data:text/json;charset=utf8,' + encodeURIComponent(jsonData);
+    var url = 'saveFile.jsp?jsonFile=' + encodeURIComponent(jsonData);
     window.open(url, '_blank');
     window.focus();
 };
