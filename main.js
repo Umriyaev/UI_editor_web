@@ -24,6 +24,7 @@ ns.movingChildComponent = {"panel": null, "component": null};
 ns.displayCreated = false;
 ns.sizeCreated = false;
 ns.selection = null;
+ns.fileName=null;
 /*  startX, startY - initial coordinates where the drawing of component is started
  * idSpecifier - class which sets ids of newly created components
  * isDrawing - true if we are drawing new component
@@ -102,10 +103,10 @@ ns.properties = {
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "offset", "type": "number"},
+        //{"name": "offset", "type": "number"},
         {"name": "rows", "type": "number"},
         {"name": "cols", "type": "number"},
-        {"name": "sizes", "type": "promptDialog"}
+//        {"name": "sizes", "type": "promptDialog"}
     ],
     "source": [
         {"name": "xPosition", "type": "number"},
@@ -128,7 +129,7 @@ ns.componentSizes = {
     "text": {"width": 300, "height": 60},
     "panel": {"width": 500, "height": 400},
     "display": {"width": 600, "height": 200},
-    "screenControl": {"width": 300, "height": 60},
+    "screenControl": {"width": 140, "height": 60},
     "source": {"width": 140, "height": 60}
 };
 
@@ -155,14 +156,130 @@ ns.init = function () {
     ns.c.addEventListener('contextmenu', ns.contextMenuHandler, false);
     window.addEventListener("keydown", ns.keyPressHandler, false);
 
+    if (document.getElementById('json')) {
+        var json = document.getElementById('json').innerHTML;
+        var uiProject = JSON.parse(json);
+        console.log(uiProject);
 
-    /***********************test*********************************/
-    //var testComponent = ns.createComponent("button", 500, 500);
-    //  testComponent.component.setText(".");
-    //  ns.components.set(testComponent.id, testComponent.component);
-    // ns.drawRectangles();
-    /************************************************************/
+        /***********************test*********************************/
+        //var testComponent = ns.createComponent("button", 500, 500);
+        //  testComponent.component.setText(".");
+        //  ns.components.set(testComponent.id, testComponent.component);
+        // ns.drawRectangles();
+        /************************************************************/
+        ns.loadProject(uiProject);
+        ns.drawRectangles();
+    }
+    
+    ns.fileName=ns.getParameter('param1');
+
 };
+
+ns.loadProject = function (uiProject) {
+    for (var i = 0; i < uiProject.button.length; i++) {
+        ns.components.set(uiProject.button[i].id,
+                new uiEditor.components.ButtonComponent(uiProject.button[i].id,
+                        uiProject.button[i].xPosition,
+                        uiProject.button[i].yPosition,
+                        uiProject.button[i].width,
+                        uiProject.button[i].height));
+    }
+
+    for (var i = 0; i < uiProject.image.length; i++) {
+        ns.components.set(uiProject.image[i].id,
+                new uiEditor.components.ImageComponent(uiProject.image[i].id,
+                        uiProject.image[i].xPosition,
+                        uiProject.image[i].yPosition,
+                        uiProject.image[i].width,
+                        uiProject.image[i].height));
+    }
+
+    for (var i = 0; i < uiProject.text.length; i++) {
+        ns.components.set(uiProject.text[i].id,
+                new uiEditor.components.TextComponent(uiProject.text[i].id,
+                        uiProject.text[i].xPosition,
+                        uiProject.text[i].yPosition,
+                        uiProject.text[i].width,
+                        uiProject.text[i].height));
+    }
+
+    var screenObject = uiProject.screenObject;
+    if (screenObject.display !== null && screenObject.display !== undefined) {
+        ns.components.set(screenObject.display.id,
+                new uiEditor.components.DisplayComponent(screenObject.display.id,
+                        screenObject.display.xPosition,
+                        screenObject.display.yPosition,
+                        screenObject.display.width,
+                        screenObject.display.height,
+                        screenObject.display.cols,
+                        screenObject.display.rows));
+        ns.displayCreated = true;
+    }
+
+    if (screenObject.size !== null && screenObject.size !== undefined) {
+        for (var i = 0; i < screenObject.size.length; i++) {
+            ns.components.set(screenObject.size[i].id,
+                    new uiEditor.components.ScreenControlComponent(screenObject.size[i].id,
+                            screenObject.size[i].xPosition,
+                            screenObject.size[i].yPosition,
+                            screenObject.size[i].width,
+                            screenObject.size[i].height,
+                            screenObject.size[i].cols,
+                            screenObject.size[i].rows));
+        }
+    }
+
+    if (screenObject.source !== null && screenObject.source !== undefined) {
+        for (var i = 0; i < screenObject.source.length; i++) {
+            ns.components.set(screenObject.source[i].id,
+                    new uiEditor.components.ScreenControlComponent(screenObject.source[i].id,
+                            screenObject.source[i].xPosition,
+                            screenObject.source[i].yPosition,
+                            screenObject.source[i].width,
+                            screenObject.source[i].height,
+                            screenObject.source[i].text,
+                            screenObject.source[i].source));
+        }
+    }
+
+    for (var i = 0; i < uiProject.group.length; i++) {
+        ns.components.set(uiProject.group[i].id,
+                new uiEditor.components.Group(uiProject.group[i].id,
+                        null,
+                        null,
+                        true,
+                        uiProject.group[i].xPos,
+                        uiProject.group[i].yPos,
+                        uiProject.group[i].width,
+                        uiProject.group[i].height,
+                        uiProject.group[i].items));
+    }
+    
+    for (var i = 0; i < uiProject.panel.length; i++) {
+        ns.components.set(uiProject.panel[i].id,
+                new uiEditor.components.PanelComponent(uiProject.panel[i].id,
+                        uiProject.panel[i].xPos,
+                        uiProject.panel[i].yPos,
+                        uiProject.panel[i].width,
+                        uiProject.panel[i].height,
+                        uiProject.panel[i].headerText,                        
+                        true,
+                        uiProject.panel[i].children));
+    }
+};
+
+ns.getParameter = function (theParameter) {
+    var params = window.location.search.substr(1).split('&');
+
+    for (var i = 0; i < params.length; i++) {
+        var p = params[i].split('=');
+        if (p[0] === theParameter) {
+            return decodeURIComponent(p[1]);
+        }
+    }
+    return null;
+
+}
 
 
 ns.respondResize = function () {
@@ -194,7 +311,7 @@ ns.deleteComponent = function () {
                 deleteScreenObjectComponents = true;
             }
             else if (component.getComponentType() === "screenControl") {
-                ns.sizeCreated = false;
+                //ns.sizeCreated = false;
             }
             ns.components.get(ns.alteringComponent.panel).removeChild(component.getID());
         }
@@ -206,7 +323,7 @@ ns.deleteComponent = function () {
                 deleteScreenObjectComponents = true;
             }
             else if (component.getComponentType() === "screenControl") {
-                ns.sizeCreated = false;
+                //ns.sizeCreated = false;
             }
 
             ns.components.delete(ns.alteringComponent.component);
@@ -226,7 +343,7 @@ ns.deleteComponent = function () {
             for (var i = 0; i < toRemove.length; i++) {
                 ns.components.delete(toRemove[i]);
             }
-            ns.sizeCreated = false;
+            //ns.sizeCreated = false;
         }
 
 
@@ -604,13 +721,13 @@ ns.createComponent = function (componentType, x, y) {
                     ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, "header");
             break;
         case "screenControl":
-            if (ns.sizeCreated === false && ns.displayCreated === true) {
-                component.id = ns.idSpecifier.getIdForComponent("screenControl");
-                component.component = new uiEditor.components.ScreenControlComponent(component.id, x, y,
-                        ns.componentSizes[componentType].width, ns.componentSizes[componentType].height,
-                        ns.INITIAL_SCREEN_CONTROL_ROWS, ns.INITIAL_SCREEN_CONTROL_COLS, ["1x1", "2x2", "3x3"]);
-                ns.sizeCreated = true;
-            }
+            //if (ns.sizeCreated === false && ns.displayCreated === true) {
+            component.id = ns.idSpecifier.getIdForComponent("screenControl");
+            component.component = new uiEditor.components.ScreenControlComponent(component.id, x, y,
+                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height,
+                    ns.INITIAL_SCREEN_CONTROL_ROWS, ns.INITIAL_SCREEN_CONTROL_COLS);
+            //  ns.sizeCreated = true;
+            //}
             break;
         case "source":
             if (ns.displayCreated === true) {
@@ -940,7 +1057,7 @@ ns.mouseUp = function (e) {
 
 ns.saveToJson = function () {
     var screenObject = new uiEditor.components.ScreenObject();
-    var obj = {"button": [], "text": [], "image": [], "display": [], "panel": [], "group": []};
+    var obj = {"button": [], "text": [], "image": [], "panel": [], "group": []};
     ns.components.forEach(function (value, key) {
         switch (value.getComponentType()) {
             case "text":
@@ -978,8 +1095,10 @@ ns.saveToJson = function () {
     });
     obj.screenObject = screenObject.getPropertiesForJSON();
     var jsonData = JSON.stringify(obj, null, 5);
-    //var url = 'data:text/json;charset=utf8,' + encodeURIComponent(jsonData);
-    var url = 'saveFile.jsp?jsonFile=' + encodeURIComponent(jsonData);
+    var url = 'data:text/json;charset=utf8,' + encodeURIComponent(jsonData);
+    //var url = 'saveFile.jsp?jsonFile=' + encodeURIComponent(jsonData);
+    //if(ns.fileName!==null)
+        //url+='&fileName='+ns.fileName;
     window.open(url, '_blank');
     window.focus();
 };
@@ -1010,7 +1129,7 @@ ns.setChosenComponent = function (e) {
             ns.chosenComponentType = "panel";
             break;
         case "screenControl":
-            if (ns.displayCreated === true && ns.sizeCreated === false) {
+            if (ns.displayCreated === true) {
                 ns.chosenComponentType = "screenControl";
             }
             break;
@@ -1090,6 +1209,11 @@ ns.alignIntervalsVertical = function () {
         ns.chosenComponentType = null;
     }
 };
+
+ns.redirect = function(url){
+    window.location=url;
+};
+
 
 /******************************************************************/
 
