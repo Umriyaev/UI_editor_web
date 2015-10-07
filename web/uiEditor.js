@@ -409,7 +409,7 @@ uiEditor.components.TextComponent = (function () {
 })();
 /***********************************************************/
 
-/*******************Table component class*********************/
+/*******************Display component class*********************/
 uiEditor.components.DisplayComponent = (function () {
     function DisplayComponent(id, x, y, w, h, numberOfColumns, numberOfRows) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
@@ -744,22 +744,94 @@ uiEditor.components.ButtonComponent = (function () {
 
 /*********************Panel component*************************/
 uiEditor.components.PanelComponent = (function () {
-    function PanelComponent(id, x, y, w, h, headerText) {
-        this.horizontalAlignment = null; //"center" | "right" | "left"
-        this.verticalAlignment = null; //"top" | "bottom" | "center"
-        this.zIndex = null; // numbers
-        this.properties = {};
-        this.properties['headerHeight'] = 40;
-        this.properties["id"] = id;
-        this.properties['xPosition'] = x;
-        this.properties['yPosition'] = y;
-        this.properties['width'] = w;
-        this.properties['height'] = h;
-        this.properties['headerText'] = headerText;
-        this.properties["componentType"] = "panel";
-        this.properties['children'] = new Map();
-        this.selected = false;
-        this.firstSelected = false;
+    function PanelComponent(id, x, y, w, h, headerText, fromJson, items) {
+        if (!fromJson) {
+            console.log("fromJson false");
+            this.horizontalAlignment = null; //"center" | "right" | "left"
+            this.verticalAlignment = null; //"top" | "bottom" | "center"
+            this.zIndex = null; // numbers
+            this.properties = {};
+            this.properties['headerHeight'] = 40;
+            this.properties["id"] = id;
+            this.properties['xPosition'] = x;
+            this.properties['yPosition'] = y;
+            this.properties['width'] = w;
+            this.properties['height'] = h;
+            this.properties['headerText'] = headerText;
+            this.properties["componentType"] = "panel";
+            this.properties['children'] = new Map();
+            this.selected = false;
+            this.firstSelected = false;
+        }
+        else{
+            console.log("fromJson true");
+            
+            this.properties = {};
+            this.properties['headerHeight'] = 40;
+            this.properties["id"] = id;
+            this.properties['xPosition'] = x;
+            this.properties['yPosition'] = y;
+            this.properties['width'] = w;
+            this.properties['height'] = h;
+            this.properties['headerText'] = headerText;
+            this.properties["componentType"] = "panel";
+            this.properties['children'] = new Map();
+            
+             for (var i = 0; i < items.button.length; i++) {
+                this.properties['components'].set(items.button[i].id,
+                        new uiEditor.components.ButtonComponent(items.button[i].id,
+                                items.button[i].xPosition,
+                                items.button[i].yPosition,
+                                items.button[i].width,
+                                items.button[i].height));
+            }
+
+            for (var i = 0; i < items.text.length; i++) {
+                this.properties['components'].set(items.text[i].id,
+                        new uiEditor.components.TextComponent(items.text[i].id,
+                                items.text[i].xPosition,
+                                items.text[i].yPosition,
+                                items.text[i].width,
+                                items.text[i].height));
+            }
+
+            for (var i = 0; i < items.image.length; i++) {
+                this.properties['components'].set(items.image[i].id,
+                        new uiEditor.components.ImageComponent(items.image[i].id,
+                                items.image[i].xPosition,
+                                items.image[i].yPosition,
+                                items.image[i].width,
+                                items.image[i].height));
+            }
+
+            for (var i = 0; i < items.panel.length; i++) {
+                this.properties['components'].set(items.panel[i].id,
+                        new uiEditor.components.PanelComponent(items.panel[i].id,
+                                items.panel[i].xPosition,
+                                items.panel[i].yPosition,
+                                items.panel[i].width,
+                                items.panel[i].height,
+                                items.panel[i].headerText,
+                                true,
+                                items.panel[i].children));
+            }
+
+            for (var i = 0; i < items.group.length; i++) {
+                this.properties['components'].set(items.button[i].id,
+                        new uiEditor.components.Group(items.group[i].id,
+                                null,
+                                null,
+                                true,
+                                items.button[i].xPosition,
+                                items.button[i].yPosition,
+                                items.button[i].width,
+                                items.button[i].height,
+                                items.group[i].items));
+            }
+            
+            this.selected = false;
+            this.firstSelected = false;
+        }
     }
 
     /*****************Getters************************/
@@ -827,7 +899,7 @@ uiEditor.components.PanelComponent = (function () {
         panel.yPos = this.getY();
         panel.width = this.getWidth();
         panel.height = this.getHeight();
-        panel.headerText = this.getHeaderHeight();
+        panel.headerText = this.getHeaderText();
         panel.componentType = this.getComponentType();
         panel.headerHeight = this.getHeaderHeight();
         panel.children = {};
@@ -1025,7 +1097,203 @@ uiEditor.components.PanelComponent = (function () {
 
 /*******************************Screen control*********************************************/
 uiEditor.components.ScreenControlComponent = (function () {
-    function ScreenControlComponent(id, x, y, w, h, rows, cols, sizes) {
+//    function ScreenControlComponent(id, x, y, w, h, rows, cols, sizes) {
+//        this.horizontalAlignment = null; //"center" | "right" | "left"
+//        this.verticalAlignment = null; //"top" | "bottom" | "center"
+//        this.zIndex = null; // numbers
+//        this.properties = {};
+//        this.properties['xPosition'] = x;
+//        this.properties["id"] = id;
+//        this.properties["componentType"] = "screenControl";
+//        this.properties['yPosition'] = y;
+//        this.properties['width'] = w;
+//        this.properties['height'] = h;
+//        this.properties['radius'] = 10;
+//        this.properties['itemWidth'] = 60;
+//        this.properties['itemHeight'] = 40;
+//        this.properties['offset'] = 0;
+//        this.properties['sizes'] = sizes;
+//        this.properties['rows'] = rows;
+//        this.properties['cols'] = cols;
+//        this.selected = false;
+//        this.firstSelected = false;
+//    }
+//
+//    /*****************Getters************************/
+//    ScreenControlComponent.prototype.getX = function () {
+//        return this.properties['xPosition'];
+//    };
+//    ScreenControlComponent.prototype.getY = function () {
+//        return this.properties['yPosition'];
+//    };
+//    ScreenControlComponent.prototype.getWidth = function () {
+//        return this.properties['width'];
+//    };
+//    ScreenControlComponent.prototype.getOffset = function () {
+//        return this.properties['offset'];
+//    };
+//    ScreenControlComponent.prototype.getHeight = function () {
+//        return this.properties['height'];
+//    };
+//    ScreenControlComponent.prototype.getItemWidth = function () {
+//        return this.properties['itemWidth'];
+//    };
+//    ScreenControlComponent.prototype.getItemHeight = function () {
+//        return this.properties['itemHeight'];
+//    };
+//    ScreenControlComponent.prototype.getID = function () {
+//        return this.properties["id"];
+//    };
+//    ScreenControlComponent.prototype.getRows = function () {
+//        return this.properties['rows'];
+//    };
+//    ScreenControlComponent.prototype.getCols = function () {
+//        return this.properties['cols'];
+//    };
+//    ScreenControlComponent.prototype.getComponentType = function () {
+//        return this.properties["componentType"];
+//    };
+//    ScreenControlComponent.prototype.getPropertyValue = function (propertyName) {
+//        return this.properties[propertyName];
+//    };
+//    ScreenControlComponent.prototype.getProperties = function () {
+//        return this.properties;
+//    };
+//    ScreenControlComponent.prototype.getSizes = function () {
+//        return this.properties['sizes'];
+//    };
+//    /*************************************************/
+//
+//
+//
+//    /****************Setters**************************/
+//    ScreenControlComponent.prototype.setX = function (x) {
+//        this.properties['xPosition'] = x;
+//    };
+//    ScreenControlComponent.prototype.setY = function (y) {
+//        this.properties['yPosition'] = y;
+//    };
+//    ScreenControlComponent.prototype.setWidth = function (w) {
+//        this.properties['width'] = w;
+//    };
+//    ScreenControlComponent.prototype.setHeight = function (h) {
+//        this.properties['height'] = h;
+//    };
+//    ScreenControlComponent.prototype.setOffset = function (offset) {
+//        this.properties['offset'] = Number(offset);
+//    };
+//    ScreenControlComponent.prototype.setRows = function (rows) {
+//        this.properties['rows'] = Number(rows);
+//    };
+//    ScreenControlComponent.prototype.setCols = function (cols) {
+//        this.properties['cols'] = Number(cols);
+//    }
+//    ScreenControlComponent.prototype.setSizes = function (sizes) {
+//        this.properties['sizes'] = sizes;
+//    };
+//    ScreenControlComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
+//        this.properties[propertyName] = propertyValue;
+//    };
+//    /*************************************************/
+//    ScreenControlComponent.prototype.getPropertiesForJSON = function () {
+//        return this.getProperties();
+//    };
+//
+//    ScreenControlComponent.prototype.select = function () {
+//        this.selected = true;
+//    };
+//
+//    ScreenControlComponent.prototype.firstSelect = function () {
+//        this.firstSelected = true;
+//    };
+//
+//    ScreenControlComponent.prototype.deselect = function () {
+//        this.selected = false;
+//        if (this.firstSelected)
+//            this.firstSelected = false;
+//    };
+//
+//    ScreenControlComponent.prototype.hitTest = function (x, y) {
+//        var result = {"hit": false, "component": this.getID(), "panel": null};
+//        if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+//                y >= this.getY() && y <= this.getY() + this.getHeight()) {
+//            result.hit = true;
+//        }
+//        return result;
+//    };
+//
+//    ScreenControlComponent.prototype.move = function (dx, dy) {
+//        this.setX(this.getX() + dx);
+//        this.setY(this.getY() + dy);
+//    };
+//
+//    ScreenControlComponent.prototype.draw = function (ctx) {
+//        this.setOffset(Number(this.getOffset()))
+//        this.setX(Number(this.getX()));
+//        this.setY(Number(this.getY()));
+//        this.setWidth(Number(this.getWidth()));
+//        this.setHeight(Number(this.getHeight()));
+//
+//        var sizeCount = this.getSizes().length;
+//        // var itemWidth = this.getWidth() / sizeCount;
+//        //  var itemHeight = this.getHeight();
+//        var itemWidth = this.getItemWidth();
+//        var itemHeight = this.getItemHeight();
+//
+//        ctx.save();
+//
+//        var gradient = ctx.createLinearGradient(0, 0, 0, 170);
+//        gradient.addColorStop(0, "#e4e4e4");
+//        gradient.addColorStop(0, "#f1f1f1");
+//        ctx.textAlign = "center";
+//
+//        /*for (var i = 0; i < sizeCount; i++) {
+//         ctx.beginPath();
+//         ctx.fillStyle = gradient;
+//         var xPos = this.getX() + i * (itemWidth);
+//         var yPos = this.getY();
+//         ctx.rect(xPos, yPos, itemWidth, itemHeight);
+//         ctx.stroke();
+//         ctx.fill();
+//         ctx.fillStyle = "black";
+//         ctx.font = "20px Arial";
+//         ctx.fillText(this.getSizes()[i], xPos + itemWidth / 2, yPos + itemHeight / 2 + 3);
+//         ctx.closePath();
+//         }*/
+//        for (var i = 0; i < this.getRows(); i++) {
+//            for (var j = 0; j < this.getCols(); j++) {
+//                var itemNum = j * this.getRows() + i;
+//                if (itemNum >= this.getSizes().length) {
+//                    break;
+//                }
+//                ctx.beginPath();
+//                ctx.fillStyle = gradient;
+//                var xPos = this.getX() + i * (itemWidth + this.getOffset());
+//                var yPos = this.getY() + j * (itemHeight+this.getOffset());
+//                ctx.rect(xPos, yPos, itemWidth, itemHeight);
+//                ctx.stroke();
+//                ctx.fill();
+//                ctx.fillStyle = "black";
+//                ctx.font = "20px Arial";
+//                ctx.fillText(this.getSizes()[itemNum], xPos + itemWidth / 2, yPos + itemHeight / 2 + 3);
+//                ctx.closePath();
+//            }
+//        }
+//        
+//        this.setWidth(this.getItemWidth()*this.getRows()+this.getOffset()*(this.getRows()-1));
+//        this.setHeight(this.getItemHeight()*this.getCols()+this.getOffset()*(this.getCols()-1));
+//
+//        ctx.restore();
+//
+//        if (this.selected) {
+//            if (!this.firstSelected)
+//                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#ff0000");
+//            else
+//                uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
+//        }
+//    };
+
+    function ScreenControlComponent(id, x, y, w, h, rows, cols) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.zIndex = null; // numbers
@@ -1039,8 +1307,6 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties['radius'] = 10;
         this.properties['itemWidth'] = 60;
         this.properties['itemHeight'] = 40;
-        this.properties['offset'] = 0;
-        this.properties['sizes'] = sizes;
         this.properties['rows'] = rows;
         this.properties['cols'] = cols;
         this.selected = false;
@@ -1057,23 +1323,17 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.getWidth = function () {
         return this.properties['width'];
     };
-    ScreenControlComponent.prototype.getOffset = function () {
-        return this.properties['offset'];
-    };
     ScreenControlComponent.prototype.getHeight = function () {
         return this.properties['height'];
-    };
-    ScreenControlComponent.prototype.getItemWidth = function () {
-        return this.properties['itemWidth'];
-    };
-    ScreenControlComponent.prototype.getItemHeight = function () {
-        return this.properties['itemHeight'];
     };
     ScreenControlComponent.prototype.getID = function () {
         return this.properties["id"];
     };
     ScreenControlComponent.prototype.getRows = function () {
         return this.properties['rows'];
+    };
+    ScreenControlComponent.prototype.getRadius = function () {
+        return this.properties['radius'];
     };
     ScreenControlComponent.prototype.getCols = function () {
         return this.properties['cols'];
@@ -1086,9 +1346,6 @@ uiEditor.components.ScreenControlComponent = (function () {
     };
     ScreenControlComponent.prototype.getProperties = function () {
         return this.properties;
-    };
-    ScreenControlComponent.prototype.getSizes = function () {
-        return this.properties['sizes'];
     };
     /*************************************************/
 
@@ -1107,17 +1364,11 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.setHeight = function (h) {
         this.properties['height'] = h;
     };
-    ScreenControlComponent.prototype.setOffset = function (offset) {
-        this.properties['offset'] = Number(offset);
-    };
     ScreenControlComponent.prototype.setRows = function (rows) {
         this.properties['rows'] = Number(rows);
     };
     ScreenControlComponent.prototype.setCols = function (cols) {
         this.properties['cols'] = Number(cols);
-    }
-    ScreenControlComponent.prototype.setSizes = function (sizes) {
-        this.properties['sizes'] = sizes;
     };
     ScreenControlComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
@@ -1156,17 +1407,10 @@ uiEditor.components.ScreenControlComponent = (function () {
     };
 
     ScreenControlComponent.prototype.draw = function (ctx) {
-        this.setOffset(Number(this.getOffset()))
         this.setX(Number(this.getX()));
         this.setY(Number(this.getY()));
         this.setWidth(Number(this.getWidth()));
         this.setHeight(Number(this.getHeight()));
-
-        var sizeCount = this.getSizes().length;
-        // var itemWidth = this.getWidth() / sizeCount;
-        //  var itemHeight = this.getHeight();
-        var itemWidth = this.getItemWidth();
-        var itemHeight = this.getItemHeight();
 
         ctx.save();
 
@@ -1188,29 +1432,47 @@ uiEditor.components.ScreenControlComponent = (function () {
          ctx.fillText(this.getSizes()[i], xPos + itemWidth / 2, yPos + itemHeight / 2 + 3);
          ctx.closePath();
          }*/
-        for (var i = 0; i < this.getRows(); i++) {
-            for (var j = 0; j < this.getCols(); j++) {
-                var itemNum = j * this.getRows() + i;
-                if (itemNum >= this.getSizes().length) {
-                    break;
-                }
-                ctx.beginPath();
-                ctx.fillStyle = gradient;
-                var xPos = this.getX() + i * (itemWidth + this.getOffset());
-                var yPos = this.getY() + j * (itemHeight+this.getOffset());
-                ctx.rect(xPos, yPos, itemWidth, itemHeight);
-                ctx.stroke();
-                ctx.fill();
-                ctx.fillStyle = "black";
-                ctx.font = "20px Arial";
-                ctx.fillText(this.getSizes()[itemNum], xPos + itemWidth / 2, yPos + itemHeight / 2 + 3);
-                ctx.closePath();
-            }
-        }
-        
-        this.setWidth(this.getItemWidth()*this.getRows()+this.getOffset()*(this.getRows()-1));
-        this.setHeight(this.getItemHeight()*this.getCols()+this.getOffset()*(this.getCols()-1));
 
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(this.getX() + this.getRadius(),
+                this.getY());
+        ctx.lineTo(this.getX() + this.getWidth() -
+                this.getRadius(),
+                this.getY());
+        ctx.quadraticCurveTo(this.getX() + this.getWidth(),
+                this.getY(),
+                this.getX() + this.getWidth(),
+                this.getY() + this.getRadius());
+        ctx.lineTo(this.getX() + this.getWidth(),
+                this.getY() + this.getHeight() - this.getRadius());
+        ctx.quadraticCurveTo(this.getX() + this.getWidth(),
+                this.getY() + this.getHeight(),
+                this.getX() + this.getWidth() - this.getRadius(),
+                this.getY() + this.getHeight());
+        ctx.lineTo(this.getX() + this.getRadius(),
+                this.getY() + this.getHeight());
+        ctx.quadraticCurveTo(this.getX(),
+                this.getY() + this.getHeight(),
+                this.getX(),
+                this.getY() + this.getHeight() - this.getRadius());
+        ctx.lineTo(this.getX(),
+                this.getY() + this.getRadius());
+        ctx.quadraticCurveTo(this.getX(),
+                this.getY(),
+                this.getX() + this.getRadius(),
+                this.getY());
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fill();
+
+        ctx.restore();
+
+        ctx.save();
+        ctx.fillStyle = "#000";
+        ctx.font = "20px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(this.getRows().toString() + " x " + this.getCols().toString(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
         ctx.restore();
 
         if (this.selected) {
@@ -1220,6 +1482,7 @@ uiEditor.components.ScreenControlComponent = (function () {
                 uiEditor.helpers.drawSelection(ctx, this.getX(), this.getY(), this.getWidth(), this.getHeight(), "#f202ca");
         }
     };
+
     return ScreenControlComponent;
 })();
 /******************************************************************************************/
@@ -1386,7 +1649,7 @@ uiEditor.components.SourceComponent = (function () {
 uiEditor.components.ScreenObject = (function () {
     function ScreenObject() {
         this.display = null;
-        this.size = null;
+        this.size = [];
         this.source = [];
     }
 
@@ -1410,7 +1673,7 @@ uiEditor.components.ScreenObject = (function () {
     };
 
     ScreenObject.prototype.setSize = function (size) {
-        this.size = size;
+        this.size.push(size);
     };
 
     ScreenObject.prototype.setSource = function (source) {
@@ -1423,8 +1686,11 @@ uiEditor.components.ScreenObject = (function () {
         if (this.getDisplay() !== null) {
             result.display = this.getDisplay().getPropertiesForJSON();
         }
-        if (this.getSize() !== null) {
-            result.size = this.getSize().getPropertiesForJSON();
+        if (this.getSize().length > 0) {
+            result.size = [];
+            for (var i = 0; i < this.getSize().length; i++) {
+                result.size.push(this.getSize()[i].getPropertiesForJSON());
+            }
         }
         if (this.getSource().length > 0) {
             result.source = [];
@@ -1737,42 +2003,121 @@ uiEditor.components.GroupSelection = (function () {
 })();
 
 uiEditor.components.Group = (function () {
-    function Group(id, selection, components) {
-        this.properties = {};
-        this.properties['id'] = id;
-        this.properties['componentType'] = "group";
-        this.properties['components'] = new Map();
-        var leftX = 1000000, leftY = 100000000, rightX = 0, rightY = 0;
-        console.log("In group constructor...");
-        console.log(id);
-        console.log(selection);
-        console.log(components);
-        var groupComponents = this.properties['components'];
-        selection.forEach(function (value, key) {
-            var component = components.get(key);
-            component.deselect();
-            var currentX = component.getX();
-            var currentY = component.getY();
-            var currentRightX = component.getWidth() + currentX;
-            var currentRightY = component.getHeight() + currentY;
-            if (leftX > currentX)
-                leftX = currentX;
-            if (leftY > currentY)
-                leftY = currentY;
-            if (rightX < currentRightX)
-                rightX = currentRightX;
-            if (rightY < currentRightY)
-                rightY = currentRightY;
-            groupComponents.set(key, component);
-            components.delete(key);
-        });
+    function Group(id, selection, components, fromJson, x, y, w, h, items) {
+        if (!fromJson) {
+            console.log("not from json");
+            this.properties = {};
+            this.properties['id'] = id;
+            this.properties['componentType'] = "group";
+            this.properties['components'] = new Map();
+            var leftX = 1000000, leftY = 100000000, rightX = 0, rightY = 0;
+            console.log("In group constructor...");
+            console.log(id);
+            console.log(selection);
+            console.log(components);
+            var groupComponents = this.properties['components'];
+            selection.forEach(function (value, key) {
+                var component = components.get(key);
+                component.deselect();
+                var currentX = component.getX();
+                var currentY = component.getY();
+                var currentRightX = component.getWidth() + currentX;
+                var currentRightY = component.getHeight() + currentY;
+                if (leftX > currentX)
+                    leftX = currentX;
+                if (leftY > currentY)
+                    leftY = currentY;
+                if (rightX < currentRightX)
+                    rightX = currentRightX;
+                if (rightY < currentRightY)
+                    rightY = currentRightY;
+                groupComponents.set(key, component);
+                components.delete(key);
+            });
 
-        this.properties['xPosition'] = leftX - 10;
-        this.properties['yPosition'] = leftY - 10;
-        this.properties['width'] = rightX - leftX + 10;
-        this.properties['height'] = rightY - leftY + 10;
-        this.selected = false;
-        this.firstSelected = false;
+            this.properties['xPosition'] = leftX - 10;
+            this.properties['yPosition'] = leftY - 10;
+            this.properties['width'] = rightX - leftX + 10;
+            this.properties['height'] = rightY - leftY + 10;
+            this.selected = false;
+            this.firstSelected = false;
+        }
+        else {
+            console.log("from json");
+            this.properties = {};
+            this.properties['id'] = id;
+            this.properties['componentType'] = "group";
+            this.properties['components'] = new Map();
+            this.properties['xPosition'] = x;
+            this.properties['yPosition'] = y;
+            this.properties['width'] = w;
+            this.properties['height'] = h;
+            
+            console.log(x)
+            console.log(y)
+            console.log(w)
+            console.log(h)
+            
+            this.selected = false;
+            this.firstSelected = false;
+
+            for (var i = 0; i < items.button.length; i++) {
+                this.properties['components'].set(items.button[i].id,
+                        new uiEditor.components.ButtonComponent(items.button[i].id,
+                                items.button[i].xPosition,
+                                items.button[i].yPosition,
+                                items.button[i].width,
+                                items.button[i].height));
+            }
+
+            for (var i = 0; i < items.text.length; i++) {
+                this.properties['components'].set(items.text[i].id,
+                        new uiEditor.components.TextComponent(items.text[i].id,
+                                items.text[i].xPosition,
+                                items.text[i].yPosition,
+                                items.text[i].width,
+                                items.text[i].height));
+            }
+
+            for (var i = 0; i < items.image.length; i++) {
+                this.properties['components'].set(items.image[i].id,
+                        new uiEditor.components.ImageComponent(items.image[i].id,
+                                items.image[i].xPosition,
+                                items.image[i].yPosition,
+                                items.image[i].width,
+                                items.image[i].height));
+            }
+
+            for (var i = 0; i < items.panel.length; i++) {
+                this.properties['components'].set(items.panel[i].id,
+                        new uiEditor.components.PanelComponent(items.panel[i].id,
+                                items.panel[i].xPosition,
+                                items.panel[i].yPosition,
+                                items.panel[i].width,
+                                items.panel[i].height,
+                                items.panel[i].headerText,
+                                true,
+                                items.panel[i].children));
+            }
+
+            for (var i = 0; i < items.group.length; i++) {
+                this.properties['components'].set(items.button[i].id,
+                        new uiEditor.components.Group(items.group[i].id,
+                                null,
+                                null,
+                                true,
+                                items.group[i].xPos,
+                                items.group[i].yPos,
+                                items.group[i].width,
+                                items.group[i].height,
+                                items.group[i].items));
+            }
+
+
+
+            
+        }
+
     }
 
     /**********************Getters****************************/
