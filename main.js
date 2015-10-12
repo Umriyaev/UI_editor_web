@@ -172,6 +172,9 @@ ns.init = function () {
     }
     
     ns.fileName=ns.getParameter('param1');
+	
+	var supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
+    if(supportsTouch) alert('Touch events are supported');
 
 };
 
