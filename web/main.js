@@ -1020,7 +1020,7 @@ ns.mouseMove = function (e) {
 
 //used to draw all the components {needs to rename}
 ns.drawRectangles = function () {
-    ns.cleanUp();
+    //ns.cleanUp();
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
     // ns.components.forEach(function (value, key) {
     //      value.draw(ns.ctx);
