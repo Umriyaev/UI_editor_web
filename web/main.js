@@ -24,7 +24,7 @@ ns.movingChildComponent = {"panel": null, "component": null};
 ns.displayCreated = false;
 ns.sizeCreated = false;
 ns.selection = null;
-ns.fileName=null;
+ns.fileName = null;
 /*  startX, startY - initial coordinates where the drawing of component is started
  * idSpecifier - class which sets ids of newly created components
  * isDrawing - true if we are drawing new component
@@ -67,21 +67,24 @@ ns.properties = {
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "image url", "type": "file"}
+        {"name": "image url", "type": "file"},
+        {"name": "z_index", "type": "number"}
     ],
     "button": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "text", "type": "text"}
+        {"name": "text", "type": "text"},
+        {"name": "z_index", "type": "number"}
     ],
     "text": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "placeholder text", "type": "text"}
+        {"name": "placeholder text", "type": "text"},
+        {"name": "z_index", "type": "number"}
     ],
     "display": [
         {"name": "xPosition", "type": "number"},
@@ -89,24 +92,25 @@ ns.properties = {
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "rows", "type": "number"},
-        {"name": "cols", "type": "number"}
+        {"name": "cols", "type": "number"},
+        {"name": "z_index", "type": "number"}
     ],
     "panel": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "headerText", "type": "text"}
+        {"name": "headerText", "type": "text"},
+        {"name": "z_index", "type": "number"}
     ],
     "screenControl": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        //{"name": "offset", "type": "number"},
         {"name": "rows", "type": "number"},
         {"name": "cols", "type": "number"},
-//        {"name": "sizes", "type": "promptDialog"}
+        {"name": "z_index", "type": "number"}
     ],
     "source": [
         {"name": "xPosition", "type": "number"},
@@ -114,13 +118,14 @@ ns.properties = {
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "text", "type": "text"},
-        {"name": "source", "type": "text"}
+        {"name": "source", "type": "text"},
+        {"name": "z_index", "type": "number"}
     ],
     "selection": [
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"}
     ],
-    "group": []
+    "group": [{"name": "z_index", "type": "number"}]
 };
 
 ns.componentSizes = {
@@ -170,8 +175,8 @@ ns.init = function () {
         ns.loadProject(uiProject);
         ns.drawRectangles();
     }
-    
-    ns.fileName=ns.getParameter('param1');
+
+    ns.fileName = ns.getParameter('param1');
 
 };
 
@@ -254,7 +259,7 @@ ns.loadProject = function (uiProject) {
                         uiProject.group[i].height,
                         uiProject.group[i].items));
     }
-    
+
     for (var i = 0; i < uiProject.panel.length; i++) {
         ns.components.set(uiProject.panel[i].id,
                 new uiEditor.components.PanelComponent(uiProject.panel[i].id,
@@ -262,7 +267,7 @@ ns.loadProject = function (uiProject) {
                         uiProject.panel[i].yPos,
                         uiProject.panel[i].width,
                         uiProject.panel[i].height,
-                        uiProject.panel[i].headerText,                        
+                        uiProject.panel[i].headerText,
                         true,
                         uiProject.panel[i].children));
     }
@@ -1015,11 +1020,30 @@ ns.mouseMove = function (e) {
 
 //used to draw all the components {needs to rename}
 ns.drawRectangles = function () {
-    //ns.cleanUp();
+    ns.cleanUp();
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
+    // ns.components.forEach(function (value, key) {
+    //      value.draw(ns.ctx);
+    //  });
+    var buf = [];
     ns.components.forEach(function (value, key) {
-        value.draw(ns.ctx);
+        buf.push(value);
     });
+
+    if (buf.length > 0) {
+        buf.sort(function (a, b) {
+            if (a.getZ_index() < b.getZ_index())
+                return -1;
+            else if (a.getZ_index() > b.getZ_index())
+                return 1;
+            return 0;
+        });
+
+        for (var i = 0; i < buf.length; i++) {
+            buf[i].draw(ns.ctx);
+        }
+    }
+
 };
 
 //Remove unnecessary components, which are created by mistake
@@ -1038,7 +1062,7 @@ ns.mouseUp = function (e) {
     ns.drawingPanel = undefined;
 
     ns.drawRectangles();
-    if (ns.alteringComponent.component == "selection") {
+    if (ns.alteringComponent.component === "selection") {
         ns.constructProperties(ns.alteringComponent.component, "mouseUp_selection");
     }
     else if (ns.alteringComponent.panel === null) {
@@ -1050,8 +1074,8 @@ ns.mouseUp = function (e) {
             var child = panel.getChild(ns.alteringComponent.component);
             ns.constructProperties(child, "mouseUp_panel!=null");
         }
-
     }
+    ns.chosenComponentType=null;
 
 };
 
@@ -1097,8 +1121,8 @@ ns.saveToJson = function () {
     var jsonData = JSON.stringify(obj, null, 5);
     //var url = 'data:text/json;charset=utf8,' + encodeURIComponent(jsonData);
     var url = 'saveFile.jsp?jsonFile=' + encodeURIComponent(jsonData);
-    if(ns.fileName!==null)
-        url+='&fileName='+ns.fileName;
+    if (ns.fileName !== null)
+        url += '&fileName=' + ns.fileName;
     window.open(url, '_blank');
     window.focus();
 };
@@ -1210,8 +1234,8 @@ ns.alignIntervalsVertical = function () {
     }
 };
 
-ns.redirect = function(url){
-    window.location=url;
+ns.redirect = function (url) {
+    window.location = url;
 };
 
 
