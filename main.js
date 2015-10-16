@@ -67,21 +67,24 @@ ns.properties = {
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "image url", "type": "file"}
+        {"name": "image url", "type": "file"},
+        {"name": "z_index", "type": "number"}
     ],
     "button": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "text", "type": "text"}
+        {"name": "text", "type": "text"},
+        {"name": "z_index", "type": "number"}
     ],
     "text": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "placeholder text", "type": "text"}
+        {"name": "placeholder text", "type": "text"},
+        {"name": "z_index", "type": "number"}
     ],
     "display": [
         {"name": "xPosition", "type": "number"},
@@ -89,24 +92,25 @@ ns.properties = {
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "rows", "type": "number"},
-        {"name": "cols", "type": "number"}
+        {"name": "cols", "type": "number"},
+        {"name": "z_index", "type": "number"}
     ],
     "panel": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "headerText", "type": "text"}
+        {"name": "headerText", "type": "text"},
+        {"name": "z_index", "type": "number"}
     ],
     "screenControl": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        //{"name": "offset", "type": "number"},
         {"name": "rows", "type": "number"},
         {"name": "cols", "type": "number"},
-//        {"name": "sizes", "type": "promptDialog"}
+        {"name": "z_index", "type": "number"}
     ],
     "source": [
         {"name": "xPosition", "type": "number"},
@@ -114,14 +118,16 @@ ns.properties = {
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "text", "type": "text"},
-        {"name": "source", "type": "text"}
+        {"name": "source", "type": "text"},
+        {"name": "z_index", "type": "number"}
     ],
     "selection": [
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"}
     ],
-    "group": []
+    "group": [{"name": "z_index", "type": "number"}]
 };
+
 
 ns.componentSizes = {
     "image": {"width": 300, "height": 200},
@@ -1020,9 +1026,24 @@ ns.mouseMove = function (e) {
 ns.drawRectangles = function () {
     //ns.cleanUp();
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
+    var buf = [];
     ns.components.forEach(function (value, key) {
-        value.draw(ns.ctx);
+        buf.push(value);
     });
+
+    if (buf.length > 0) {
+        buf.sort(function (a, b) {
+            if (a.getZ_index() < b.getZ_index())
+                return -1;
+            else if (a.getZ_index() > b.getZ_index())
+                return 1;
+            return 0;
+        });
+
+        for (var i = 0; i < buf.length; i++) {
+            buf[i].draw(ns.ctx);
+        }
+    }
 };
 
 //Remove unnecessary components, which are created by mistake
@@ -1055,7 +1076,7 @@ ns.mouseUp = function (e) {
         }
 
     }
-
+	ns.chosenComponentType=null;
 };
 
 ns.saveToJson = function () {
