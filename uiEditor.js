@@ -105,7 +105,7 @@ uiEditor.components.ImageComponent = (function () {
         this.properties['width'] = w;
         this.properties['height'] = h;
         this.properties['image_url'] = 'images/dummy-image.jpg';
-        this.properties['z_index']=0;        
+        this.properties['z_index'] = 0;
         this.selected = false;
         this.firstSelected = false;
     }
@@ -139,7 +139,7 @@ uiEditor.components.ImageComponent = (function () {
     ImageComponent.prototype.getProperties = function () {
         return this.properties;
     };
-    ImageComponent.prototype.getZ_index = function(){
+    ImageComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
     /*************************************************/
@@ -165,8 +165,8 @@ uiEditor.components.ImageComponent = (function () {
     ImageComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
     };
-    ImageComponent.prototype.setZ_index = function(z_index){
-        this.properties['z_index']=Number(z_index);
+    ImageComponent.prototype.setZ_index = function (z_index) {
+        this.properties['z_index'] = Number(z_index);
     };
 
     /*************************************************/
@@ -241,7 +241,7 @@ uiEditor.components.TextComponent = (function () {
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
-        this.properties['z_index']=0;
+        this.properties['z_index'] = 0;
         this.properties['placeholder text'] = "placeholder text";
         this.selected = false;
         this.firstSelected = false;
@@ -278,7 +278,7 @@ uiEditor.components.TextComponent = (function () {
     TextComponent.prototype.getProperties = function () {
         return this.properties;
     };
-    TextComponent.prototype.getZ_index=function(){
+    TextComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
     /*************************************************/
@@ -307,8 +307,8 @@ uiEditor.components.TextComponent = (function () {
     TextComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
     };
-    TextComponent.prototype.setZ_index = function(z_index){
-        this.properties['z_index']=Number(z_index);
+    TextComponent.prototype.setZ_index = function (z_index) {
+        this.properties['z_index'] = Number(z_index);
     };
     /*************************************************/
 
@@ -471,7 +471,7 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.getProperties = function () {
         return this.properties;
     };
-    DisplayComponent.prototype.getZ_index = function(){
+    DisplayComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
     /*************************************************/
@@ -500,10 +500,10 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
     };
-    DisplayComponent.prototype.setZ_index = function(z_index){
-        this.properties['z_index']=Number(z_index);
+    DisplayComponent.prototype.setZ_index = function (z_index) {
+        this.properties['z_index'] = Number(z_index);
     };
-    
+
     /*************************************************/
     DisplayComponent.prototype.getPropertiesForJSON = function () {
         return this.getProperties();
@@ -605,7 +605,12 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['height'] = h;
         this.properties['text'] = id;
         this.properties['radius'] = 10;
-        this.properties['z_index']=0;
+        this.properties['z_index'] = 0;
+        this.properties['bg_color'] = "#e4e4e4";
+        this.properties['font_color']="#000";
+        this.properties['button_font_face']='Arial';
+        this.properties['button_font_type']='normal';
+        this.properties['button_font_size']='20px';
         this.selected = false;
         this.firstSelected = false;
     }
@@ -641,8 +646,23 @@ uiEditor.components.ButtonComponent = (function () {
     ButtonComponent.prototype.getProperties = function () {
         return this.properties;
     };
-    ButtonComponent.prototype.getZ_index = function(){
+    ButtonComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
+    };
+    ButtonComponent.prototype.getBgColor = function () {
+        return this.properties['bg_color'];
+    };
+    ButtonComponent.prototype.getFontColor = function () {
+        return this.properties['font_color'];
+    };
+    ButtonComponent.prototype.getFontFace = function () {
+        return this.properties['button_font_face'];
+    };
+    ButtonComponent.prototype.getFontSize = function () {
+        return this.properties['button_font_size'];
+    };
+    ButtonComponent.prototype.getFontType= function () {
+        return this.properties['button_font_type'];
     };
     /*************************************************/
 
@@ -667,8 +687,23 @@ uiEditor.components.ButtonComponent = (function () {
     ButtonComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
     };
-    ButtonComponent.prototype.setZ_index = function(z_index){
-        this.properties['z_index']=Number(z_index);
+    ButtonComponent.prototype.setZ_index = function (z_index) {
+        this.properties['z_index'] = Number(z_index);
+    };
+    ButtonComponent.prototype.setBgColor = function (color) {
+        this.properties['bg_color'] = color;
+    };
+    ButtonComponent.prototype.setFontColor = function (color) {
+        this.properties['font_color'] = color;
+    };
+    ButtonComponent.prototype.setFontFace = function (color) {
+        this.properties['button_font_face'] = color;
+    };
+    ButtonComponent.prototype.setFontSize = function (color) {
+        this.properties['button_font_size'] = color;
+    };
+    ButtonComponent.prototype.setFontType= function (color) {
+        this.properties['button_font_type'] = color;
     };
     /*************************************************/
     ButtonComponent.prototype.getPropertiesForJSON = function () {
@@ -709,11 +744,8 @@ uiEditor.components.ButtonComponent = (function () {
         this.setWidth(Number(this.getWidth()));
         this.setHeight(Number(this.getHeight()));
 
-        ctx.save();
-        var gradient = ctx.createLinearGradient(0, 0, 0, 170);
-        gradient.addColorStop(0, "#e4e4e4");
-        gradient.addColorStop(0, "#f1f1f1");
-        ctx.fillStyle = gradient;
+        ctx.save();        
+        ctx.fillStyle = this.getBgColor();
         ctx.beginPath();
         ctx.moveTo(this.getX() + this.getRadius(),
                 this.getY());
@@ -747,8 +779,8 @@ uiEditor.components.ButtonComponent = (function () {
         ctx.fill();
         if (this.text !== null) {
             ctx.save();
-            ctx.fillStyle = "#000";
-            ctx.font = "20px Arial";
+            ctx.fillStyle = this.getFontColor();
+            ctx.font = this.getFontType() + " " + this.getFontSize() + " " +this.getFontFace();
             ctx.textAlign = "center";
             ctx.fillText(this.getText(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
             ctx.restore();
@@ -784,13 +816,13 @@ uiEditor.components.PanelComponent = (function () {
             this.properties['headerText'] = headerText;
             this.properties["componentType"] = "panel";
             this.properties['children'] = new Map();
-            this.properties['z_index']=0;
+            this.properties['z_index'] = 0;
             this.selected = false;
             this.firstSelected = false;
         }
-        else{
+        else {
             console.log("fromJson true");
-            
+
             this.properties = {};
             this.properties['headerHeight'] = 40;
             this.properties["id"] = id;
@@ -801,9 +833,9 @@ uiEditor.components.PanelComponent = (function () {
             this.properties['headerText'] = headerText;
             this.properties["componentType"] = "panel";
             this.properties['children'] = new Map();
-            this.properties['z_index']=0;
-            
-             for (var i = 0; i < items.button.length; i++) {
+            this.properties['z_index'] = 0;
+
+            for (var i = 0; i < items.button.length; i++) {
                 this.properties['components'].set(items.button[i].id,
                         new uiEditor.components.ButtonComponent(items.button[i].id,
                                 items.button[i].xPosition,
@@ -854,7 +886,7 @@ uiEditor.components.PanelComponent = (function () {
                                 items.button[i].height,
                                 items.group[i].items));
             }
-            
+
             this.selected = false;
             this.firstSelected = false;
         }
@@ -894,7 +926,7 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.getChildren = function () {
         return this.properties['children'];
     };
-    PanelComponent.prototype.getZ_index = function(){
+    PanelComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
     /*************************************************/
@@ -920,8 +952,8 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
     };
-    PanelComponent.prototype.setZ_index = function(z_index){
-        this.properties['z_index']=Number(z_index);
+    PanelComponent.prototype.setZ_index = function (z_index) {
+        this.properties['z_index'] = Number(z_index);
     };
     /*************************************************/
     PanelComponent.prototype.getPropertiesForJSON = function () {
@@ -1144,7 +1176,7 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties['itemHeight'] = 40;
         this.properties['rows'] = rows;
         this.properties['cols'] = cols;
-        this.properties['z_index']=0;
+        this.properties['z_index'] = 0;
         this.selected = false;
         this.firstSelected = false;
     }
@@ -1183,7 +1215,7 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.getProperties = function () {
         return this.properties;
     };
-    ScreenControlComponent.prototype.getZ_index = function(){
+    ScreenControlComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
     /*************************************************/
@@ -1212,8 +1244,8 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
     };
-    ScreenControlComponent.prototype.setZ_index = function(z_index){
-        this.properties['z_index']=Number(z_index);
+    ScreenControlComponent.prototype.setZ_index = function (z_index) {
+        this.properties['z_index'] = Number(z_index);
     };
     /*************************************************/
     ScreenControlComponent.prototype.getPropertiesForJSON = function () {
@@ -1344,7 +1376,7 @@ uiEditor.components.SourceComponent = (function () {
         this.properties['height'] = h;
         this.properties['text'] = text;
         this.properties['source'] = source;
-        this.properties['z_index']=0;
+        this.properties['z_index'] = 0;
         this.selected = false;
         this.firstSelected = false;
     }
@@ -1380,7 +1412,7 @@ uiEditor.components.SourceComponent = (function () {
     SourceComponent.prototype.getSource = function () {
         return this.properties['source'];
     };
-    SourceComponent.prototype.getZ_index = function(){
+    SourceComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
     /*************************************************/
@@ -1409,8 +1441,8 @@ uiEditor.components.SourceComponent = (function () {
     SourceComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
     };
-    SourceComponent.prototype.setZ_index = function(z_index){
-        this.properties['z_index']=Number(z_index);
+    SourceComponent.prototype.setZ_index = function (z_index) {
+        this.properties['z_index'] = Number(z_index);
     };
     /*************************************************/
     SourceComponent.prototype.getPropertiesForJSON = function () {
@@ -1858,7 +1890,7 @@ uiEditor.components.Group = (function () {
             this.properties['id'] = id;
             this.properties['componentType'] = "group";
             this.properties['components'] = new Map();
-            this.properties['z_index']=0;
+            this.properties['z_index'] = 0;
             var leftX = 1000000, leftY = 100000000, rightX = 0, rightY = 0;
             console.log("In group constructor...");
             console.log(id);
@@ -1901,13 +1933,13 @@ uiEditor.components.Group = (function () {
             this.properties['yPosition'] = y;
             this.properties['width'] = w;
             this.properties['height'] = h;
-            this.properties['z_index']=0;
-            
+            this.properties['z_index'] = 0;
+
             console.log(x)
             console.log(y)
             console.log(w)
             console.log(h)
-            
+
             this.selected = false;
             this.firstSelected = false;
 
@@ -1965,7 +1997,7 @@ uiEditor.components.Group = (function () {
 
 
 
-            
+
         }
 
     }
@@ -1998,10 +2030,10 @@ uiEditor.components.Group = (function () {
     Group.prototype.getComponents = function () {
         return this.properties['components'];
     };
-    Group.prototype.getZ_index = function(){
+    Group.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
-    Group.prototype.getPropertyValue = function(propertyName){
+    Group.prototype.getPropertyValue = function (propertyName) {
         return this.properties[propertyName];
     };
     /*********************************************************/
@@ -2024,11 +2056,11 @@ uiEditor.components.Group = (function () {
     Group.prototype.setHeight = function (height) {
         this.properties['height'] = Number(height);
     };
-    Group.prototype.setZ_index = function(z_index){
-        this.properties['z_index']=Number(z_index);
+    Group.prototype.setZ_index = function (z_index) {
+        this.properties['z_index'] = Number(z_index);
     };
-    Group.prototype.setPropertyValue = function(propertyName, propertyValue){
-        this.properties[propertyName]=propertyValue;
+    Group.prototype.setPropertyValue = function (propertyName, propertyValue) {
+        this.properties[propertyName] = propertyValue;
     };
     /*********************************************************/
 

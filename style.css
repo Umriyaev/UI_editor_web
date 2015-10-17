@@ -133,6 +133,11 @@ body{
     border: 1px solid #d3d3d3;
 }
 
+.param select{
+    width: 100%;
+    border: 1px solid #d3d3d3;
+}
+
 .right{
     text-align: right;
 }
@@ -182,6 +187,14 @@ body{
 .flex-item input[type="checkbox"]{
     margin-left: -15px;
 }
+
+.flexContainer{
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
 
 
 

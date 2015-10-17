@@ -76,7 +76,12 @@ ns.properties = {
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "text", "type": "text"},
-        {"name": "z_index", "type": "number"}
+        {"name": "z_index", "type": "number"},
+		{"name": "bg_color", "type": "color"},
+        {"name": "font_color", "type": "color"},
+        {"name": "button_font_face", "type": "font_face"},
+        {"name": "button_font_type", "type": "font_type"},
+        {"name": "button_font_size", "type": "font_size"}
     ],
     "text": [
         {"name": "xPosition", "type": "number"},
@@ -127,6 +132,10 @@ ns.properties = {
     ],
     "group": [{"name": "z_index", "type": "number"}]
 };
+
+ns.font_face_list = ["Arial", "Verdana", "Times New Roman", "Courier New", "serif", "sans-serif"];
+ns.font_type_list = ["normal", "bold", "italic", "bolder", "lighter"];
+ns.font_size_list = ["20px", "22px", "24px", "26px", "28px", "30px", "50px", "100px"];
 
 
 ns.componentSizes = {
@@ -438,6 +447,25 @@ ns.textChanged = function (e) {
 
     ns.drawRectangles(); //redraw all the components
 };
+
+ns.selectionChanged = function (e) {
+    var select = e.target;  //target which fired the event
+    var propertyName = select.name;  //get the name of property
+    var propertyValue = select.options[select.selectedIndex].value; //get value of property
+    console.log(propertyName + " "+propertyValue);
+    if (ns.alteringComponent.component) {
+        if (ns.alteringComponent.panel) {
+            var panel = ns.components.get(ns.alteringComponent.panel);
+            var child = panel.getChild(ns.alteringComponent.component);
+            child.setPropertyValue(propertyName, propertyValue);
+            panel.addChild(child);
+        }
+        else {
+            ns.components.get(ns.alteringComponent.component).setPropertyValue(propertyName, propertyValue); //update component with new property value
+        }
+    }
+    ns.drawRectangles();
+}
 
 ns.promptSizes = function (e) {
     var result = [];
@@ -819,31 +847,116 @@ ns.constructProperties = function (component, callFrom) {
                 div.className = 'param';
                 div.appendChild(document.createTextNode(propertyNames[i]['name']));
                 div.innerHTML += '<br>';
-                var input = document.createElement('input');
-                input.type = propertyNames[i]['type'];
-                input.id = propertyNames[i]['name'];
-                input.name = propertyNames[i]['name'];
-                if (propertyNames[i]['type'] === 'file') {
-                    input.filename = component.getPropertyValue(propertyNames[i]['name']);
+                var input, select;
+                if (propertyNames[i]['type'] !== 'font_face' &&
+                        propertyNames[i]['type'] !== 'font_size' &&
+                        propertyNames[i]['type'] !== 'font_type')
+                {
+                    input = document.createElement('input');
+                    input.type = propertyNames[i]['type'];
+                    input.id = propertyNames[i]['name'];
+                    input.name = propertyNames[i]['name'];
+                    div.appendChild(input);
 
-                    //add event listener for file uploader
-                    input.addEventListener('change', ns.fileChanged, false);
-                }
-                else if (propertyNames[i]['type'] == 'promptDialog') {
-                    input.type = "button";
-                    input.value = "Choose sizes";
-                    input.addEventListener("click", ns.promptSizes, false);
+
+                    if (propertyNames[i]['type'] === 'file') {
+                        input.filename = component.getPropertyValue(propertyNames[i]['name']);
+
+                        //add event listener for file uploader
+                        input.addEventListener('change', ns.fileChanged, false);
+                    }
+                    else if (propertyNames[i]['type'] === 'promptDialog') {
+                        input.type = "button";
+                        input.value = "Choose sizes";
+                        input.addEventListener("click", ns.promptSizes, false);
+                    }
+                    else if (propertyNames[i]['type'] === 'color') {
+                        input.type = "text";
+                        input.className += "demo1";
+                        input.value = component.getPropertyValue(propertyNames[i]['name']);
+                        input.addEventListener('change', ns.textChanged, false);
+                        input.addEventListener('keypress', ns.textChanged, false);
+                        input.addEventListener('paste', ns.textChanged, false);
+                        input.addEventListener('input', ns.textChanged, false);
+                    }
+//                else if (propertyNames[i]['type'] === 'font_face') {
+//                    alert(propertyNames.length);
+//                    for (var i = 0; i < ns.font_face_list.length; i++) {
+//                        if (ns.font_face_list[i] !== component.getPropertyValue(propertyNames[i]['name'])) {
+//                            var option = document.createElement('option');
+//                            option.value = ns.font_face_list[i];
+//                            option.text = ns.font_face_list[i];
+//                            select.add(option);
+//                        }
+//                    }
+//                    select.addEventListener('change', ns.selectionChanged, false);
+//                }
+//                else if (propertyNames[i]['type'] === 'font_type') {
+//                    alert(propertyNames.length);
+//                    for (var i = 0; i < ns.font_type_list.length; i++) {
+//                        if (ns.font_type_list[i] !== component.getPropertyValue(propertyNames[i]['name'])) {
+//                            var option = document.createElement('option');
+//                            option.value = ns.font_type_list[i];
+//                            option.text = ns.font_type_list[i];
+//                            select.add(option);
+//                        }
+//                    }
+//                    select.addEventListener('change', ns.selectionChanged, false);
+//                }
+//                else if (propertyNames[i]['type'] === 'font_size') {
+//                    alert(propertyNames.length);
+//                    for (var i = 0; i < ns.font_size_list.length; i++) {
+//                        if (ns.font_size_list[i] !== component.getPropertyValue(propertyNames[i]['name'])) {
+//                            var option = document.createElement('option');
+//                            option.value = ns.font_size_list[i];
+//                            option.text = ns.font_size_list[i];
+//                            select.add(option);
+//                        }
+//                    }
+//                    select.addEventListener('change', ns.selectionChanged, false);
+//                }
+                    else {
+                        input.value = component.getPropertyValue(propertyNames[i]['name']);
+
+                        //add change event listener for every event of the text input
+                        input.addEventListener('change', ns.textChanged, false);
+                        input.addEventListener('keypress', ns.textChanged, false);
+                        input.addEventListener('paste', ns.textChanged, false);
+                        input.addEventListener('input', ns.textChanged, false);
+                    }
                 }
                 else {
-                    input.value = component.getPropertyValue(propertyNames[i]['name']);
+                    select = document.createElement('select');
+                    select.name = propertyNames[i]['name'];
+                    select.addEventListener('change', ns.selectionChanged, false);
+                    select.id = propertyNames[i]['name'];
+                    select.add(new Option(component.getPropertyValue(propertyNames[i]['name']),
+                            component.getPropertyValue(propertyNames[i]['name'])));
+                    select.selectIndex = 0;
+                    div.appendChild(select);
+                    var selectItemsArray = null;
+                    switch (propertyNames[i]['type']) {
+                        case 'font_face':
+                            selectItemsArray = ns.font_face_list;
+                            break;
+                        case 'font_type':
+                            selectItemsArray = ns.font_type_list;
+                            break;
+                        case 'font_size':
+                            selectItemsArray = ns.font_size_list;
+                            break;
+                    }
 
-                    //add change event listener for every event of the text input
-                    input.addEventListener('change', ns.textChanged, false);
-                    input.addEventListener('keypress', ns.textChanged, false);
-                    input.addEventListener('paste', ns.textChanged, false);
-                    input.addEventListener('input', ns.textChanged, false);
+                    if (selectItemsArray !== null) {
+                        for (var item in selectItemsArray) {
+                            if (selectItemsArray[item] !== select.options[select.selectedIndex].value) {
+                                console.log('item: ' + selectItemsArray[item]);
+                                select.add(new Option(selectItemsArray[item], selectItemsArray[item]));
+                            }
+                        }
+                    }
+                    console.log(select);
                 }
-                div.appendChild(input);
                 propertiesPanel.appendChild(div);
             }
         }
@@ -860,7 +973,7 @@ ns.constructProperties = function (component, callFrom) {
                     input.type = propertyNames[i]['type'];
                     input.id = propertyNames[i]['name'];
                     input.name = propertyNames[i]['name'];
-                    if (propertyNames[i]["type"] == "number") {
+                    if (propertyNames[i]["type"] === "number") {
                         input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
 
                         input.addEventListener('change', ns.textChanged, false);
@@ -875,6 +988,9 @@ ns.constructProperties = function (component, callFrom) {
             }
         }
     }
+    $('.demo1').colorpicker().on("changeColor", function (event) {
+        ns.textChanged(event)
+    });
 };
 
 //move the component to another position
