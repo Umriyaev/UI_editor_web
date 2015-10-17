@@ -13,10 +13,12 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>UI editor</title>
-        <link href="js/libs/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />        
+        <link href="js/libs/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />    
+        <link href="js/libs/colorPicker/css/bootstrap-colorpicker.css" rel="stylesheet"/>
         <link href="style.css" rel="stylesheet" />
         <script src="js/libs/jquery/jquery.js"></script>
         <script src="js/libs/twitter-bootstrap/js/bootstrap.js"></script>
+        <script src="js/libs/colorPicker/js/bootstrap-colorpicker.js"></script>
         <script src="js/libs/bootbox/bootbox.js"></script>
         <script src="Notify.js"></script>
         <script src="uiEditor.js"></script>
@@ -126,7 +128,7 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="panel panel-default">
+                        <div class="panel panel-default" id="propertiesColumn">
                             <div class="panel-heading text-center">
                                 <h3 class="panel-title">Properties</h3>
                             </div>
