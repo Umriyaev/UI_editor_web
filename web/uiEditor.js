@@ -243,6 +243,10 @@ uiEditor.components.TextComponent = (function () {
         this.properties['height'] = h;
         this.properties['z_index'] = 0;
         this.properties['placeholder text'] = "placeholder text";
+        this.properties['font_color'] = "#aaa";
+        this.properties['font_face'] = "Arial";
+        this.properties['font_type'] = "normal";
+        this.properties['font_size'] = "20px";
         this.selected = false;
         this.firstSelected = false;
     }
@@ -281,6 +285,18 @@ uiEditor.components.TextComponent = (function () {
     TextComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
+    TextComponent.prototype.getFontColor = function () {
+        return this.properties['font_color'];
+    };
+    TextComponent.prototype.getFontFace = function () {
+        return this.properties['font_face'];
+    };
+    TextComponent.prototype.getFontSize = function () {
+        return this.properties['font_size'];
+    };
+    TextComponent.prototype.getFontType = function () {
+        return this.properties['font_type'];
+    };
     /*************************************************/
 
 
@@ -309,6 +325,18 @@ uiEditor.components.TextComponent = (function () {
     };
     TextComponent.prototype.setZ_index = function (z_index) {
         this.properties['z_index'] = Number(z_index);
+    };
+    TextComponent.prototype.setFontColor = function (color) {
+        this.properties['font_color'] = color;
+    };
+    TextComponent.prototype.setFontFace = function (font_face) {
+        this.properties['font_face'] = font_face;
+    };
+    TextComponent.prototype.setFontSize = function (font_size) {
+        this.properties['font_size'] = font_size;
+    };
+    TextComponent.prototype.setFontType = function (font_type) {
+        this.properties['font_type'] = font_type;
     };
     /*************************************************/
 
@@ -403,8 +431,8 @@ uiEditor.components.TextComponent = (function () {
         ctx.stroke();
         if (this.getPlaceholderText() !== null) {
             ctx.save();
-            ctx.fillStyle = "#aaa";
-            ctx.font = "20px Arial";
+            ctx.fillStyle = this.getFontColor();
+            ctx.font = this.getFontType() + " " + this.getFontSize() + " " + this.getFontFace();
             ctx.textAlign = "left";
             ctx.fillText(this.getPlaceholderText(), this.getX() + 20, this.getY() + this.getHeight() / 2 + 5);
             ctx.restore();
@@ -436,6 +464,8 @@ uiEditor.components.DisplayComponent = (function () {
         this.properties['rows'] = numberOfRows;
         this.properties['cols'] = numberOfColumns;
         this.properties['z_index'] = 0;
+        this.properties['spacing']=0;
+        this.properties['bg_color'] = "#fff";
         this.selected = false;
         this.firstSelected = false;
     }
@@ -474,6 +504,12 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
+    DisplayComponent.prototype.getSpacing = function(){
+        return this.properties['spacing'];
+    };
+    DisplayComponent.prototype.getBgColor = function () {
+        return this.properties['bg_color'];
+    };
     /*************************************************/
 
 
@@ -503,7 +539,12 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.setZ_index = function (z_index) {
         this.properties['z_index'] = Number(z_index);
     };
-
+    DisplayComponent.prototype.setSpacing = function(spacing){
+        this.properties['spacing']=Number(spacing);
+    };
+    DisplayComponent.prototype.setBgColor = function (color) {
+        this.properties['bg_color'] = color;
+    };
     /*************************************************/
     DisplayComponent.prototype.getPropertiesForJSON = function () {
         return this.getProperties();
@@ -544,40 +585,26 @@ uiEditor.components.DisplayComponent = (function () {
         this.setHeight(Number(this.getHeight()));
         this.setNumberOfRows(Number(this.getNumberOfRows()));
         this.setNumberOfColumns(Number(this.getNumberOfCols()));
+        
+        ctx.save();
+        ctx.fillStyle=this.getBgColor();
 
+        var spacing =this.getSpacing();
+        var itemW = (this.getWidth() - (this.getNumberOfCols() + 1) * spacing) / this.getNumberOfCols();
+        var itemH = (this.getHeight() - (this.getNumberOfRows() + 1) * spacing) / this.getNumberOfRows();
 
-        if (this.getWidth() % this.getNumberOfCols() !== 0) {
-            this.setWidth(this.getWidth() +
-                    this.getNumberOfCols() - (this.getWidth() % this.getNumberOfCols()));
-        }
-        if (this.getHeight() % this.getNumberOfRows() !== 0) {
-            this.setHeight(this.getHeight() +
-                    this.getNumberOfRows() - (this.getHeight() % this.getNumberOfRows()));
-        }
-        ctx.beginPath();
-        for (var x = this.getX();
-                x < this.getWidth() + this.getX();
-                x += this.getWidth() / this.getNumberOfCols()) {
-            ctx.moveTo(x, this.getY());
-            ctx.lineTo(x, this.getY() + this.getHeight());
-        }
-        ctx.moveTo(this.getX() + this.getWidth(),
-                this.getY());
-        ctx.lineTo(this.getX() + this.getWidth(),
-                this.getY() + this.getHeight());
-        for (var y = this.getY();
-                y < this.getHeight() + this.getY();
-                y += this.getHeight() / this.getNumberOfRows()) {
-            ctx.moveTo(this.getX(), y);
-            ctx.lineTo(this.getX() + this.getWidth(), y);
-        }
+        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 
-        ctx.moveTo(this.getX(),
-                this.getY() + this.getHeight());
-        ctx.lineTo(this.getX() + this.getWidth(),
-                this.getY() + this.getHeight());
-        ctx.closePath();
-        ctx.stroke();
+        for (var i = 0; i < this.getNumberOfRows(); i++) {
+            for (var j = 0; j < this.getNumberOfCols(); j++) {
+                var x = this.getX() + (j + 1) * spacing + j * itemW;
+                var y = this.getY() + (i + 1) * spacing + i * itemH;
+                ctx.fillRect(x, y, itemW, itemH);
+                ctx.strokeRect(x, y, itemW, itemH);
+            }
+        }
+        ctx.restore();
 
         if (this.selected) {
             if (!this.firstSelected)
@@ -607,10 +634,10 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['radius'] = 10;
         this.properties['z_index'] = 0;
         this.properties['bg_color'] = "#e4e4e4";
-        this.properties['font_color']="#000";
-        this.properties['button_font_face']='Arial';
-        this.properties['button_font_type']='normal';
-        this.properties['button_font_size']='20px';
+        this.properties['font_color'] = "#000";
+        this.properties['font_face'] = 'Arial';
+        this.properties['font_type'] = 'normal';
+        this.properties['font_size'] = '20px';
         this.selected = false;
         this.firstSelected = false;
     }
@@ -656,13 +683,13 @@ uiEditor.components.ButtonComponent = (function () {
         return this.properties['font_color'];
     };
     ButtonComponent.prototype.getFontFace = function () {
-        return this.properties['button_font_face'];
+        return this.properties['font_face'];
     };
     ButtonComponent.prototype.getFontSize = function () {
-        return this.properties['button_font_size'];
+        return this.properties['font_size'];
     };
-    ButtonComponent.prototype.getFontType= function () {
-        return this.properties['button_font_type'];
+    ButtonComponent.prototype.getFontType = function () {
+        return this.properties['font_type'];
     };
     /*************************************************/
 
@@ -696,14 +723,14 @@ uiEditor.components.ButtonComponent = (function () {
     ButtonComponent.prototype.setFontColor = function (color) {
         this.properties['font_color'] = color;
     };
-    ButtonComponent.prototype.setFontFace = function (color) {
-        this.properties['button_font_face'] = color;
+    ButtonComponent.prototype.setFontFace = function (font_face) {
+        this.properties['font_face'] = font_face;
     };
-    ButtonComponent.prototype.setFontSize = function (color) {
-        this.properties['button_font_size'] = color;
+    ButtonComponent.prototype.setFontSize = function (font_size) {
+        this.properties['font_size'] = font_size;
     };
-    ButtonComponent.prototype.setFontType= function (color) {
-        this.properties['button_font_type'] = color;
+    ButtonComponent.prototype.setFontType = function (font_type) {
+        this.properties['font_type'] = font_type;
     };
     /*************************************************/
     ButtonComponent.prototype.getPropertiesForJSON = function () {
@@ -744,7 +771,7 @@ uiEditor.components.ButtonComponent = (function () {
         this.setWidth(Number(this.getWidth()));
         this.setHeight(Number(this.getHeight()));
 
-        ctx.save();        
+        ctx.save();
         ctx.fillStyle = this.getBgColor();
         ctx.beginPath();
         ctx.moveTo(this.getX() + this.getRadius(),
@@ -780,7 +807,7 @@ uiEditor.components.ButtonComponent = (function () {
         if (this.text !== null) {
             ctx.save();
             ctx.fillStyle = this.getFontColor();
-            ctx.font = this.getFontType() + " " + this.getFontSize() + " " +this.getFontFace();
+            ctx.font = this.getFontType() + " " + this.getFontSize() + " " + this.getFontFace();
             ctx.textAlign = "center";
             ctx.fillText(this.getText(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
             ctx.restore();
@@ -1091,6 +1118,7 @@ uiEditor.components.PanelComponent = (function () {
 
 
     };
+
     PanelComponent.prototype.addChild = function (component) {
         this.properties['children'].set(component.getID(), component);
     };
@@ -1177,6 +1205,11 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties['rows'] = rows;
         this.properties['cols'] = cols;
         this.properties['z_index'] = 0;
+        this.properties['bg_color'] = "#e4e4e4";
+        this.properties['font_color'] = "#000";
+        this.properties['font_face'] = 'Arial';
+        this.properties['font_type'] = 'normal';
+        this.properties['font_size'] = '20px';
         this.selected = false;
         this.firstSelected = false;
     }
@@ -1218,6 +1251,21 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
+    ScreenControlComponent.prototype.getBgColor = function () {
+        return this.properties['bg_color'];
+    };
+    ScreenControlComponent.prototype.getFontColor = function () {
+        return this.properties['font_color'];
+    };
+    ScreenControlComponent.prototype.getFontFace = function () {
+        return this.properties['font_face'];
+    };
+    ScreenControlComponent.prototype.getFontSize = function () {
+        return this.properties['font_size'];
+    };
+    ScreenControlComponent.prototype.getFontType = function () {
+        return this.properties['font_type'];
+    };
     /*************************************************/
 
 
@@ -1246,6 +1294,21 @@ uiEditor.components.ScreenControlComponent = (function () {
     };
     ScreenControlComponent.prototype.setZ_index = function (z_index) {
         this.properties['z_index'] = Number(z_index);
+    };
+    ScreenControlComponent.prototype.setBgColor = function (color) {
+        this.properties['bg_color'] = color;
+    };
+    ScreenControlComponent.prototype.setFontColor = function (color) {
+        this.properties['font_color'] = color;
+    };
+    ScreenControlComponent.prototype.setFontFace = function (font_face) {
+        this.properties['font_face'] = font_face;
+    };
+    ScreenControlComponent.prototype.setFontSize = function (font_size) {
+        this.properties['font_size'] = font_size;
+    };
+    ScreenControlComponent.prototype.setFontType = function (font_type) {
+        this.properties['font_type'] = font_type;
     };
     /*************************************************/
     ScreenControlComponent.prototype.getPropertiesForJSON = function () {
@@ -1288,26 +1351,9 @@ uiEditor.components.ScreenControlComponent = (function () {
 
         ctx.save();
 
-        var gradient = ctx.createLinearGradient(0, 0, 0, 170);
-        gradient.addColorStop(0, "#e4e4e4");
-        gradient.addColorStop(0, "#f1f1f1");
         ctx.textAlign = "center";
 
-        /*for (var i = 0; i < sizeCount; i++) {
-         ctx.beginPath();
-         ctx.fillStyle = gradient;
-         var xPos = this.getX() + i * (itemWidth);
-         var yPos = this.getY();
-         ctx.rect(xPos, yPos, itemWidth, itemHeight);
-         ctx.stroke();
-         ctx.fill();
-         ctx.fillStyle = "black";
-         ctx.font = "20px Arial";
-         ctx.fillText(this.getSizes()[i], xPos + itemWidth / 2, yPos + itemHeight / 2 + 3);
-         ctx.closePath();
-         }*/
-
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = this.getBgColor();
         ctx.beginPath();
         ctx.moveTo(this.getX() + this.getRadius(),
                 this.getY());
@@ -1343,8 +1389,8 @@ uiEditor.components.ScreenControlComponent = (function () {
         ctx.restore();
 
         ctx.save();
-        ctx.fillStyle = "#000";
-        ctx.font = "20px Arial";
+        ctx.fillStyle = this.getFontColor()
+        ctx.font = this.getFontType() + " " + this.getFontSize() + " " + this.getFontFace();
         ctx.textAlign = "center";
         ctx.fillText(this.getRows().toString() + " x " + this.getCols().toString(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
         ctx.restore();
@@ -1377,6 +1423,11 @@ uiEditor.components.SourceComponent = (function () {
         this.properties['text'] = text;
         this.properties['source'] = source;
         this.properties['z_index'] = 0;
+        this.properties['bg_color'] = "#e4e4e4";
+        this.properties['font_color'] = "#000";
+        this.properties['font_face'] = 'Arial';
+        this.properties['font_type'] = 'normal';
+        this.properties['font_size'] = '20px';
         this.selected = false;
         this.firstSelected = false;
     }
@@ -1415,6 +1466,21 @@ uiEditor.components.SourceComponent = (function () {
     SourceComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
+    SourceComponent.prototype.getBgColor = function () {
+        return this.properties['bg_color'];
+    };
+    SourceComponent.prototype.getFontColor = function () {
+        return this.properties['font_color'];
+    };
+    SourceComponent.prototype.getFontFace = function () {
+        return this.properties['font_face'];
+    };
+    SourceComponent.prototype.getFontSize = function () {
+        return this.properties['font_size'];
+    };
+    SourceComponent.prototype.getFontType = function () {
+        return this.properties['font_type'];
+    };
     /*************************************************/
 
 
@@ -1443,6 +1509,21 @@ uiEditor.components.SourceComponent = (function () {
     };
     SourceComponent.prototype.setZ_index = function (z_index) {
         this.properties['z_index'] = Number(z_index);
+    };
+    SourceComponent.prototype.setBgColor = function (color) {
+        this.properties['bg_color'] = color;
+    };
+    SourceComponent.prototype.setFontColor = function (color) {
+        this.properties['font_color'] = color;
+    };
+    SourceComponent.prototype.setFontFace = function (font_face) {
+        this.properties['font_face'] = font_face;
+    };
+    SourceComponent.prototype.setFontSize = function (font_size) {
+        this.properties['font_size'] = font_size;
+    };
+    SourceComponent.prototype.setFontType = function (font_type) {
+        this.properties['font_type'] = font_type;
     };
     /*************************************************/
     SourceComponent.prototype.getPropertiesForJSON = function () {
@@ -1485,10 +1566,7 @@ uiEditor.components.SourceComponent = (function () {
 
         ctx.save();
 
-        var gradient = ctx.createLinearGradient(0, 0, 0, 170);
-        gradient.addColorStop(0, "#e4e4e4");
-        gradient.addColorStop(0, "#f1f1f1");
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = this.getBgColor();
         ctx.textAlign = "center";
 
         ctx.beginPath();
@@ -1496,8 +1574,8 @@ uiEditor.components.SourceComponent = (function () {
         ctx.stroke();
         ctx.fill();
         ctx.closePath();
-        ctx.fillStyle = "black";
-        ctx.font = "20px Arial";
+        ctx.fillStyle = this.getFontColor();
+        ctx.font = this.getFontType() + " " + this.getFontSize() + " " + this.getFontFace();
         ctx.fillText(this.getText(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
 
         ctx.restore();

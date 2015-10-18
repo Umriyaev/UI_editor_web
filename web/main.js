@@ -79,9 +79,9 @@ ns.properties = {
         {"name": "z_index", "type": "number"},
         {"name": "bg_color", "type": "color"},
         {"name": "font_color", "type": "color"},
-        {"name": "button_font_face", "type": "font_face"},
-        {"name": "button_font_type", "type": "font_type"},
-        {"name": "button_font_size", "type": "font_size"}
+        {"name": "font_face", "type": "font_face"},
+        {"name": "font_type", "type": "font_type"},
+        {"name": "font_size", "type": "font_size"}
     ],
     "text": [
         {"name": "xPosition", "type": "number"},
@@ -89,7 +89,11 @@ ns.properties = {
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "placeholder text", "type": "text"},
-        {"name": "z_index", "type": "number"}
+        {"name": "z_index", "type": "number"},
+        {"name": "font_color", "type": "color"},
+        {"name": "font_face", "type": "font_face"},
+        {"name": "font_type", "type": "font_type"},
+        {"name": "font_size", "type": "font_size"}
     ],
     "display": [
         {"name": "xPosition", "type": "number"},
@@ -98,6 +102,8 @@ ns.properties = {
         {"name": "height", "type": "number"},
         {"name": "rows", "type": "number"},
         {"name": "cols", "type": "number"},
+        {"name": "bg_color", "type": "color"},
+        {"name": "spacing", "type": "number"},
         {"name": "z_index", "type": "number"}
     ],
     "panel": [
@@ -115,7 +121,12 @@ ns.properties = {
         {"name": "height", "type": "number"},
         {"name": "rows", "type": "number"},
         {"name": "cols", "type": "number"},
-        {"name": "z_index", "type": "number"}
+        {"name": "z_index", "type": "number"},
+        {"name": "bg_color", "type": "color"},
+        {"name": "font_color", "type": "color"},
+        {"name": "font_face", "type": "font_face"},
+        {"name": "font_type", "type": "font_type"},
+        {"name": "font_size", "type": "font_size"}
     ],
     "source": [
         {"name": "xPosition", "type": "number"},
@@ -124,7 +135,12 @@ ns.properties = {
         {"name": "height", "type": "number"},
         {"name": "text", "type": "text"},
         {"name": "source", "type": "text"},
-        {"name": "z_index", "type": "number"}
+        {"name": "z_index", "type": "number"},
+        {"name": "bg_color", "type": "color"},
+        {"name": "font_color", "type": "color"},
+        {"name": "font_face", "type": "font_face"},
+        {"name": "font_type", "type": "font_type"},
+        {"name": "font_size", "type": "font_size"}
     ],
     "selection": [
         {"name": "width", "type": "number"},
@@ -457,7 +473,7 @@ ns.selectionChanged = function (e) {
     var select = e.target;  //target which fired the event
     var propertyName = select.name;  //get the name of property
     var propertyValue = select.options[select.selectedIndex].value; //get value of property
-    console.log(propertyName + " "+propertyValue);
+    console.log(propertyName + " " + propertyValue);
     if (ns.alteringComponent.component) {
         if (ns.alteringComponent.panel) {
             var panel = ns.components.get(ns.alteringComponent.panel);
