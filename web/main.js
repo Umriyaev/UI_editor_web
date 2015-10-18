@@ -104,7 +104,9 @@ ns.properties = {
         {"name": "cols", "type": "number"},
         {"name": "bg_color", "type": "color"},
         {"name": "spacing", "type": "number"},
-        {"name": "z_index", "type": "number"}
+        {"name": "z_index", "type": "number"},
+        {"name": "line_style", "type": "line_style"},
+        {"name": "line_width", "type": "number"}
     ],
     "panel": [
         {"name": "xPosition", "type": "number"},
@@ -152,6 +154,7 @@ ns.properties = {
 ns.font_face_list = ["Arial", "Verdana", "Times New Roman", "Courier New", "serif", "sans-serif"];
 ns.font_type_list = ["normal", "bold", "italic", "bolder", "lighter"];
 ns.font_size_list = ["20px", "22px", "24px", "26px", "28px", "30px", "50px", "100px"];
+ns.line_style_list = ["solid", "dotted", "dashed"];
 
 ns.componentSizes = {
     "image": {"width": 300, "height": 200},
@@ -443,7 +446,7 @@ ns.keyPressHandler = function (e) {
 //update properties of the components after changing values on properties panel
 ns.textChanged = function (e) {
     console.log(e.target.name);
-    if (ns.alteringComponent.component != "selection") {
+    if (ns.alteringComponent.component !== "selection") {
         var input = e.target;  //target which fired the event
         var propertyName = input.name;  //get the name of property
         var propertyValue = input.value; //get value of property
@@ -871,7 +874,8 @@ ns.constructProperties = function (component, callFrom) {
                 var input, select;
                 if (propertyNames[i]['type'] !== 'font_face' &&
                         propertyNames[i]['type'] !== 'font_size' &&
-                        propertyNames[i]['type'] !== 'font_type')
+                        propertyNames[i]['type'] !== 'font_type' &&
+                        propertyNames[i]['type'] !== 'line_style')
                 {
                     input = document.createElement('input');
                     input.type = propertyNames[i]['type'];
@@ -965,6 +969,9 @@ ns.constructProperties = function (component, callFrom) {
                             break;
                         case 'font_size':
                             selectItemsArray = ns.font_size_list;
+                            break;
+                        case 'line_style':
+                            selectItemsArray = ns.line_style_list;
                             break;
                     }
 

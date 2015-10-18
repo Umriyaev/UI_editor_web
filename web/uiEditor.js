@@ -30,6 +30,22 @@ uiEditor.helpers.drawSelection = function (ctx, componentX, componentY, componen
     ctx.restore();
 };
 
+uiEditor.helpers.getLineStyle = function (lineStyle) {
+    var result = null;
+    switch (lineStyle) {
+        case "solid":
+            result = null;
+            break;
+        case "dotted":
+            result = [1, 2];
+            break;
+        case "dashed":
+            result = [5,2];
+            break;
+    }
+    return result;
+};
+
 uiEditor.helpers.IdSpecifier = (function () {
     function IdSpecifier() {
         this.buttonCount = 0;
@@ -464,8 +480,10 @@ uiEditor.components.DisplayComponent = (function () {
         this.properties['rows'] = numberOfRows;
         this.properties['cols'] = numberOfColumns;
         this.properties['z_index'] = 0;
-        this.properties['spacing']=0;
+        this.properties['spacing'] = 0;
         this.properties['bg_color'] = "#fff";
+        this.properties['line_style'] = 'solid';
+        this.properties['line_width']=1;
         this.selected = false;
         this.firstSelected = false;
     }
@@ -504,11 +522,17 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
-    DisplayComponent.prototype.getSpacing = function(){
+    DisplayComponent.prototype.getSpacing = function () {
         return this.properties['spacing'];
     };
     DisplayComponent.prototype.getBgColor = function () {
         return this.properties['bg_color'];
+    };
+    DisplayComponent.prototype.getLineStyle = function () {
+        return this.properties['line_style'];
+    };
+    DisplayComponent.prototype.getLineWidth = function(){
+        return this.properties['line_width'];
     };
     /*************************************************/
 
@@ -539,11 +563,17 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.setZ_index = function (z_index) {
         this.properties['z_index'] = Number(z_index);
     };
-    DisplayComponent.prototype.setSpacing = function(spacing){
-        this.properties['spacing']=Number(spacing);
+    DisplayComponent.prototype.setSpacing = function (spacing) {
+        this.properties['spacing'] = Number(spacing);
     };
     DisplayComponent.prototype.setBgColor = function (color) {
         this.properties['bg_color'] = color;
+    };
+    DisplayComponent.prototype.setLineStyle = function (lineStyle) {
+        this.properties['line_style'] = lineStyle;
+    };
+    DisplayComponent.prototype.setLineWidth = function(lineWidth){
+        this.properties['line_width']=Number(value);
     };
     /*************************************************/
     DisplayComponent.prototype.getPropertiesForJSON = function () {
@@ -585,11 +615,15 @@ uiEditor.components.DisplayComponent = (function () {
         this.setHeight(Number(this.getHeight()));
         this.setNumberOfRows(Number(this.getNumberOfRows()));
         this.setNumberOfColumns(Number(this.getNumberOfCols()));
-        
-        ctx.save();
-        ctx.fillStyle=this.getBgColor();
 
-        var spacing =this.getSpacing();
+        ctx.save();
+        ctx.fillStyle = this.getBgColor();
+        ctx.lineWidth=this.getLineWidth();
+        var lineDash = uiEditor.helpers.getLineStyle(this.getLineStyle());
+        if (lineDash !== null)
+            ctx.setLineDash(lineDash);
+
+        var spacing = this.getSpacing();
         var itemW = (this.getWidth() - (this.getNumberOfCols() + 1) * spacing) / this.getNumberOfCols();
         var itemH = (this.getHeight() - (this.getNumberOfRows() + 1) * spacing) / this.getNumberOfRows();
 
