@@ -621,6 +621,9 @@ ns.draw = function (e) {
                 ns.alteringComponent.component = hitTestResult.component;
                 var panel = ns.components.get(ns.alteringComponent.panel);
                 var child = panel.getChild(ns.alteringComponent.component);
+				panel.deselectChildren();
+                child.select();
+                child.firstSelect();
                 ns.constructProperties(child, "draw_component inside the panel was hit");
                 ns.c.addEventListener('mousemove', ns.moveFromPanel, false);
                 ns.c.addEventListener('mouseup', ns.moveFromPanelDone, false);
@@ -1057,6 +1060,8 @@ ns.moveFromPanelDone = function (e) {
 
         ns.movingChildComponent.panel = null;
         ns.movingChildComponent.component = null;
+		ns.alteringComponent.panel = null;
+        ns.alteringComponent.component = child.getID();
         ns.destinationPanel = undefined;
     }
 };
@@ -1064,6 +1069,7 @@ ns.moveFromPanelDone = function (e) {
 //set variables, which are used for moving, to their initial values
 ns.moveDone = function (e) {
     if (ns.destinationPanel) {
+		ns.components.get(ns.movingComponent).deselect();
         ns.components.get(ns.destinationPanel).addChild(ns.components.get(ns.movingComponent));
         ns.components.delete(ns.movingComponent);
     }

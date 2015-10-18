@@ -1158,6 +1158,11 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.removeChild = function (component) {
         this.properties['children'].delete(component.getID());
     };
+	PanelComponent.prototype.deselectChildren = function(){
+        this.properties['children'].forEach(function(value, key){
+            value.deselect();
+        })
+    };
     PanelComponent.prototype.findAndRemoveComponents = function (componentType) {
         var toRemove = [];
         this.properties["children"].forEach(function (value, key) {
