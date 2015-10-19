@@ -897,7 +897,7 @@ uiEditor.components.PanelComponent = (function () {
             this.properties['z_index'] = 0;
 
             for (var i = 0; i < items.button.length; i++) {
-                this.properties['components'].set(items.button[i].id,
+                this.properties['children'].set(items.button[i].id,
                         new uiEditor.components.ButtonComponent(items.button[i].id,
                                 items.button[i].xPosition,
                                 items.button[i].yPosition,
@@ -906,7 +906,7 @@ uiEditor.components.PanelComponent = (function () {
             }
 
             for (var i = 0; i < items.text.length; i++) {
-                this.properties['components'].set(items.text[i].id,
+                this.properties['children'].set(items.text[i].id,
                         new uiEditor.components.TextComponent(items.text[i].id,
                                 items.text[i].xPosition,
                                 items.text[i].yPosition,
@@ -915,7 +915,7 @@ uiEditor.components.PanelComponent = (function () {
             }
 
             for (var i = 0; i < items.image.length; i++) {
-                this.properties['components'].set(items.image[i].id,
+                this.properties['children'].set(items.image[i].id,
                         new uiEditor.components.ImageComponent(items.image[i].id,
                                 items.image[i].xPosition,
                                 items.image[i].yPosition,
@@ -924,7 +924,7 @@ uiEditor.components.PanelComponent = (function () {
             }
 
             for (var i = 0; i < items.panel.length; i++) {
-                this.properties['components'].set(items.panel[i].id,
+                this.properties['children'].set(items.panel[i].id,
                         new uiEditor.components.PanelComponent(items.panel[i].id,
                                 items.panel[i].xPosition,
                                 items.panel[i].yPosition,
@@ -936,7 +936,7 @@ uiEditor.components.PanelComponent = (function () {
             }
 
             for (var i = 0; i < items.group.length; i++) {
-                this.properties['components'].set(items.button[i].id,
+                this.properties['children'].set(items.button[i].id,
                         new uiEditor.components.Group(items.group[i].id,
                                 null,
                                 null,

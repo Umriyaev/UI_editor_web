@@ -5,7 +5,6 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="org.json.simple.JSONObject"%>
 <%@page import="java.io.*"%>
 <%@page import="java.util.*"%>
 <%@page import="java.text.*" %>
