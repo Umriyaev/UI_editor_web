@@ -232,7 +232,8 @@ ns.loadProject = function (uiProject) {
                         uiProject.image[i].xPosition,
                         uiProject.image[i].yPosition,
                         uiProject.image[i].width,
-                        uiProject.image[i].height));
+                        uiProject.image[i].height,
+                        uiProject.image[i].image_url));
     }
 
     for (var i = 0; i < uiProject.text.length; i++) {
@@ -273,7 +274,7 @@ ns.loadProject = function (uiProject) {
     if (screenObject.source !== null && screenObject.source !== undefined) {
         for (var i = 0; i < screenObject.source.length; i++) {
             ns.components.set(screenObject.source[i].id,
-                    new uiEditor.components.ScreenControlComponent(screenObject.source[i].id,
+                    new uiEditor.components.SourceComponent(screenObject.source[i].id,
                             screenObject.source[i].xPosition,
                             screenObject.source[i].yPosition,
                             screenObject.source[i].width,
@@ -568,13 +569,14 @@ ns.fileChanged = function (e) {
             if (ns.alteringComponent.panel) {
                 var panel = ns.components.get(ns.alteringComponent.panel);
                 var child = panel.getChild(ns.alteringComponent.component);
-                child.setBackgroundImage(event.target.result);
+                child.setBackgroundImage(reader.result);
                 panel.addChild(child);
             }
             else {
-                ns.components.get(ns.alteringComponent).setBackgroundImage(event.target.result);
+                ns.components.get(ns.alteringComponent.component).setBackgroundImage(reader.result);
             }
         }
+        
 
         ns.drawRectangles();
     };
@@ -777,7 +779,7 @@ ns.createComponent = function (componentType, x, y) {
         case "image":
             component.id = ns.idSpecifier.getIdForComponent("image");
             component.component = new uiEditor.components.ImageComponent(component.id, x, y,
-                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height);
+                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, null);
             break;
         case "panel":
             component.id = ns.idSpecifier.getIdForComponent("panel");
@@ -1278,12 +1280,41 @@ ns.saveToJson = function () {
     });
     obj.screenObject = screenObject.getPropertiesForJSON();
     var jsonData = JSON.stringify(obj, null, 5);
+
+//    var data = {};
+//    data['jsonFile']=jsonData;
     //var url = 'data:text/json;charset=utf8,' + encodeURIComponent(jsonData);
-    var url = 'saveFile.jsp?jsonFile=' + encodeURIComponent(jsonData);
-    if (ns.fileName !== null)
-        url += '&fileName=' + ns.fileName;
-    window.open(url, '_blank');
-    window.focus();
+//    console.log(jsonData);
+//   // var url = 'saveFile.jsp?jsonFile=' + encodeURIComponent(jsonData);
+//    //if (ns.fileName !== null)
+//    //   url += '&fileName=' + ns.fileName;
+   // window.open(url, '_blank');
+   // window.focus();
+//   var xhr = new XMLHttpRequest();
+//   xhr.open('post', 'saveFile.jsp', false);
+//   xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+   
+//   xhr.setRequestHeader('Content-Length', params.length);
+//   
+//   xhr.send(params);
+//   xhr.onloadend = function(){
+//       console.log('done');
+//   }
+var params = "jsonFile="+encodeURIComponent(jsonData);
+if(ns.fileName!==null){
+    params+="&fileName="+ns.fileName;
+}
+$.ajax({
+    url: 'saveFile.jsp',
+    type: "POST",
+    data: params,
+    success: function(res){
+        window.open('saveFile.jsp', '_blank');
+    }
+});
+
+
+   
 };
 
 

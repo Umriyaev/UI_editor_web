@@ -40,12 +40,14 @@ uiEditor.helpers.getLineStyle = function (lineStyle) {
             result = [1, 2];
             break;
         case "dashed":
-            result = [5,2];
+            result = [5, 2];
             break;
     }
     return result;
 };
 
+//TODO
+//save id's to project, or make id generation unique (guid)
 uiEditor.helpers.IdSpecifier = (function () {
     function IdSpecifier() {
         this.buttonCount = 0;
@@ -110,7 +112,7 @@ uiEditor.helpers.IdSpecifier = (function () {
 uiEditor.components.ImageComponent = (function () {
 
     //constructor of ImageComponent
-    function ImageComponent(id, x, y, w, h) {
+    function ImageComponent(id, x, y, w, h, imageUrl) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -120,7 +122,10 @@ uiEditor.components.ImageComponent = (function () {
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
-        this.properties['image_url'] = 'images/dummy-image.jpg';
+        if (imageUrl === null)
+            this.properties['image_url'] = 'images/dummy-image.jpg';
+        else
+            this.properties['image_url']=imageUrl;
         this.properties['z_index'] = 0;
         this.selected = false;
         this.firstSelected = false;
@@ -483,7 +488,7 @@ uiEditor.components.DisplayComponent = (function () {
         this.properties['spacing'] = 0;
         this.properties['bg_color'] = "#fff";
         this.properties['line_style'] = 'solid';
-        this.properties['line_width']=1;
+        this.properties['line_width'] = 1;
         this.selected = false;
         this.firstSelected = false;
     }
@@ -531,7 +536,7 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.getLineStyle = function () {
         return this.properties['line_style'];
     };
-    DisplayComponent.prototype.getLineWidth = function(){
+    DisplayComponent.prototype.getLineWidth = function () {
         return this.properties['line_width'];
     };
     /*************************************************/
@@ -572,8 +577,8 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.setLineStyle = function (lineStyle) {
         this.properties['line_style'] = lineStyle;
     };
-    DisplayComponent.prototype.setLineWidth = function(lineWidth){
-        this.properties['line_width']=Number(value);
+    DisplayComponent.prototype.setLineWidth = function (lineWidth) {
+        this.properties['line_width'] = Number(value);
     };
     /*************************************************/
     DisplayComponent.prototype.getPropertiesForJSON = function () {
@@ -618,7 +623,7 @@ uiEditor.components.DisplayComponent = (function () {
 
         ctx.save();
         ctx.fillStyle = this.getBgColor();
-        ctx.lineWidth=this.getLineWidth();
+        ctx.lineWidth = this.getLineWidth();
         var lineDash = uiEditor.helpers.getLineStyle(this.getLineStyle());
         if (lineDash !== null)
             ctx.setLineDash(lineDash);
@@ -920,7 +925,8 @@ uiEditor.components.PanelComponent = (function () {
                                 items.image[i].xPosition,
                                 items.image[i].yPosition,
                                 items.image[i].width,
-                                items.image[i].height));
+                                items.image[i].height,
+                                items.image[i].imageUrl));
             }
 
             for (var i = 0; i < items.panel.length; i++) {
@@ -1020,8 +1026,8 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.getPropertiesForJSON = function () {
         var panel = {};
         panel.id = this.getID();
-        panel.xPos = this.getX();
-        panel.yPos = this.getY();
+        panel.xPosition = this.getX();
+        panel.yPosition = this.getY();
         panel.width = this.getWidth();
         panel.height = this.getHeight();
         panel.headerText = this.getHeaderText();
@@ -1159,8 +1165,8 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.removeChild = function (component) {
         this.properties['children'].delete(component.getID());
     };
-    PanelComponent.prototype.deselectChildren = function(){
-        this.properties['children'].forEach(function(value, key){
+    PanelComponent.prototype.deselectChildren = function () {
+        this.properties['children'].forEach(function (value, key) {
             value.deselect();
         })
     };
@@ -2084,7 +2090,8 @@ uiEditor.components.Group = (function () {
                                 items.image[i].xPosition,
                                 items.image[i].yPosition,
                                 items.image[i].width,
-                                items.image[i].height));
+                                items.image[i].height,
+                                items.image[i].image_url));
             }
 
             for (var i = 0; i < items.panel.length; i++) {

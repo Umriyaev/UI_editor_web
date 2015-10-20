@@ -20,25 +20,26 @@
         <h2>UI projects in the server:</h2>
         <%
             String jsonString = request.getParameter("jsonFile");
-            String fileName = request.getParameter("fileName");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss");
-            String nameOfFile = "";
-            if (fileName == null) {
-                 nameOfFile+="/ui/"+ sdf.format(new Date()) + ".json";
-            }
-            else{
-                nameOfFile+=fileName;
-            }
+            if (jsonString != null && !jsonString.trim().isEmpty()) {
+                String fileName = request.getParameter("fileName");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss");
+                String nameOfFile = "";
+                if (fileName == null) {
+                    nameOfFile += "/ui/" + sdf.format(new Date()) + ".json";
+                } else {
+                    nameOfFile += fileName;
+                }
 
-            try {
-                File file = new File(nameOfFile);
-                file.getParentFile().mkdirs();
-                FileWriter fileWriter = new FileWriter(file, false);
-                fileWriter.write(jsonString);
-                fileWriter.close();
+                try {
+                    File file = new File(nameOfFile);
+                    file.getParentFile().mkdirs();
+                    FileWriter fileWriter = new FileWriter(file, false);
+                    fileWriter.write(jsonString);
+                    fileWriter.close();
 
-            } catch (IOException e) {
-                out.println(e.getMessage());
+                } catch (IOException e) {
+                    out.println(e.getMessage());
+                }
             }
         %>        
         <div id="files">

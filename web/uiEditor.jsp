@@ -173,5 +173,8 @@
                     }
                 %>
             </div>
+            <form id="jsonForm" action="saveFile.jsp" style="display: none" method="post">
+                <input type="text" name="json" value="">                
+            </form>
     </body>
 </html>
