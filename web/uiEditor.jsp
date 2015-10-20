@@ -166,9 +166,11 @@
             <div id='json' style='display: none'>
                 <%
                     String path = request.getParameter("param1");
-                    byte[] encoded = Files.readAllBytes(Paths.get(path));
-                    String json = new String(encoded, StandardCharsets.UTF_8);
-                    out.println(json);                    
+                    if (path != null && !path.trim().isEmpty()) {
+                        byte[] encoded = Files.readAllBytes(Paths.get(path));
+                        String json = new String(encoded, StandardCharsets.UTF_8);
+                        out.println(json);
+                    }
                 %>
             </div>
     </body>
