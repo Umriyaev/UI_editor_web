@@ -49,15 +49,16 @@ uiEditor.helpers.getLineStyle = function (lineStyle) {
 //TODO
 //save id's to project, or make id generation unique (guid)
 uiEditor.helpers.IdSpecifier = (function () {
-    function IdSpecifier() {
-        this.buttonCount = 0;
-        this.textboxCount = 0;
-        this.displayCount = 0;
-        this.imageCount = 0;
-        this.panelCount = 0;
-        this.screenCountrolCount = 0;
-        this.sourceCount = 0;
-        this.groupCount = 0;
+    function IdSpecifier(buttonCount, textBoxCount, displayCount, imageCount, panelCount,
+    screenControlCount, sourceCount, groupCount) {
+        this.buttonCount = buttonCount;
+        this.textboxCount = textBoxCount;
+        this.displayCount = displayCount;
+        this.imageCount = imageCount;
+        this.panelCount = panelCount;
+        this.screenCountrolCount = screenControlCount;
+        this.sourceCount = sourceCount;
+        this.groupCount = groupCount;
     }
 
     IdSpecifier.prototype.getIdForComponent = function (componentType) {
@@ -103,6 +104,20 @@ uiEditor.helpers.IdSpecifier = (function () {
         }
         console.log(id);
         return id;
+    };
+    
+    IdSpecifier.prototype.getPropertiesForJSON = function(){
+        var idSpecifier = {};
+        idSpecifier.buttonCount = this.buttonCount;
+        idSpecifier.textboxCount = this.textboxCount;
+        idSpecifier.displayCount = this.displayCount;
+        idSpecifier.imageCount = this.imageCount;
+        idSpecifier.panelCount = this.panelCount;
+        idSpecifier.screenControlCount = this.screenCountrolCount;
+        idSpecifier.sourceCount = this.sourceCount;
+        idSpecifier.groupCount = this.groupCount;
+        
+        return idSpecifier;
     };
 
     return IdSpecifier;

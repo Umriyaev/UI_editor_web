@@ -9,7 +9,7 @@ var uiEditor = uiEditor || {};
 uiEditor.mainApp = uiEditor.mainApp || {};
 var ns = uiEditor.mainApp;
 ns.startX, ns.startY;
-ns.idSpecifier = new uiEditor.helpers.IdSpecifier();
+ns.idSpecifier = new uiEditor.helpers.IdSpecifier(0, 0, 0, 0, 0, 0, 0, 0);
 ns.isDrawing = false;
 ns.currentDrawingComponent = {"panel": null, "component": null};
 ns.w, ns.h, ns.x, ns.y, ns.c, ns.ctx;
@@ -194,13 +194,9 @@ ns.init = function () {
         var uiProject = JSON.parse(json);
         console.log(uiProject);
 
-        /***********************test*********************************/
-        //var testComponent = ns.createComponent("button", 500, 500);
-        //  testComponent.component.setText(".");
-        //  ns.components.set(testComponent.id, testComponent.component);
-        // ns.drawRectangles();
-        /************************************************************/
+
         ns.loadProject(uiProject);
+
         ns.drawRectangles();
     }
 
@@ -308,6 +304,14 @@ ns.loadProject = function (uiProject) {
                         true,
                         uiProject.panel[i].children));
     }
+    var idSpecifier = uiProject.idSpecifier;
+
+    if (uiProject.idSpecifier !== null && uiProject.idSpecifier !== undefined) {
+        ns.idSpecifier = new uiEditor.helpers.IdSpecifier(idSpecifier.buttonCount, idSpecifier.textboxCount,
+                idSpecifier.displayCount, idSpecifier.imageCount, idSpecifier.imageCount,
+                idSpecifier.panelCount, idSpecifier.screenControlCount,
+                idSpecifier.sourceCount, idSpecifier.groupCount);
+    }
 };
 
 ns.getParameter = function (theParameter) {
@@ -399,8 +403,7 @@ ns.deleteComponent = function () {
 
 //handle key press events
 ns.keyPressHandler = function (e) {
-    //console.log(e.keyCode);
-    //console.log(e);
+
     if (e.keyCode === ns.DELETE_BUTTON) {
         ns.deleteComponent();
     }
@@ -576,7 +579,7 @@ ns.fileChanged = function (e) {
                 ns.components.get(ns.alteringComponent.component).setBackgroundImage(reader.result);
             }
         }
-        
+
 
         ns.drawRectangles();
     };
@@ -609,8 +612,8 @@ ns.draw = function (e) {
 
     var x = e.layerX;
     var y = e.layerY;
-    // var x = e.offsetX;
-    // var y = e.offsetY;
+
+
     ns.startX = x;
     ns.startY = y;
     var hitTestResult = ns.hitTest(x, y);
@@ -909,42 +912,7 @@ ns.constructProperties = function (component, callFrom) {
                         input.addEventListener('paste', ns.textChanged, false);
                         input.addEventListener('input', ns.textChanged, false);
                     }
-//                else if (propertyNames[i]['type'] === 'font_face') {
-//                    alert(propertyNames.length);
-//                    for (var i = 0; i < ns.font_face_list.length; i++) {
-//                        if (ns.font_face_list[i] !== component.getPropertyValue(propertyNames[i]['name'])) {
-//                            var option = document.createElement('option');
-//                            option.value = ns.font_face_list[i];
-//                            option.text = ns.font_face_list[i];
-//                            select.add(option);
-//                        }
-//                    }
-//                    select.addEventListener('change', ns.selectionChanged, false);
-//                }
-//                else if (propertyNames[i]['type'] === 'font_type') {
-//                    alert(propertyNames.length);
-//                    for (var i = 0; i < ns.font_type_list.length; i++) {
-//                        if (ns.font_type_list[i] !== component.getPropertyValue(propertyNames[i]['name'])) {
-//                            var option = document.createElement('option');
-//                            option.value = ns.font_type_list[i];
-//                            option.text = ns.font_type_list[i];
-//                            select.add(option);
-//                        }
-//                    }
-//                    select.addEventListener('change', ns.selectionChanged, false);
-//                }
-//                else if (propertyNames[i]['type'] === 'font_size') {
-//                    alert(propertyNames.length);
-//                    for (var i = 0; i < ns.font_size_list.length; i++) {
-//                        if (ns.font_size_list[i] !== component.getPropertyValue(propertyNames[i]['name'])) {
-//                            var option = document.createElement('option');
-//                            option.value = ns.font_size_list[i];
-//                            option.text = ns.font_size_list[i];
-//                            select.add(option);
-//                        }
-//                    }
-//                    select.addEventListener('change', ns.selectionChanged, false);
-//                }
+
                     else {
                         input.value = component.getPropertyValue(propertyNames[i]['name']);
 
@@ -1036,8 +1004,7 @@ ns.move = function (e) {
 
         ns.x = e.layerX;
         ns.y = e.layerY;
-        // ns.x = e.offsetX;
-        //ns.y = e.offsetY;
+
 
 
         var dx = ns.x - ns.moveX;
@@ -1065,8 +1032,7 @@ ns.moveFromPanel = function (e) {
     if (ns.movingChildComponent.component && ns.movingChildComponent.panel) {
         ns.x = e.layerX;
         ns.y = e.layerY;
-        //ns.x = e.offsetX;
-        //ns.y = e.offsetY;
+
         var dx = ns.x - ns.moveX;
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
@@ -1132,20 +1098,18 @@ ns.mouseMove = function (e) {
 // get mouse position
         ns.x = e.layerX;
         ns.y = e.layerY;
-        // ns.x = e.offsetX;
-        // ns.y = e.offsetY;
+
+
         //alter mouse position
         //in case if direction of rectangle was changed, i.e. top left corner become different corner
         ns.x = Math.min(e.layerX, ns.startX);
         ns.y = Math.min(e.layerY, ns.startY);
-        // ns.x = Math.min(e.offsetX, ns.startX);
-        // ns.y = Math.min(e.offsetY, ns.startY);
+
 
         //calculate width and height
         ns.w = Math.abs(e.layerX - ns.startX);
         ns.h = Math.abs(e.layerY - ns.startY);
-        // ns.w = Math.abs(e.offsetX - ns.startX);
-        //  ns.h = Math.abs(e.offsetY-ns.startY);
+
         //set width and height of current rectangle to the calculated value
 
         var r;
@@ -1181,11 +1145,9 @@ ns.mouseMove = function (e) {
 
 //used to draw all the components {needs to rename}
 ns.drawRectangles = function () {
-    //ns.cleanUp();
+
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
-    // ns.components.forEach(function (value, key) {
-    //      value.draw(ns.ctx);
-    //  });
+
     var buf = [];
     ns.components.forEach(function (value, key) {
         buf.push(value);
@@ -1256,7 +1218,6 @@ ns.saveToJson = function () {
                 break;
             case "display":
                 console.log(value.getComponentType());
-                //obj.display.push(value.getPropertiesForJSON());
                 screenObject.setDisplay(value);
                 break;
             case "panel":
@@ -1279,42 +1240,25 @@ ns.saveToJson = function () {
         }
     });
     obj.screenObject = screenObject.getPropertiesForJSON();
+    obj.idSpecifier = ns.idSpecifier.getPropertiesForJSON();
     var jsonData = JSON.stringify(obj, null, 5);
 
-//    var data = {};
-//    data['jsonFile']=jsonData;
-    //var url = 'data:text/json;charset=utf8,' + encodeURIComponent(jsonData);
-//    console.log(jsonData);
-//   // var url = 'saveFile.jsp?jsonFile=' + encodeURIComponent(jsonData);
-//    //if (ns.fileName !== null)
-//    //   url += '&fileName=' + ns.fileName;
-   // window.open(url, '_blank');
-   // window.focus();
-//   var xhr = new XMLHttpRequest();
-//   xhr.open('post', 'saveFile.jsp', false);
-//   xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-   
-//   xhr.setRequestHeader('Content-Length', params.length);
-//   
-//   xhr.send(params);
-//   xhr.onloadend = function(){
-//       console.log('done');
-//   }
-var params = "jsonFile="+encodeURIComponent(jsonData);
-if(ns.fileName!==null){
-    params+="&fileName="+ns.fileName;
-}
-$.ajax({
-    url: 'saveFile.jsp',
-    type: "POST",
-    data: params,
-    success: function(res){
-        window.open('saveFile.jsp', '_blank');
+
+    var params = "jsonFile=" + encodeURIComponent(jsonData);
+    if (ns.fileName !== null) {
+        params += "&fileName=" + ns.fileName;
     }
-});
+    $.ajax({
+        url: 'saveFile.jsp',
+        type: "POST",
+        data: params,
+        success: function (res) {
+            window.open('saveFile.jsp', '_blank');
+        }
+    });
 
 
-   
+
 };
 
 
