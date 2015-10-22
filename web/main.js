@@ -1266,7 +1266,14 @@ ns.saveToJson = function () {
 
 
     var params = "jsonFile=" + encodeURIComponent(jsonData);
-    if (ns.fileName !== null) {
+    if(ns.fileName===null){
+        ns.fileName=prompt("Please, enter project name");
+    }
+    if (ns.fileName !== null && ns.fileName!=="") {
+        if(ns.fileName.indexOf('/ui/')<0)
+        ns.fileName="/ui/"+ns.fileName;
+        if(ns.fileName.indexOf('.json')<0)
+            ns.fileName+='.json';
         params += "&fileName=" + ns.fileName;
     }
     $.ajax({
