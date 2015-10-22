@@ -27,7 +27,7 @@
                 if (fileName == null) {
                     nameOfFile += "/ui/" + sdf.format(new Date()) + ".json";
                 } else {
-                    nameOfFile += fileName;
+                    nameOfFile += "/ui/" + fileName;
                 }
 
                 try {
@@ -50,7 +50,7 @@
                 File folder = new File(nameOfFolder);
                 File[] files = folder.listFiles();
                 for (File file : files) {
-                    out.println(file.getName() + "<br/>");
+                    out.println("<a href='"+nameOfFolder+file.getName()+"'"+">"+file.getName() + "</a><br/>");
                     out.println(file.getCanonicalFile() + "<br/><br/>");
                 }
             %>

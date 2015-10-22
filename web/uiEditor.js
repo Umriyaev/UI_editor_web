@@ -144,6 +144,9 @@ uiEditor.components.ImageComponent = (function () {
         this.properties['z_index'] = 0;
         this.selected = false;
         this.firstSelected = false;
+        this.image = new Image();
+        this.image.src = this.properties['image_url'];
+        
     }
 
     /*****************Getters************************/
@@ -196,7 +199,9 @@ uiEditor.components.ImageComponent = (function () {
         this.properties['height'] = h;
     };
     ImageComponent.prototype.setBackgroundImage = function (imageSource) {
+        console.log(imageSource);
         this.properties['image_url'] = imageSource;
+        this.image.src = imageSource;
     };
     ImageComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
@@ -249,9 +254,9 @@ uiEditor.components.ImageComponent = (function () {
         this.setWidth(Number(this.getWidth()));
         this.setHeight(Number(this.getHeight()));
 
-        var image = new Image();
-        image.src = this.getBackgroundImage();
-        ctx.drawImage(image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        //var image = new Image();
+        this.image.src = this.getBackgroundImage();
+        ctx.drawImage(this.image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 
         if (this.selected) {
             if (!this.firstSelected)

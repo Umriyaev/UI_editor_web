@@ -25,6 +25,7 @@ ns.displayCreated = false;
 ns.sizeCreated = false;
 ns.selection = null;
 ns.fileName = null;
+
 /*  startX, startY - initial coordinates where the drawing of component is started
  * idSpecifier - class which sets ids of newly created components
  * isDrawing - true if we are drawing new component
@@ -566,25 +567,27 @@ ns.promptSizes = function (e) {
 
 //update background image of the image component after loading the user image
 ns.fileChanged = function (e) {
-    var reader = new FileReader(); //File reader API
-    reader.onload = function (event) {
-        if (ns.alteringComponent.component) {
-            if (ns.alteringComponent.panel) {
-                var panel = ns.components.get(ns.alteringComponent.panel);
-                var child = panel.getChild(ns.alteringComponent.component);
-                child.setBackgroundImage(reader.result);
-                panel.addChild(child);
-            }
-            else {
-                ns.components.get(ns.alteringComponent.component).setBackgroundImage(reader.result);
-            }
+
+    var file = e.target.files[0];
+    //File reader API
+//    reader.onload = function (event) {
+    if (ns.alteringComponent.component) {
+        if (ns.alteringComponent.panel) {
+            var panel = ns.components.get(ns.alteringComponent.panel);
+            var child = panel.getChild(ns.alteringComponent.component);
+            child.setBackgroundImage("/images/" + file.name);
+            panel.addChild(child);
         }
+        else {
+            ns.components.get(ns.alteringComponent.component).setBackgroundImage("/images/" + file.name);
+        }
+    }
 
 
-        ns.drawRectangles();
-    };
-    reader.readAsDataURL(e.target.files[0]);
+    //ns.drawRectangles();
 };
+
+
 
 /*main event handler for handling mousePressed event on canvas
  * if mouse is pressed on the component, then mouseMove and mouseUp events are changed to the
@@ -896,7 +899,7 @@ ns.constructProperties = function (component, callFrom) {
                         input.filename = component.getPropertyValue(propertyNames[i]['name']);
 
                         //add event listener for file uploader
-                        input.addEventListener('change', ns.fileChanged, false);
+                        //input.addEventListener('change', ns.fileChanged, false);
                     }
                     else if (propertyNames[i]['type'] === 'promptDialog') {
                         input.type = "button";
@@ -990,7 +993,25 @@ ns.constructProperties = function (component, callFrom) {
         }
     }
     $('.demo1').colorpicker().on("changeColor", function (event) {
-        ns.textChanged(event)
+        ns.textChanged(event);
+    });
+    $('input[type="file"]').ajaxfileupload({
+        'action': 'saveImage.jsp',
+        'onComplete': function (response) {
+            console.log(response.toString().trim());
+            if (ns.alteringComponent.component) {
+                if (ns.alteringComponent.panel) {
+                    var panel = ns.components.get(ns.alteringComponent.panel);
+                    var child = panel.getChild(ns.alteringComponent.component);
+                    child.setBackgroundImage(response.toString().trim());
+                    panel.addChild(child);
+                }
+                else {
+                    ns.components.get(ns.alteringComponent.component).setBackgroundImage(response.toString().trim());
+                }
+            }
+            ns.drawRectangles();
+        }
     });
 };
 

@@ -17,6 +17,7 @@
         <link href="js/libs/colorPicker/css/bootstrap-colorpicker.css" rel="stylesheet"/>
         <link href="style.css" rel="stylesheet" />
         <script src="js/libs/jquery/jquery.js"></script>
+        <script src="jquery.ajaxfileupload.js"></script>
         <script src="js/libs/twitter-bootstrap/js/bootstrap.js"></script>
         <script src="js/libs/colorPicker/js/bootstrap-colorpicker.js"></script>
         <script src="js/libs/bootbox/bootbox.js"></script>
