@@ -27,7 +27,7 @@
                 if (fileName == null) {
                     nameOfFile += "/ui/" + sdf.format(new Date()) + ".json";
                 } else {
-                    nameOfFile += "/ui/" + fileName;
+                    nameOfFile += fileName;
                 }
 
                 try {
