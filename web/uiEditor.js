@@ -50,7 +50,7 @@ uiEditor.helpers.getLineStyle = function (lineStyle) {
 //save id's to project, or make id generation unique (guid)
 uiEditor.helpers.IdSpecifier = (function () {
     function IdSpecifier(buttonCount, textBoxCount, displayCount, imageCount, panelCount,
-    screenControlCount, sourceCount, groupCount) {
+            screenControlCount, sourceCount, groupCount) {
         this.buttonCount = buttonCount;
         this.textboxCount = textBoxCount;
         this.displayCount = displayCount;
@@ -105,8 +105,8 @@ uiEditor.helpers.IdSpecifier = (function () {
         console.log(id);
         return id;
     };
-    
-    IdSpecifier.prototype.getPropertiesForJSON = function(){
+
+    IdSpecifier.prototype.getPropertiesForJSON = function () {
         var idSpecifier = {};
         idSpecifier.buttonCount = this.buttonCount;
         idSpecifier.textboxCount = this.textboxCount;
@@ -116,7 +116,7 @@ uiEditor.helpers.IdSpecifier = (function () {
         idSpecifier.screenControlCount = this.screenCountrolCount;
         idSpecifier.sourceCount = this.sourceCount;
         idSpecifier.groupCount = this.groupCount;
-        
+
         return idSpecifier;
     };
 
@@ -127,7 +127,7 @@ uiEditor.helpers.IdSpecifier = (function () {
 uiEditor.components.ImageComponent = (function () {
 
     //constructor of ImageComponent
-    function ImageComponent(id, x, y, w, h, imageUrl) {
+    function ImageComponent(id, x, y, w, h, imageUrl, z_index) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -140,13 +140,18 @@ uiEditor.components.ImageComponent = (function () {
         if (imageUrl === null)
             this.properties['image_url'] = 'images/dummy-image.jpg';
         else
-            this.properties['image_url']=imageUrl;
-        this.properties['z_index'] = 0;
+            this.properties['image_url'] = imageUrl;
+
+        if (typeof (z_index) === 'undefined' || z_index === null)
+            this.properties['z_index'] = 0;
+        else
+            this.properties['z_index'] = z_index;
+
         this.selected = false;
         this.firstSelected = false;
         this.image = new Image();
         this.image.src = this.properties['image_url'];
-        
+
     }
 
     /*****************Getters************************/
@@ -271,7 +276,7 @@ uiEditor.components.ImageComponent = (function () {
 
 /*******************Text component class********************/
 uiEditor.components.TextComponent = (function () {
-    function TextComponent(id, x, y, w, h) {
+    function TextComponent(id, x, y, w, h, z_index, placeholder_text, font_color, font_face, font_type, font_size, bg_image, bg_color) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -282,14 +287,50 @@ uiEditor.components.TextComponent = (function () {
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
-        this.properties['z_index'] = 0;
-        this.properties['placeholder text'] = "placeholder text";
-        this.properties['font_color'] = "#aaa";
-        this.properties['font_face'] = "Arial";
-        this.properties['font_type'] = "normal";
-        this.properties['font_size'] = "20px";
+
+        if (typeof (z_index) === 'undefined' || z_index === null)
+            this.properties['z_index'] = 0;
+        else
+            this.properties['z_index'] = z_index;
+
+        if (typeof (placeholder_text) === 'undefined' || placeholder_text === null)
+            this.properties['placeholder_text'] = "placeholder text";
+        else
+            this.properties['placeholder_text'] = placeholder_text;
+
+        if (typeof (font_color) === 'undefined' || font_color === null)
+            this.properties['font_color'] = "#000";
+        else
+            this.properties['font_color'] = font_color;
+
+        if (typeof (font_face) === 'undefined' || font_face === null)
+            this.properties['font_face'] = 'Arial';
+        else
+            this.properties['font_face'] = font_face;
+
+        if (typeof (font_type) === 'undefined' || font_type === null)
+            this.properties['font_type'] = 'normal';
+        else
+            this.properties['font_type'] = font_type;
+
+        if (typeof (font_size) === 'undefined' || font_size === null)
+            this.properties['font_size'] = '20px';
+        else
+            this.properties['font_size'] = font_size;
+
+        if (typeof (bg_image) === 'undefined' || bg_image === null)
+            this.properties['bg_image'] = "not set";
+        else
+            this.properties['bg_image'] = bg_image;
+
+        if (typeof (bg_color) === 'undefined' || bg_color === null)
+            this.properties['bg_color'] = "#e4e4e4";
+        else
+            this.properties['bg_color'] = bg_color;
+
         this.selected = false;
         this.firstSelected = false;
+        this.image = new Image();
     }
 
     /*****************Getters************************/
@@ -312,7 +353,7 @@ uiEditor.components.TextComponent = (function () {
         return this.properties["id"];
     };
     TextComponent.prototype.getPlaceholderText = function () {
-        return this.properties['placeholder text'];
+        return this.properties['placeholder_text'];
     };
     TextComponent.prototype.getComponentType = function () {
         return this.properties["componentType"];
@@ -338,6 +379,12 @@ uiEditor.components.TextComponent = (function () {
     TextComponent.prototype.getFontType = function () {
         return this.properties['font_type'];
     };
+    TextComponent.prototype.getBackgroundImage = function () {
+        return this.properties['bg_image'];
+    };
+    TextComponent.prototype.getBgColor = function () {
+        return this.properties['bg_color'];
+    };
     /*************************************************/
 
 
@@ -359,7 +406,7 @@ uiEditor.components.TextComponent = (function () {
         this.properties['height'] = h;
     };
     TextComponent.prototype.setPlaceholderText = function (placeholderText) {
-        this.properties['placeholder text'] = placeholderText;
+        this.properties['placeholder_text'] = placeholderText;
     };
     TextComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
         this.properties[propertyName] = propertyValue;
@@ -378,6 +425,14 @@ uiEditor.components.TextComponent = (function () {
     };
     TextComponent.prototype.setFontType = function (font_type) {
         this.properties['font_type'] = font_type;
+    };
+    TextComponent.prototype.setBackgroundImage = function (image_url) {
+        this.properties['bg_image'] = image_url;
+        this.image.src = image_url;
+
+    };
+    TextComponent.prototype.setBgColor = function (color) {
+        this.properties['bg_color'] = color;
     };
     /*************************************************/
 
@@ -419,7 +474,7 @@ uiEditor.components.TextComponent = (function () {
         this.setWidth(Number(this.getWidth()));
         this.setHeight(Number(this.getHeight()));
 
-
+        ctx.save();
         ctx.beginPath();
         ctx.moveTo(this.getX() +
                 this.getRadius(),
@@ -469,7 +524,24 @@ uiEditor.components.TextComponent = (function () {
                 this.getRadius(),
                 this.getY());
         ctx.closePath();
+
+        if (this.getBackgroundImage() !== "not set") {
+            this.image.src = this.getBackgroundImage();
+            ctx.save();
+            ctx.clip();
+            ctx.drawImage(this.image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
+        else {
+            ctx.save();
+            ctx.clip();
+            ctx.fillStyle = this.getBgColor();
+            ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
+
         ctx.stroke();
+
         if (this.getPlaceholderText() !== null) {
             ctx.save();
             ctx.fillStyle = this.getFontColor();
@@ -478,6 +550,8 @@ uiEditor.components.TextComponent = (function () {
             ctx.fillText(this.getPlaceholderText(), this.getX() + 20, this.getY() + this.getHeight() / 2 + 5);
             ctx.restore();
         }
+
+        ctx.restore();
 
         if (this.selected) {
             if (!this.firstSelected)
@@ -492,7 +566,7 @@ uiEditor.components.TextComponent = (function () {
 
 /*******************Display component class*********************/
 uiEditor.components.DisplayComponent = (function () {
-    function DisplayComponent(id, x, y, w, h, numberOfColumns, numberOfRows) {
+    function DisplayComponent(id, x, y, w, h, numberOfColumns, numberOfRows, z_index, spacing, bg_color, line_style, line_width, bg_image) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -504,13 +578,40 @@ uiEditor.components.DisplayComponent = (function () {
         this.properties['height'] = h;
         this.properties['rows'] = numberOfRows;
         this.properties['cols'] = numberOfColumns;
-        this.properties['z_index'] = 0;
-        this.properties['spacing'] = 0;
-        this.properties['bg_color'] = "#fff";
-        this.properties['line_style'] = 'solid';
-        this.properties['line_width'] = 1;
+
+        if (typeof (z_index) === 'undefined' || z_index === null)
+            this.properties['z_index'] = 0;
+        else
+            this.properties['z_index'] = z_index;
+
+        if (typeof (spacing) === 'undefined' || spacing === null)
+            this.properties['spacing'] = 0;
+        else
+            this.properties['spacing'] = spacing;
+
+        if (typeof (bg_color) === 'undefined' || bg_color === null)
+            this.properties['bg_color'] = "#fff";
+        else
+            this.properties['bg_color'] = bg_color;
+
+        if (typeof (line_style) === 'undefined' || line_style === null)
+            this.properties['line_style'] = "solid";
+        else
+            this.properties['line_style'] = line_style;
+
+        if (typeof (line_width) === 'undefined' || line_width === null)
+            this.properties['line_width'] = 1;
+        else
+            this.properties['line_width'] = line_width;
+
+        if (typeof (bg_image) === 'undefined' || bg_image === null)
+            this.properties['bg_image'] = "not set";
+        else
+            this.properties['bg_image'] = bg_image;
+
         this.selected = false;
         this.firstSelected = false;
+        this.image = new Image();
     }
 
     /*****************Getters************************/
@@ -559,6 +660,9 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.getLineWidth = function () {
         return this.properties['line_width'];
     };
+    DisplayComponent.prototype.getBackgroundImage = function () {
+        return this.properties['bg_image'];
+    };
     /*************************************************/
 
 
@@ -589,7 +693,10 @@ uiEditor.components.DisplayComponent = (function () {
         this.properties['z_index'] = Number(z_index);
     };
     DisplayComponent.prototype.setSpacing = function (spacing) {
-        this.properties['spacing'] = Number(spacing);
+        spacing = Number(spacing);
+        if (spacing < 0)
+            spacing = 0;
+        this.properties['spacing'] = spacing;
     };
     DisplayComponent.prototype.setBgColor = function (color) {
         this.properties['bg_color'] = color;
@@ -599,6 +706,9 @@ uiEditor.components.DisplayComponent = (function () {
     };
     DisplayComponent.prototype.setLineWidth = function (lineWidth) {
         this.properties['line_width'] = Number(value);
+    };
+    DisplayComponent.prototype.setBackgroundImage = function (image_url) {
+        this.properties['bg_image'] = image_url;
     };
     /*************************************************/
     DisplayComponent.prototype.getPropertiesForJSON = function () {
@@ -640,6 +750,8 @@ uiEditor.components.DisplayComponent = (function () {
         this.setHeight(Number(this.getHeight()));
         this.setNumberOfRows(Number(this.getNumberOfRows()));
         this.setNumberOfColumns(Number(this.getNumberOfCols()));
+        if (this.getSpacing() < 0)
+            this.setSpacing(0);
 
         ctx.save();
         ctx.fillStyle = this.getBgColor();
@@ -652,14 +764,22 @@ uiEditor.components.DisplayComponent = (function () {
         var itemW = (this.getWidth() - (this.getNumberOfCols() + 1) * spacing) / this.getNumberOfCols();
         var itemH = (this.getHeight() - (this.getNumberOfRows() + 1) * spacing) / this.getNumberOfRows();
 
-        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+
+
+        if (this.getBackgroundImage() !== "not set") {
+            console.log(this.getBackgroundImage());
+            this.image.src = this.getBackgroundImage();
+            ctx.drawImage(this.image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        }
+        else
+            ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 
         for (var i = 0; i < this.getNumberOfRows(); i++) {
             for (var j = 0; j < this.getNumberOfCols(); j++) {
                 var x = this.getX() + (j + 1) * spacing + j * itemW;
                 var y = this.getY() + (i + 1) * spacing + i * itemH;
-                ctx.fillRect(x, y, itemW, itemH);
+                //ctx.fillRect(x, y, itemW, itemH);
                 ctx.strokeRect(x, y, itemW, itemH);
             }
         }
@@ -678,7 +798,7 @@ uiEditor.components.DisplayComponent = (function () {
 
 /*********************Button component************************/
 uiEditor.components.ButtonComponent = (function () {
-    function ButtonComponent(id, x, y, w, h) {
+    function ButtonComponent(id, x, y, w, h, z_index, bg_color, bg_image, second_image, font_color, font_face, font_type, font_size) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -691,14 +811,50 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['height'] = h;
         this.properties['text'] = id;
         this.properties['radius'] = 10;
-        this.properties['z_index'] = 0;
-        this.properties['bg_color'] = "#e4e4e4";
-        this.properties['font_color'] = "#000";
-        this.properties['font_face'] = 'Arial';
-        this.properties['font_type'] = 'normal';
-        this.properties['font_size'] = '20px';
+
+        if (typeof (z_index) === 'undefined' || z_index === null)
+            this.properties['z_index'] = 0;
+        else
+            this.properties['z_index'] = z_index;
+
+        if (typeof (bg_color) === 'undefined' || bg_color === null)
+            this.properties['bg_color'] = "#e4e4e4";
+        else
+            this.properties['bg_color'] = bg_color;
+
+        if (typeof (bg_image) === 'undefined' || bg_image === null)
+            this.properties['bg_image'] = "not set";
+        else
+            this.properties['bg_image'] = bg_image;
+
+        if (typeof (second_image) === 'undefined' || second_image === null)
+            this.properties['second_image'] = "not set";
+        else
+            this.properties['second_image'] = second_image;
+
+        if (typeof (font_color) === 'undefined' || font_color === null)
+            this.properties['font_color'] = "#000";
+        else
+            this.properties['font_color'] = font_color;
+
+        if (typeof (font_face) === 'undefined' || font_face === null)
+            this.properties['font_face'] = 'Arial';
+        else
+            this.properties['font_face'] = font_face;
+
+        if (typeof (font_type) === 'undefined' || font_type === null)
+            this.properties['font_type'] = 'normal';
+        else
+            this.properties['font_type'] = font_type;
+
+        if (typeof (font_size) === 'undefined' || font_size === null)
+            this.properties['font_size'] = '20px';
+        else
+            this.properties['font_size'] = font_size;
         this.selected = false;
         this.firstSelected = false;
+        this.image = new Image();
+        this.secondImage = new Image();
     }
 
     /*****************Getters************************/
@@ -750,6 +906,12 @@ uiEditor.components.ButtonComponent = (function () {
     ButtonComponent.prototype.getFontType = function () {
         return this.properties['font_type'];
     };
+    ButtonComponent.prototype.getBackgroundImage = function () {
+        return this.properties['bg_image'];
+    };
+    ButtonComponent.prototype.getSecondImage = function () {
+        return this.properties['second_image'];
+    };
     /*************************************************/
 
 
@@ -790,6 +952,12 @@ uiEditor.components.ButtonComponent = (function () {
     };
     ButtonComponent.prototype.setFontType = function (font_type) {
         this.properties['font_type'] = font_type;
+    };
+    ButtonComponent.prototype.setBackgroundImage = function (image_url) {
+        this.properties['bg_image'] = image_url;
+    };
+    ButtonComponent.prototype.setSecondImage = function (image_url) {
+        this.properties['second_image'] = image_url;
     };
     /*************************************************/
     ButtonComponent.prototype.getPropertiesForJSON = function () {
@@ -862,7 +1030,15 @@ uiEditor.components.ButtonComponent = (function () {
                 this.getY());
         ctx.closePath();
         ctx.stroke();
-        ctx.fill();
+        if (this.getBackgroundImage() !== "not set") {
+            ctx.save();
+            ctx.clip();
+            this.image.src = this.getBackgroundImage();
+            ctx.drawImage(this.image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
+        else
+            ctx.fill();
         if (this.text !== null) {
             ctx.save();
             ctx.fillStyle = this.getFontColor();
@@ -887,7 +1063,8 @@ uiEditor.components.ButtonComponent = (function () {
 
 /*********************Panel component*************************/
 uiEditor.components.PanelComponent = (function () {
-    function PanelComponent(id, x, y, w, h, headerText, fromJson, items) {
+    function PanelComponent(id, x, y, w, h, headerText, fromJson, items, bg_image, bg_color, z_index) {
+        this.image = new Image();
         if (!fromJson) {
             console.log("fromJson false");
             this.horizontalAlignment = null; //"center" | "right" | "left"
@@ -903,6 +1080,9 @@ uiEditor.components.PanelComponent = (function () {
             this.properties["componentType"] = "panel";
             this.properties['children'] = new Map();
             this.properties['z_index'] = 0;
+            this.properties['bg_color'] = "#fff";
+            this.properties['bg_image'] = "not set";
+
             this.selected = false;
             this.firstSelected = false;
         }
@@ -919,7 +1099,9 @@ uiEditor.components.PanelComponent = (function () {
             this.properties['headerText'] = headerText;
             this.properties["componentType"] = "panel";
             this.properties['children'] = new Map();
-            this.properties['z_index'] = 0;
+            this.properties['z_index'] = z_index;
+            this.properties['bg_image'] = bg_image;
+            this.properties['bg_color'] = bg_color;
 
             for (var i = 0; i < items.button.length; i++) {
                 this.properties['children'].set(items.button[i].id,
@@ -927,7 +1109,15 @@ uiEditor.components.PanelComponent = (function () {
                                 items.button[i].xPosition,
                                 items.button[i].yPosition,
                                 items.button[i].width,
-                                items.button[i].height));
+                                items.button[i].height,
+                                items.button[i].z_index,
+                                items.button[i].bg_color,
+                                items.button[i].bg_image,
+                                items.button[i].second_image,
+                                items.button[i].font_color,
+                                items.button[i].font_face,
+                                items.button[i].font_type,
+                                items.button[i].font_size));
             }
 
             for (var i = 0; i < items.text.length; i++) {
@@ -936,7 +1126,15 @@ uiEditor.components.PanelComponent = (function () {
                                 items.text[i].xPosition,
                                 items.text[i].yPosition,
                                 items.text[i].width,
-                                items.text[i].height));
+                                items.text[i].height,
+                                items.text[i].z_index,
+                                items.text[i].placeholder_text,
+                                items.text[i].font_color,
+                                items.text[i].font_face,
+                                items.text[i].font_type,
+                                items.text[i].font_size,
+                                items.text[i].bg_image,
+                                items.text[i].bg_color));
             }
 
             for (var i = 0; i < items.image.length; i++) {
@@ -946,7 +1144,8 @@ uiEditor.components.PanelComponent = (function () {
                                 items.image[i].yPosition,
                                 items.image[i].width,
                                 items.image[i].height,
-                                items.image[i].imageUrl));
+                                items.image[i].image_url,
+                                items.image[i].z_index));
             }
 
             for (var i = 0; i < items.panel.length; i++) {
@@ -958,7 +1157,9 @@ uiEditor.components.PanelComponent = (function () {
                                 items.panel[i].height,
                                 items.panel[i].headerText,
                                 true,
-                                items.panel[i].children));
+                                items.panel[i].children,
+                                items.panel[i].bg_image,
+                                items.panel[i].bg_color));
             }
 
             for (var i = 0; i < items.group.length; i++) {
@@ -1016,6 +1217,12 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.getZ_index = function () {
         return this.properties['z_index'];
     };
+    PanelComponent.prototype.getBackgroundImage = function () {
+        return this.properties['bg_image'];
+    };
+    PanelComponent.prototype.getBgColor = function () {
+        return this.properties['bg_color'];
+    };
     /*************************************************/
 
 
@@ -1042,6 +1249,12 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.setZ_index = function (z_index) {
         this.properties['z_index'] = Number(z_index);
     };
+    PanelComponent.prototype.setBackgroundImage = function (image_url) {
+        this.properties['bg_image'] = image_url;
+    };
+    PanelComponent.prototype.setBgColor = function (color) {
+        this.properties['bg_color'] = color;
+    };
     /*************************************************/
     PanelComponent.prototype.getPropertiesForJSON = function () {
         var panel = {};
@@ -1053,6 +1266,8 @@ uiEditor.components.PanelComponent = (function () {
         panel.headerText = this.getHeaderText();
         panel.componentType = this.getComponentType();
         panel.headerHeight = this.getHeaderHeight();
+        panel.bg_image = this.getBackgroundImage();
+        panel.bg_color = this.getBgColor();
         panel.children = {};
         panel.children.button = [];
         panel.children.text = [];
@@ -1188,7 +1403,7 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.deselectChildren = function () {
         this.properties['children'].forEach(function (value, key) {
             value.deselect();
-        })
+        });
     };
     PanelComponent.prototype.findAndRemoveComponents = function (componentType) {
         var toRemove = [];
@@ -1234,11 +1449,37 @@ uiEditor.components.PanelComponent = (function () {
         //panel's main part
         ctx.save();
         ctx.strokeStyle = "#d3d3d3";
+        if (this.getBackgroundImage() !== "not set") {
+            this.image.src = this.getBackgroundImage();
+            ctx.drawImage(this.image, this.getX(), this.getY() + this.getHeaderHeight(), this.getWidth(), this.getHeight() - this.getHeaderHeight());
+        }
+        else {
+            ctx.fillStyle = this.getBgColor();
+            ctx.fillRect(this.getX(), this.getY() + this.getHeaderHeight(), this.getWidth(), this.getHeight() - this.getHeaderHeight());
+        }
         ctx.strokeRect(this.getX(), this.getY() + this.getHeaderHeight(), this.getWidth(), this.getHeight() - this.getHeaderHeight());
         ctx.restore();
+
+        var buf = [];
+
         this.properties['children'].forEach(function (value, key) {
-            value.draw(ctx);
+            buf.push(value);
         });
+        if (buf.length > 0) {
+            buf.sort(function (a, b) {
+                if (a.getZ_index() < b.getZ_index())
+                    return -1;
+                else if (a.getZ_index() > b.getZ_index())
+                    return 1;
+                return 0;
+            });
+
+            for (var i = 0; i < buf.length; i++) {
+                buf[i].draw(ctx);
+            }
+        }
+
+
 
         if (this.selected) {
             if (!this.firstSelected)
@@ -1254,7 +1495,7 @@ uiEditor.components.PanelComponent = (function () {
 
 /*******************************Screen control*********************************************/
 uiEditor.components.ScreenControlComponent = (function () {
-    function ScreenControlComponent(id, x, y, w, h, rows, cols) {
+    function ScreenControlComponent(id, x, y, w, h, rows, cols, z_index, bg_color, font_color, font_face, font_type, font_size, bg_image) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -1265,18 +1506,51 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties['width'] = w;
         this.properties['height'] = h;
         this.properties['radius'] = 10;
-        this.properties['itemWidth'] = 60;
-        this.properties['itemHeight'] = 40;
         this.properties['rows'] = rows;
         this.properties['cols'] = cols;
-        this.properties['z_index'] = 0;
-        this.properties['bg_color'] = "#e4e4e4";
-        this.properties['font_color'] = "#000";
-        this.properties['font_face'] = 'Arial';
-        this.properties['font_type'] = 'normal';
-        this.properties['font_size'] = '20px';
+
+        if (typeof (z_index) === 'undefined' || z_index === null)
+            this.properties['z_index'] = 0;
+        else
+            this.properties['z_index'] = z_index;
+
+        if (typeof (bg_color) === 'undefined' || bg_color === null)
+            this.properties['bg_color'] = "#e4e4e4";
+        else
+            this.properties['bg_color'] = bg_color;
+
+        if (typeof (font_color) === 'undefined' || font_color === null)
+            this.properties['font_color'] = "#000";
+        else
+            this.properties['font_color'] = font_color;
+
+        if (typeof (font_face) === 'undefined' || font_face === null)
+            this.properties['font_face'] = 'Arial';
+        else
+            this.properties['font_face'] = font_face;
+
+        if (typeof (font_type) === 'undefined' || font_type === null)
+            this.properties['font_type'] = 'normal';
+        else
+            this.properties['font_type'] = font_type;
+
+        if (typeof (font_size) === 'undefined' || font_size === null)
+            this.properties['font_size'] = '20px';
+        else
+            this.properties['font_size'] = font_size;
+
+        if (typeof (bg_image) === 'undefined' || bg_image === null)
+            this.properties['bg_image'] = "not set";
+        else
+            this.properties['bg_image'] = bg_image;
+
+
+
+
+
         this.selected = false;
         this.firstSelected = false;
+        this.image = new Image();
     }
 
     /*****************Getters************************/
@@ -1331,6 +1605,9 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.getFontType = function () {
         return this.properties['font_type'];
     };
+    ScreenControlComponent.prototype.getBackgroundImage = function () {
+        return this.properties['bg_image'];
+    };
     /*************************************************/
 
 
@@ -1374,6 +1651,9 @@ uiEditor.components.ScreenControlComponent = (function () {
     };
     ScreenControlComponent.prototype.setFontType = function (font_type) {
         this.properties['font_type'] = font_type;
+    };
+    ScreenControlComponent.prototype.setBackgroundImage = function (image_url) {
+        this.properties['bg_image'] = image_url;
     };
     /*************************************************/
     ScreenControlComponent.prototype.getPropertiesForJSON = function () {
@@ -1451,6 +1731,14 @@ uiEditor.components.ScreenControlComponent = (function () {
         ctx.stroke();
         ctx.fill();
 
+        if (this.getBackgroundImage() !== "not set") {
+            this.image.src = this.getBackgroundImage();
+            ctx.save();
+            ctx.clip();
+            ctx.drawImage(this.image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
+
         ctx.restore();
 
         ctx.save();
@@ -1475,7 +1763,7 @@ uiEditor.components.ScreenControlComponent = (function () {
 
 /*********************************Display source component*********************************/
 uiEditor.components.SourceComponent = (function () {
-    function SourceComponent(id, x, y, w, h, text, source) {
+    function SourceComponent(id, x, y, w, h, text, source, z_index, bg_color, font_color, font_face, font_type, font_size, bg_image) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -1487,14 +1775,45 @@ uiEditor.components.SourceComponent = (function () {
         this.properties['height'] = h;
         this.properties['text'] = text;
         this.properties['source'] = source;
-        this.properties['z_index'] = 0;
-        this.properties['bg_color'] = "#e4e4e4";
-        this.properties['font_color'] = "#000";
-        this.properties['font_face'] = 'Arial';
-        this.properties['font_type'] = 'normal';
-        this.properties['font_size'] = '20px';
+
+        if (typeof (z_index) === 'undefined' || z_index === null)
+            this.properties['z_index'] = 0;
+        else
+            this.properties['z_index'] = z_index;
+
+        if (typeof (bg_color) === 'undefined' || bg_color === null)
+            this.properties['bg_color'] = "#e4e4e4";
+        else
+            this.properties['bg_color'] = bg_color;
+
+        if (typeof (font_color) === 'undefined' || font_color === null)
+            this.properties['font_color'] = "#000";
+        else
+            this.properties['font_color'] = font_color;
+
+        if (typeof (font_face) === 'undefined' || font_face === null)
+            this.properties['font_face'] = 'Arial';
+        else
+            this.properties['font_face'] = font_face;
+
+        if (typeof (font_type) === 'undefined' || font_type === null)
+            this.properties['font_type'] = 'normal';
+        else
+            this.properties['font_type'] = font_type;
+
+        if (typeof (font_size) === 'undefined' || font_size === null)
+            this.properties['font_size'] = '20px';
+        else
+            this.properties['font_size'] = font_size;
+
+        if (typeof (bg_image) === 'undefined' || bg_image === null)
+            this.properties['bg_image'] = "not set";
+        else
+            this.properties['bg_image'] = bg_image;
+
         this.selected = false;
         this.firstSelected = false;
+        this.image = new Image();
     }
 
     /*****************Getters************************/
@@ -1546,6 +1865,9 @@ uiEditor.components.SourceComponent = (function () {
     SourceComponent.prototype.getFontType = function () {
         return this.properties['font_type'];
     };
+    SourceComponent.prototype.getBackgroundImage = function () {
+        return this.properties['bg_image'];
+    };
     /*************************************************/
 
 
@@ -1589,6 +1911,9 @@ uiEditor.components.SourceComponent = (function () {
     };
     SourceComponent.prototype.setFontType = function (font_type) {
         this.properties['font_type'] = font_type;
+    };
+    SourceComponent.prototype.setBackgroundImage = function (image_url) {
+        this.properties['bg_image'] = image_url;
     };
     /*************************************************/
     SourceComponent.prototype.getPropertiesForJSON = function () {
@@ -1637,7 +1962,15 @@ uiEditor.components.SourceComponent = (function () {
         ctx.beginPath();
         ctx.rect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         ctx.stroke();
-        ctx.fill();
+        if (this.getBackgroundImage() !== "not set") {
+            this.image.src = this.getBackgroundImage();
+            ctx.save();
+            ctx.clip();
+            ctx.drawImage(this.image, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ctx.restore();
+        }
+        else
+            ctx.fill();
         ctx.closePath();
         ctx.fillStyle = this.getFontColor();
         ctx.font = this.getFontType() + " " + this.getFontSize() + " " + this.getFontFace();
@@ -1736,6 +2069,9 @@ uiEditor.components.GroupSelection = (function () {
         this.selection = new Map();
         this.width = "not set";
         this.height = "not set";
+        this.bg_color = "not set";
+        this.bg_image = "not set";
+        this.z_index = "not set";
         this.firstItem = null;
 //        this.verticalOffset = "not set";
 //        this.horizontalOffset = "not set";
@@ -1753,6 +2089,18 @@ uiEditor.components.GroupSelection = (function () {
 
     GroupSelection.prototype.getHeight = function () {
         return this.height;
+    };
+
+    GroupSelection.prototype.getBgColor = function () {
+        return this.bg_color;
+    };
+
+    GroupSelection.prototype.getBackgroundImage = function () {
+        return this.bg_image;
+    };
+
+    GroupSelection.prototype.getZ_index = function () {
+        return this.z_index;
     };
 
 //    GroupSelection.prototype.getVerticalOffset = function () {
@@ -1784,6 +2132,42 @@ uiEditor.components.GroupSelection = (function () {
                     components.get(value).setHeight(height);
             });
             this.height = height;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setBgColor = function (color, components) {
+        if (color !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setBgColor(color);
+                }
+            });
+            this.bg_color = color;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setBackgroundImage = function (image_url, components) {
+        if (image_url !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setBackgroundImage(image_url);
+                }
+            });
+            this.bg_image = image_url;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setZ_index = function (z_index, components) {
+        if (z_index !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setZ_index(z_index);
+                }
+            });
+            this.z_index = z_index;
             return components;
         }
     };
@@ -1996,6 +2380,16 @@ uiEditor.components.GroupSelection = (function () {
                 propertyValue = Number(propertyValue);
                 this.setHeight(propertyValue, components);
                 break;
+            case "bg_color":
+                this.setBgColor(propertyValue, components);
+                break;
+            case "bg_image":
+                this.setBackgroundImage(propertyValue, components);
+                break;
+            case "z_index":
+                propertyValue = Number(propertyValue);
+                this.setZ_index(propertyValue, components);
+                break;
             default:
                 return undefined;
         }
@@ -2092,7 +2486,15 @@ uiEditor.components.Group = (function () {
                                 items.button[i].xPosition,
                                 items.button[i].yPosition,
                                 items.button[i].width,
-                                items.button[i].height));
+                                items.button[i].height,
+                                items.button[i].z_index,
+                                items.button[i].bg_color,
+                                items.button[i].bg_image,
+                                items.button[i].second_image,
+                                items.button[i].font_color,
+                                items.button[i].font_face,
+                                items.button[i].font_type,
+                                items.button[i].font_size));
             }
 
             for (var i = 0; i < items.text.length; i++) {
@@ -2101,7 +2503,15 @@ uiEditor.components.Group = (function () {
                                 items.text[i].xPosition,
                                 items.text[i].yPosition,
                                 items.text[i].width,
-                                items.text[i].height));
+                                items.text[i].height,
+                                items.text[i].z_index,
+                                items.text[i].placeholder_text,
+                                items.text[i].font_color,
+                                items.text[i].font_face,
+                                items.text[i].font_type,
+                                items.text[i].font_size,
+                                items.text[i].bg_image,
+                                items.text[i].bg_color));
             }
 
             for (var i = 0; i < items.image.length; i++) {
@@ -2111,7 +2521,8 @@ uiEditor.components.Group = (function () {
                                 items.image[i].yPosition,
                                 items.image[i].width,
                                 items.image[i].height,
-                                items.image[i].image_url));
+                                items.image[i].image_url,
+                                items.image[i].z_index));
             }
 
             for (var i = 0; i < items.panel.length; i++) {
@@ -2123,7 +2534,10 @@ uiEditor.components.Group = (function () {
                                 items.panel[i].height,
                                 items.panel[i].headerText,
                                 true,
-                                items.panel[i].children));
+                                items.panel[i].children,
+                                items.panel[i].bg_image,
+                                items.panel[i].bg_color,
+                                items.panel[i].z_index));
             }
 
             for (var i = 0; i < items.group.length; i++) {

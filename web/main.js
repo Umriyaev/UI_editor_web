@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 var uiEditor = uiEditor || {};
-
 //namespace for UI editor app
 uiEditor.mainApp = uiEditor.mainApp || {};
 var ns = uiEditor.mainApp;
@@ -25,7 +24,6 @@ ns.displayCreated = false;
 ns.sizeCreated = false;
 ns.selection = null;
 ns.fileName = null;
-
 /*  startX, startY - initial coordinates where the drawing of component is started
  * idSpecifier - class which sets ids of newly created components
  * isDrawing - true if we are drawing new component
@@ -59,8 +57,6 @@ ns.MINIMUM_WIDTH = 50;
 ns.MINIMUM_HEIGHT = 50;
 ns.INITIAL_SCREEN_CONTROL_ROWS = 1;
 ns.INITIAL_SCREEN_CONTROL_COLS = 3;
-
-
 //properties for constructing properties panel based on the type of component
 ns.properties = {
     "image": [
@@ -82,19 +78,23 @@ ns.properties = {
         {"name": "font_color", "type": "color"},
         {"name": "font_face", "type": "font_face"},
         {"name": "font_type", "type": "font_type"},
-        {"name": "font_size", "type": "font_size"}
+        {"name": "font_size", "type": "font_size"},
+        {"name": "bg_image", "type": "file"},
+        {"name": "second_image", "type": "file"}
     ],
     "text": [
         {"name": "xPosition", "type": "number"},
         {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "placeholder text", "type": "text"},
+        {"name": "placeholder_text", "type": "text"},
         {"name": "z_index", "type": "number"},
         {"name": "font_color", "type": "color"},
         {"name": "font_face", "type": "font_face"},
         {"name": "font_type", "type": "font_type"},
-        {"name": "font_size", "type": "font_size"}
+        {"name": "font_size", "type": "font_size"},
+        {"name": "bg_image", "type": "file"},
+        {"name": "bg_color", "type": "color"}
     ],
     "display": [
         {"name": "xPosition", "type": "number"},
@@ -107,7 +107,8 @@ ns.properties = {
         {"name": "spacing", "type": "number"},
         {"name": "z_index", "type": "number"},
         {"name": "line_style", "type": "line_style"},
-        {"name": "line_width", "type": "number"}
+        {"name": "line_width", "type": "number"},
+        {"name": "bg_image", "type": "file"}
     ],
     "panel": [
         {"name": "xPosition", "type": "number"},
@@ -115,7 +116,9 @@ ns.properties = {
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "headerText", "type": "text"},
-        {"name": "z_index", "type": "number"}
+        {"name": "z_index", "type": "number"},
+        {"name": "bg_image", "type": "file"},
+        {"name": "bg_color", "type": "color"}
     ],
     "screenControl": [
         {"name": "xPosition", "type": "number"},
@@ -129,7 +132,8 @@ ns.properties = {
         {"name": "font_color", "type": "color"},
         {"name": "font_face", "type": "font_face"},
         {"name": "font_type", "type": "font_type"},
-        {"name": "font_size", "type": "font_size"}
+        {"name": "font_size", "type": "font_size"},
+        {"name": "bg_image", "type": "file"}
     ],
     "source": [
         {"name": "xPosition", "type": "number"},
@@ -143,20 +147,22 @@ ns.properties = {
         {"name": "font_color", "type": "color"},
         {"name": "font_face", "type": "font_face"},
         {"name": "font_type", "type": "font_type"},
-        {"name": "font_size", "type": "font_size"}
+        {"name": "font_size", "type": "font_size"},
+        {"name": "bg_image", "type": "file"}
     ],
     "selection": [
         {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"}
+        {"name": "height", "type": "number"},
+        {"name": "bg_color", "type": "color"},
+        {"name": "bg_image", "type": "file"},
+        {"name": "z_index", "type": "number"}
     ],
     "group": [{"name": "z_index", "type": "number"}]
 };
-
 ns.font_face_list = ["Arial", "Verdana", "Times New Roman", "Courier New", "serif", "sans-serif"];
 ns.font_type_list = ["normal", "bold", "italic", "bolder", "lighter"];
 ns.font_size_list = ["20px", "22px", "24px", "26px", "28px", "30px", "50px", "100px"];
 ns.line_style_list = ["solid", "dotted", "dashed"];
-
 ns.componentSizes = {
     "image": {"width": 300, "height": 200},
     "button": {"width": 140, "height": 60},
@@ -166,19 +172,16 @@ ns.componentSizes = {
     "screenControl": {"width": 140, "height": 60},
     "source": {"width": 140, "height": 60}
 };
-
 //initial setting of event handlers
 ns.init = function () {
     Notify.init({
         "selector": ".bb-alert"
     });
-
     ns.c = document.getElementById("myCanvas");
     ns.ctx = ns.c.getContext("2d");
     ns.c.addEventListener("mousedown", function (e) {
         ns.draw(e);
     }, false);
-
     $(window).resize(ns.respondResize);
     ns.respondResize();
     ns.c.addEventListener("mousemove", function (e) {
@@ -189,20 +192,15 @@ ns.init = function () {
     }, false);
     ns.c.addEventListener('contextmenu', ns.contextMenuHandler, false);
     window.addEventListener("keydown", ns.keyPressHandler, false);
-
     if (document.getElementById('json')) {
         var json = document.getElementById('json').innerHTML;
         var uiProject = JSON.parse(json);
         console.log(uiProject);
-
-
         ns.loadProject(uiProject);
-
         ns.drawRectangles();
     }
 
     ns.fileName = ns.getParameter('param1');
-
     if (!document.getElementById('properties')) {
         var propertiesColumn = document.getElementById('propertiesColumn');
         var properties = document.createElement('div');
@@ -212,7 +210,6 @@ ns.init = function () {
     }
 
 };
-
 ns.loadProject = function (uiProject) {
     for (var i = 0; i < uiProject.button.length; i++) {
         ns.components.set(uiProject.button[i].id,
@@ -220,7 +217,15 @@ ns.loadProject = function (uiProject) {
                         uiProject.button[i].xPosition,
                         uiProject.button[i].yPosition,
                         uiProject.button[i].width,
-                        uiProject.button[i].height));
+                        uiProject.button[i].height,
+                        uiProject.button[i].z_index,
+                        uiProject.button[i].bg_color,
+                        uiProject.button[i].bg_image,
+                        uiProject.button[i].second_image,
+                        uiProject.button[i].font_color,
+                        uiProject.button[i].font_face,
+                        uiProject.button[i].font_type,
+                        uiProject.button[i].font_size));
     }
 
     for (var i = 0; i < uiProject.image.length; i++) {
@@ -230,7 +235,8 @@ ns.loadProject = function (uiProject) {
                         uiProject.image[i].yPosition,
                         uiProject.image[i].width,
                         uiProject.image[i].height,
-                        uiProject.image[i].image_url));
+                        uiProject.image[i].image_url,
+                        uiProject.imagep[i].z_index));
     }
 
     for (var i = 0; i < uiProject.text.length; i++) {
@@ -239,7 +245,15 @@ ns.loadProject = function (uiProject) {
                         uiProject.text[i].xPosition,
                         uiProject.text[i].yPosition,
                         uiProject.text[i].width,
-                        uiProject.text[i].height));
+                        uiProject.text[i].height,
+                        uiProject.text[i].z_index,
+                        uiProject.text[i].placeholder_text,
+                        uiProject.text[i].font_color,
+                        uiProject.text[i].font_face,
+                        uiProject.text[i].font_type,
+                        uiProject.text[i].font_size,
+                        uiProject.text[i].bg_image,
+                        uiProject.text[i].bg_color));
     }
 
     var screenObject = uiProject.screenObject;
@@ -251,7 +265,13 @@ ns.loadProject = function (uiProject) {
                         screenObject.display.width,
                         screenObject.display.height,
                         screenObject.display.cols,
-                        screenObject.display.rows));
+                        screenObject.display.rows,
+                        screenObject.display.z_index,
+                        screenObject.display.spacing,
+                        screenObject.display.bg_color,
+                        screenObject.display.line_style,
+                        screenObject.display.line_width,
+                        screenObject.display.bg_image));
         ns.displayCreated = true;
     }
 
@@ -263,8 +283,15 @@ ns.loadProject = function (uiProject) {
                             screenObject.size[i].yPosition,
                             screenObject.size[i].width,
                             screenObject.size[i].height,
+                            screenObject.size[i].rows,
                             screenObject.size[i].cols,
-                            screenObject.size[i].rows));
+                            screenObject.size[i].z_index,
+                            screenObject.size[i].bg_color,
+                            screenObject.size[i].font_color,
+                            screenObject.size[i].font_face,
+                            screenObject.size[i].font_type,
+                            screenObject.size[i].font_size,
+                            screenObject.size[i].bg_image));
         }
     }
 
@@ -277,7 +304,14 @@ ns.loadProject = function (uiProject) {
                             screenObject.source[i].width,
                             screenObject.source[i].height,
                             screenObject.source[i].text,
-                            screenObject.source[i].source));
+                            screenObject.source[i].source,
+                            screenObject.source[i].z_index,
+                            screenObject.source[i].bg_color,
+                            screenObject.source[i].font_color,
+                            screenObject.source[i].font_face,
+                            screenObject.source[i].font_type,
+                            screenObject.source[i].font_size,
+                            screenObject.source[i].bg_image));
         }
     }
 
@@ -296,17 +330,20 @@ ns.loadProject = function (uiProject) {
 
     for (var i = 0; i < uiProject.panel.length; i++) {
         ns.components.set(uiProject.panel[i].id,
-                new uiEditor.components.PanelComponent(uiProject.panel[i].id,
-                        uiProject.panel[i].xPos,
-                        uiProject.panel[i].yPos,
+                new uiEditor.components.PanelComponent(
+                        uiProject.panel[i].id,
+                        uiProject.panel[i].xPosition,
+                        uiProject.panel[i].yPosition,
                         uiProject.panel[i].width,
                         uiProject.panel[i].height,
                         uiProject.panel[i].headerText,
                         true,
-                        uiProject.panel[i].children));
+                        uiProject.panel[i].children,
+                        uiProject.panel[i].bg_image,
+                        uiProject.panel[i].bg_color, 
+                        uiProject.panel[i].z_index));
     }
     var idSpecifier = uiProject.idSpecifier;
-
     if (uiProject.idSpecifier !== null && uiProject.idSpecifier !== undefined) {
         ns.idSpecifier = new uiEditor.helpers.IdSpecifier(idSpecifier.buttonCount, idSpecifier.textboxCount,
                 idSpecifier.displayCount, idSpecifier.imageCount, idSpecifier.imageCount,
@@ -314,10 +351,8 @@ ns.loadProject = function (uiProject) {
                 idSpecifier.sourceCount, idSpecifier.groupCount);
     }
 };
-
 ns.getParameter = function (theParameter) {
     var params = window.location.search.substr(1).split('&');
-
     for (var i = 0; i < params.length; i++) {
         var p = params[i].split('=');
         if (p[0] === theParameter) {
@@ -325,7 +360,6 @@ ns.getParameter = function (theParameter) {
         }
     }
     return null;
-
 }
 
 
@@ -341,7 +375,6 @@ ns.contextMenuHandler = function (e) {
     console.log(e);
     e.preventDefault();
 };
-
 ns.deleteComponent = function () {
     var deleteScreenObjectComponents = false;
     if (ns.alteringComponent.component) {
@@ -364,7 +397,6 @@ ns.deleteComponent = function () {
         }
         else {
             var component = ns.components.get(ns.alteringComponent.component);
-
             if (component.getComponentType() === "display") {
                 ns.displayCreated = false;
                 deleteScreenObjectComponents = true;
@@ -412,7 +444,6 @@ ns.keyPressHandler = function (e) {
         if (ns.isDrawing) {
             ns.deleteComponent();
             ns.isDrawing = false;
-
         }
         else if (ns.chosenComponentType != null) {
             ns.chosenComponentType = null;
@@ -447,13 +478,12 @@ ns.keyPressHandler = function (e) {
 
     return false;
 };
-
 //update properties of the components after changing values on properties panel
 ns.textChanged = function (e) {
     console.log(e.target.name);
     if (ns.alteringComponent.component !== "selection") {
-        var input = e.target;  //target which fired the event
-        var propertyName = input.name;  //get the name of property
+        var input = e.target; //target which fired the event
+        var propertyName = input.name; //get the name of property
         var propertyValue = input.value; //get value of property
         if (ns.alteringComponent.component) {
             if (ns.alteringComponent.panel) {
@@ -468,18 +498,17 @@ ns.textChanged = function (e) {
         }
     }
     else {
-        var input = e.target;  //target which fired the event
-        var propertyName = input.name;  //get the name of property
+        var input = e.target; //target which fired the event
+        var propertyName = input.name; //get the name of property
         var propertyValue = input.value; //get value of property
         ns.selection.setPropertyValue(propertyName, propertyValue, ns.components);
     }
 
     ns.drawRectangles(); //redraw all the components
 };
-
 ns.selectionChanged = function (e) {
-    var select = e.target;  //target which fired the event
-    var propertyName = select.name;  //get the name of property
+    var select = e.target; //target which fired the event
+    var propertyName = select.name; //get the name of property
     var propertyValue = select.options[select.selectedIndex].value; //get value of property
     console.log(propertyName + " " + propertyValue);
     if (ns.alteringComponent.component) {
@@ -538,7 +567,6 @@ ns.promptSizes = function (e) {
                     $.each($("input[name='sizes']:checked"), function () {
                         result.push($(this).val());
                     });
-
                     if (ns.alteringComponent.component) {
                         if (ns.alteringComponent.panel) {
                             var panel = ns.components.get(ns.alteringComponent.panel);
@@ -555,16 +583,7 @@ ns.promptSizes = function (e) {
             }
         }
     });
-
-
-
-
-
-
-
 };
-
-
 //update background image of the image component after loading the user image
 ns.fileChanged = function (e) {
 
@@ -586,9 +605,6 @@ ns.fileChanged = function (e) {
 
     //ns.drawRectangles();
 };
-
-
-
 /*main event handler for handling mousePressed event on canvas
  * if mouse is pressed on the component, then mouseMove and mouseUp events are changed to the
  *          events for drag&drop of previously created components
@@ -610,13 +626,10 @@ ns.clearSelection = function () {
         }
     }
 };
-
 ns.draw = function (e) {
 
     var x = e.layerX;
     var y = e.layerY;
-
-
     ns.startX = x;
     ns.startY = y;
     var hitTestResult = ns.hitTest(x, y);
@@ -640,7 +653,6 @@ ns.draw = function (e) {
                 ns.constructProperties(child, "draw_component inside the panel was hit");
                 ns.c.addEventListener('mousemove', ns.moveFromPanel, false);
                 ns.c.addEventListener('mouseup', ns.moveFromPanelDone, false);
-
             }
             else if (hitTestResult.panel !== null) {
                 //panel's main body was hit
@@ -652,7 +664,6 @@ ns.draw = function (e) {
                 }
 
                 ns.clearSelection();
-
                 if (ns.chosenComponentType !== null) {
                     ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
                     ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
@@ -717,7 +728,6 @@ ns.draw = function (e) {
             }
 
             ns.clearSelection();
-
             if (ns.chosenComponentType !== null) {
                 ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
                 ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
@@ -749,7 +759,6 @@ ns.draw = function (e) {
                     ns.selection.addToSelection(ns.alteringComponent.component, ns.components);
                 }
                 ns.selection.addToSelection(hitTestResult.component, ns.components);
-
                 //ToDo
                 //remove selection color from edges of component
             }
@@ -759,8 +768,6 @@ ns.draw = function (e) {
         }
     }
 };
-
-
 ns.createComponent = function (componentType, x, y) {
     var component = {"id": undefined, "component": null};
     switch (componentType) {
@@ -790,7 +797,7 @@ ns.createComponent = function (componentType, x, y) {
         case "panel":
             component.id = ns.idSpecifier.getIdForComponent("panel");
             component.component = new uiEditor.components.PanelComponent(component.id, x, y,
-                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, "header");
+                    ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, "header", null);
             break;
         case "screenControl":
             //if (ns.sizeCreated === false && ns.displayCreated === true) {
@@ -811,8 +818,6 @@ ns.createComponent = function (componentType, x, y) {
     }
     return component;
 };
-
-
 // check if component is clicked or not
 ns.hitTest = function (testX, testY) {
     var result = {"hit": false, "component": null, "panel": null};
@@ -823,7 +828,6 @@ ns.hitTest = function (testX, testY) {
         }
 
     });
-
     if (result.hit && result.panel === null) {
         if (ns.selection !== null) {
             if (ns.selection.isInSelection(result.component)) {
@@ -834,9 +838,6 @@ ns.hitTest = function (testX, testY) {
 
     return result;
 };
-
-
-
 ns.hitToPanelTest = function (testX, testY, testComponent) {
     var panels = [];
     var hitPanel = undefined;
@@ -844,8 +845,6 @@ ns.hitToPanelTest = function (testX, testY, testComponent) {
         if (value.getComponentType() === "panel" && ns.movingComponent !== key)
             panels.push(value);
     });
-
-
     for (var i = 0; i < panels.length; i++) {
         var panel = panels[i];
         if (testX >= panel.getX() && testX <= panel.getX() + panel.getWidth() &&
@@ -857,16 +856,11 @@ ns.hitToPanelTest = function (testX, testY, testComponent) {
         }
     }
     return hitPanel;
-
-
-
 };
-
 //construct properties panel
 ns.constructProperties = function (component, callFrom) {
     console.log("Construct properties: call from " + callFrom);
     var propertiesPanel = document.getElementById('properties');
-
     //clear properties panel
     while (propertiesPanel.firstChild) {
         propertiesPanel.removeChild(propertiesPanel.firstChild);
@@ -875,7 +869,6 @@ ns.constructProperties = function (component, callFrom) {
         if (component !== "selection") {
             //get property names for the selected component
             var propertyNames = ns.properties[component.getComponentType()];
-
             //create div and input controls for every property
             for (var i = 0; i < propertyNames.length; i++) {
                 var div = document.createElement('div');
@@ -893,11 +886,8 @@ ns.constructProperties = function (component, callFrom) {
                     input.id = propertyNames[i]['name'];
                     input.name = propertyNames[i]['name'];
                     div.appendChild(input);
-
-
                     if (propertyNames[i]['type'] === 'file') {
                         input.filename = component.getPropertyValue(propertyNames[i]['name']);
-
                         //add event listener for file uploader
                         //input.addEventListener('change', ns.fileChanged, false);
                     }
@@ -918,7 +908,6 @@ ns.constructProperties = function (component, callFrom) {
 
                     else {
                         input.value = component.getPropertyValue(propertyNames[i]['name']);
-
                         //add change event listener for every event of the text input
                         input.addEventListener('change', ns.textChanged, false);
                         input.addEventListener('keypress', ns.textChanged, false);
@@ -954,12 +943,10 @@ ns.constructProperties = function (component, callFrom) {
                     if (selectItemsArray !== null) {
                         for (var item in selectItemsArray) {
                             if (selectItemsArray[item] !== select.options[select.selectedIndex].value) {
-                                console.log('item: ' + selectItemsArray[item]);
                                 select.add(new Option(selectItemsArray[item], selectItemsArray[item]));
                             }
                         }
                     }
-                    console.log(select);
                 }
                 propertiesPanel.appendChild(div);
             }
@@ -967,26 +954,47 @@ ns.constructProperties = function (component, callFrom) {
         else {
             if (ns.selection !== null) {
                 var propertyNames = ns.properties[component];
-
                 for (var i = 0; i < propertyNames.length; i++) {
                     var div = document.createElement('div');
                     div.className = 'param';
                     div.appendChild(document.createTextNode(propertyNames[i]['name']));
                     div.innerHTML += '<br>';
                     var input = document.createElement('input');
-                    input.type = propertyNames[i]['type'];
-                    input.id = propertyNames[i]['name'];
-                    input.name = propertyNames[i]['name'];
-                    if (propertyNames[i]["type"] === "number") {
-                        input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
-
-                        input.addEventListener('change', ns.textChanged, false);
-                        input.addEventListener('keypress', ns.textChanged, false);
-                        input.addEventListener('paste', ns.textChanged, false);
-                        input.addEventListener('input', ns.textChanged, false);
+                    switch (propertyNames[i]["type"]) {
+                        case  "number":
+                            input.type = propertyNames[i]['type'];
+                            input.id = propertyNames[i]['name'];
+                            input.name = propertyNames[i]['name'];
+                            input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
+                            input.addEventListener('change', ns.textChanged, false);
+                            input.addEventListener('keypress', ns.textChanged, false);
+                            input.addEventListener('paste', ns.textChanged, false);
+                            input.addEventListener('input', ns.textChanged, false);
+                            div.appendChild(input);
+                            propertiesPanel.appendChild(div);
+                            break;
+                        case "file":
+                            input.type = propertyNames[i]['type'];
+                            input.id = propertyNames[i]['name'];
+                            input.name = propertyNames[i]['name'];
+                            div.appendChild(input);
+                            propertiesPanel.appendChild(div);
+                            break;
+                        case "color":
+                            input.type = "text";
+                            input.id = propertyNames[i]['name'];
+                            input.name = propertyNames[i]['name'];
+                            input.className += "demo1";
+                            if (ns.selection.getPropertyValue(propertyNames[i]["name"]) !== "not set")
+                                input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
+                            input.addEventListener('change', ns.textChanged, false);
+                            input.addEventListener('keypress', ns.textChanged, false);
+                            input.addEventListener('paste', ns.textChanged, false);
+                            input.addEventListener('input', ns.textChanged, false);
+                            div.appendChild(input);
+                            propertiesPanel.appendChild(div);
+                            break;
                     }
-                    div.appendChild(input);
-                    propertiesPanel.appendChild(div);
                 }
 
             }
@@ -999,22 +1007,27 @@ ns.constructProperties = function (component, callFrom) {
         'action': 'saveImage.jsp',
         'onComplete': function (response) {
             console.log(response.toString().trim());
-            if (ns.alteringComponent.component) {
-                if (ns.alteringComponent.panel) {
-                    var panel = ns.components.get(ns.alteringComponent.panel);
-                    var child = panel.getChild(ns.alteringComponent.component);
-                    child.setBackgroundImage(response.toString().trim());
-                    panel.addChild(child);
-                }
-                else {
-                    ns.components.get(ns.alteringComponent.component).setBackgroundImage(response.toString().trim());
-                }
+            if (ns.alteringComponent.component === "selection") {
+                ns.selection.setBackgroundImage(response.toString().trim(), ns.components);
+                ns.drawRectangles();
             }
-            ns.drawRectangles();
+            else {
+                if (ns.alteringComponent.component) {
+                    if (ns.alteringComponent.panel) {
+                        var panel = ns.components.get(ns.alteringComponent.panel);
+                        var child = panel.getChild(ns.alteringComponent.component);
+                        child.setBackgroundImage(response.toString().trim());
+                        panel.addChild(child);
+                    }
+                    else {
+                        ns.components.get(ns.alteringComponent.component).setBackgroundImage(response.toString().trim());
+                    }
+                }
+                ns.drawRectangles();
+            }
         }
     });
 };
-
 //move the component to another position
 ns.move = function (e) {
     if (ns.movingComponent) {
@@ -1022,12 +1035,8 @@ ns.move = function (e) {
         console.log('moving component: ' + ns.movingComponent);
         console.log("altering component: " + ns.alteringComponent);
         console.log("*******************************************");
-
         ns.x = e.layerX;
         ns.y = e.layerY;
-
-
-
         var dx = ns.x - ns.moveX;
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
@@ -1035,10 +1044,7 @@ ns.move = function (e) {
         if (ns.movingComponent !== "selection")
         {
             ns.components.get(ns.movingComponent).move(dx, dy);
-
             ns.destinationPanel = ns.hitToPanelTest(ns.x, ns.y, ns.components.get(ns.movingComponent));
-
-
             ns.constructProperties(ns.components.get(ns.movingComponent), "move");
         }
         else {
@@ -1048,12 +1054,10 @@ ns.move = function (e) {
         ns.drawRectangles();
     }
 };
-
 ns.moveFromPanel = function (e) {
     if (ns.movingChildComponent.component && ns.movingChildComponent.panel) {
         ns.x = e.layerX;
         ns.y = e.layerY;
-
         var dx = ns.x - ns.moveX;
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
@@ -1063,13 +1067,10 @@ ns.moveFromPanel = function (e) {
         child.move(dx, dy);
         panel.addChild(child);
         ns.destinationPanel = ns.hitToPanelTest(ns.x, ns.y, child);
-
         ns.drawRectangles();
         ns.constructProperties(child, "moveFromPanel");
     }
 };
-
-
 ns.moveFromPanelDone = function (e) {
     console.log('moveFromPanelDone');
     console.log('panel: ' + ns.movingChildComponent.panel);
@@ -1077,7 +1078,6 @@ ns.moveFromPanelDone = function (e) {
     if (ns.movingChildComponent.panel && ns.movingChildComponent.component) {
         var panel = ns.components.get(ns.movingChildComponent.panel);
         var child = panel.getChild(ns.movingChildComponent.component);
-
         if (!panel.isComponentInside(child)) {
             console.log('component is not inside the panel');
             if (ns.destinationPanel) {
@@ -1099,7 +1099,6 @@ ns.moveFromPanelDone = function (e) {
         ns.destinationPanel = undefined;
     }
 };
-
 //set variables, which are used for moving, to their initial values
 ns.moveDone = function (e) {
     if (ns.destinationPanel) {
@@ -1110,8 +1109,6 @@ ns.moveDone = function (e) {
     ns.movingComponent = undefined;
     ns.destinationPanel = undefined;
 };
-
-
 //mousemove event handler for creating new component
 ns.mouseMove = function (e) {
     if (ns.isDrawing) {
@@ -1119,18 +1116,13 @@ ns.mouseMove = function (e) {
 // get mouse position
         ns.x = e.layerX;
         ns.y = e.layerY;
-
-
         //alter mouse position
         //in case if direction of rectangle was changed, i.e. top left corner become different corner
         ns.x = Math.min(e.layerX, ns.startX);
         ns.y = Math.min(e.layerY, ns.startY);
-
-
         //calculate width and height
         ns.w = Math.abs(e.layerX - ns.startX);
         ns.h = Math.abs(e.layerY - ns.startY);
-
         //set width and height of current rectangle to the calculated value
 
         var r;
@@ -1152,7 +1144,6 @@ ns.mouseMove = function (e) {
         ;
         r.setWidth(ns.w);
         r.setHeight(ns.h);
-
         if (ns.drawingPanel === undefined) {
             ns.components.set(ns.alteringComponent.component, r);
         }
@@ -1163,17 +1154,14 @@ ns.mouseMove = function (e) {
         ns.drawRectangles();
     }
 };
-
 //used to draw all the components {needs to rename}
 ns.drawRectangles = function () {
 
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
-
     var buf = [];
     ns.components.forEach(function (value, key) {
         buf.push(value);
     });
-
     if (buf.length > 0) {
         buf.sort(function (a, b) {
             if (a.getZ_index() < b.getZ_index())
@@ -1182,14 +1170,12 @@ ns.drawRectangles = function () {
                 return 1;
             return 0;
         });
-
         for (var i = 0; i < buf.length; i++) {
             buf[i].draw(ns.ctx);
         }
     }
 
 };
-
 //Remove unnecessary components, which are created by mistake
 //Delete if width and height are less than minimum value
 ns.cleanUp = function () {
@@ -1199,12 +1185,10 @@ ns.cleanUp = function () {
         }
     });
 };
-
 //set variables, which are used to create new component, to their initial values
 ns.mouseUp = function (e) {
     ns.isDrawing = false;
     ns.drawingPanel = undefined;
-
     ns.drawRectangles();
     if (ns.alteringComponent.component === "selection") {
         ns.constructProperties(ns.alteringComponent.component, "mouseUp_selection");
@@ -1220,9 +1204,7 @@ ns.mouseUp = function (e) {
         }
     }
     ns.chosenComponentType = null;
-
 };
-
 ns.saveToJson = function () {
     var screenObject = new uiEditor.components.ScreenObject();
     var obj = {"button": [], "text": [], "image": [], "panel": [], "group": []};
@@ -1244,7 +1226,6 @@ ns.saveToJson = function () {
             case "panel":
                 obj.panel.push(value.getPropertiesForJSON());
                 break;
-
             case "group":
                 obj.group.push(value.getPropertiesForJSON());
                 break;
@@ -1263,17 +1244,15 @@ ns.saveToJson = function () {
     obj.screenObject = screenObject.getPropertiesForJSON();
     obj.idSpecifier = ns.idSpecifier.getPropertiesForJSON();
     var jsonData = JSON.stringify(obj, null, 5);
-
-
     var params = "jsonFile=" + encodeURIComponent(jsonData);
-    if(ns.fileName===null){
-        ns.fileName=prompt("Please, enter project name");
+    if (ns.fileName === null) {
+        ns.fileName = prompt("Please, enter project name");
     }
-    if (ns.fileName !== null && ns.fileName!=="") {
-        if(ns.fileName.indexOf('/ui/')<0)
-        ns.fileName="/ui/"+ns.fileName;
-        if(ns.fileName.indexOf('.json')<0)
-            ns.fileName+='.json';
+    if (ns.fileName !== null && ns.fileName !== "") {
+        if (ns.fileName.indexOf('/ui/') < 0)
+            ns.fileName = "/ui/" + ns.fileName;
+        if (ns.fileName.indexOf('.json') < 0)
+            ns.fileName += '.json';
         params += "&fileName=" + ns.fileName;
     }
     $.ajax({
@@ -1284,14 +1263,7 @@ ns.saveToJson = function () {
             window.open('saveFile.jsp', '_blank');
         }
     });
-
-
-
 };
-
-
-
-
 /* Event handler for toolbox buttons
  * It will set chosenComponentType to the corresponding value coming from clicked button
  * if chosenComponentType is null, then nothing will be drawn*/
@@ -1328,8 +1300,6 @@ ns.setChosenComponent = function (e) {
             ns.chosenComponentType = null;
     }
 };
-
-
 /**********************Alignment operations************************/
 ns.alignSizes = function () {
     if (ns.selection === null) {
@@ -1338,12 +1308,10 @@ ns.alignSizes = function () {
 
     ns.selection.alignSize(ns.components);
     ns.drawRectangles();
-
     if (ns.chosenComponentType !== null) {
         ns.chosenComponentType = null;
     }
 };
-
 ns.alignVertical = function () {
     if (ns.selection === null) {
         return;
@@ -1351,12 +1319,10 @@ ns.alignVertical = function () {
 
     ns.selection.alignVertical(ns.components);
     ns.drawRectangles();
-
     if (ns.chosenComponentType !== null) {
         ns.chosenComponentType = null;
     }
 };
-
 ns.alignHorizontal = function () {
     if (ns.selection === null) {
         return;
@@ -1364,12 +1330,10 @@ ns.alignHorizontal = function () {
 
     ns.selection.alignHorizontal(ns.components);
     ns.drawRectangles();
-
     if (ns.chosenComponentType !== null) {
         ns.chosenComponentType = null;
     }
 };
-
 ns.alignIntervalsHorizontal = function () {
     if (ns.selection === null) {
         return;
@@ -1377,12 +1341,10 @@ ns.alignIntervalsHorizontal = function () {
 
     ns.selection.alignIntervalHorizontal(ns.components);
     ns.drawRectangles();
-
     if (ns.chosenComponentType !== null) {
         ns.chosenComponentType = null;
     }
 };
-
 ns.alignIntervalsVertical = function () {
     if (ns.selection === null) {
         return;
@@ -1390,17 +1352,13 @@ ns.alignIntervalsVertical = function () {
 
     ns.selection.alignIntervalVertical(ns.components);
     ns.drawRectangles();
-
     if (ns.chosenComponentType !== null) {
         ns.chosenComponentType = null;
     }
 };
-
 ns.redirect = function (url) {
     window.location = url;
 };
-
-
 /******************************************************************/
 
 

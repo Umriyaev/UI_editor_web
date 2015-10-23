@@ -91,7 +91,7 @@ body{
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    height: 800px;
+    height: 870px;
 }
 
 .toolBoxChildPanel{
@@ -107,7 +107,7 @@ body{
 }
 
 .canvasPanel {
-    height: 800px;
+    height: 870px;
 }
 
 /*#myCanvas{
@@ -119,7 +119,7 @@ body{
 }*/
 
 .propertiesPanel{
-    height: 800px;
+    height: 870px;
 }
 
 

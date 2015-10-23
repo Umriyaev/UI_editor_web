@@ -30,8 +30,8 @@
 
                     for (FileItem item : multiparts) {
                         if (!item.isFormField()) {
-                            String name = new File(item.getName()).getName();
-                            item.write(new File("/images/" + File.separator + name));
+                            String name = item.getName();
+                            item.write(new File("/images/"  + name));
                             out.println("/images/" + name);                            
                         }
                     }
