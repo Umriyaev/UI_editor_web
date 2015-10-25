@@ -46,6 +46,19 @@ ns.fileName = null;
  * null*/
 
 
+ns.propertiesIntersection = function (a, b) {
+    return $.grep(a, function (i)
+    {
+        var result = false;
+        $.each(b, function (j, item) {
+            if (item.name === i.name)
+                result = true;
+        });
+        return result;
+        // return $.inArray(i, b) > -1;
+    });
+};
+
 //constants
 ns.G_BUTTON = 71;
 ns.U_BUTTON = 85;
@@ -60,16 +73,12 @@ ns.INITIAL_SCREEN_CONTROL_COLS = 3;
 //properties for constructing properties panel based on the type of component
 ns.properties = {
     "image": [
-        {"name": "xPosition", "type": "number"},
-        {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
-        {"name": "image url", "type": "file"},
+        {"name": "bg_image", "type": "file"},
         {"name": "z_index", "type": "number"}
     ],
     "button": [
-        {"name": "xPosition", "type": "number"},
-        {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "text", "type": "text"},
@@ -83,8 +92,6 @@ ns.properties = {
         {"name": "second_image", "type": "file"}
     ],
     "text": [
-        {"name": "xPosition", "type": "number"},
-        {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "placeholder_text", "type": "text"},
@@ -97,8 +104,6 @@ ns.properties = {
         {"name": "bg_color", "type": "color"}
     ],
     "display": [
-        {"name": "xPosition", "type": "number"},
-        {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "rows", "type": "number"},
@@ -111,8 +116,6 @@ ns.properties = {
         {"name": "bg_image", "type": "file"}
     ],
     "panel": [
-        {"name": "xPosition", "type": "number"},
-        {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "headerText", "type": "text"},
@@ -121,8 +124,6 @@ ns.properties = {
         {"name": "bg_color", "type": "color"}
     ],
     "screenControl": [
-        {"name": "xPosition", "type": "number"},
-        {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "rows", "type": "number"},
@@ -136,8 +137,6 @@ ns.properties = {
         {"name": "bg_image", "type": "file"}
     ],
     "source": [
-        {"name": "xPosition", "type": "number"},
-        {"name": "yPosition", "type": "number"},
         {"name": "width", "type": "number"},
         {"name": "height", "type": "number"},
         {"name": "text", "type": "text"},
@@ -235,8 +234,8 @@ ns.loadProject = function (uiProject) {
                         uiProject.image[i].yPosition,
                         uiProject.image[i].width,
                         uiProject.image[i].height,
-                        uiProject.image[i].image_url,
-                        uiProject.imagep[i].z_index));
+                        uiProject.image[i].bg_image,
+                        uiProject.image[i].z_index));
     }
 
     for (var i = 0; i < uiProject.text.length; i++) {
@@ -340,7 +339,7 @@ ns.loadProject = function (uiProject) {
                         true,
                         uiProject.panel[i].children,
                         uiProject.panel[i].bg_image,
-                        uiProject.panel[i].bg_color, 
+                        uiProject.panel[i].bg_color,
                         uiProject.panel[i].z_index));
     }
     var idSpecifier = uiProject.idSpecifier;
@@ -511,15 +510,21 @@ ns.selectionChanged = function (e) {
     var propertyName = select.name; //get the name of property
     var propertyValue = select.options[select.selectedIndex].value; //get value of property
     console.log(propertyName + " " + propertyValue);
-    if (ns.alteringComponent.component) {
-        if (ns.alteringComponent.panel) {
-            var panel = ns.components.get(ns.alteringComponent.panel);
-            var child = panel.getChild(ns.alteringComponent.component);
-            child.setPropertyValue(propertyName, propertyValue);
-            panel.addChild(child);
-        }
-        else {
-            ns.components.get(ns.alteringComponent.component).setPropertyValue(propertyName, propertyValue); //update component with new property value
+    if (ns.alteringComponent.component === "selection") {
+        ns.selection.setPropertyValue(propertyName, propertyValue, ns.components);
+        ns.drawRectangles();
+    }
+    else {
+        if (ns.alteringComponent.component) {
+            if (ns.alteringComponent.panel) {
+                var panel = ns.components.get(ns.alteringComponent.panel);
+                var child = panel.getChild(ns.alteringComponent.component);
+                child.setPropertyValue(propertyName, propertyValue);
+                panel.addChild(child);
+            }
+            else {
+                ns.components.get(ns.alteringComponent.component).setPropertyValue(propertyName, propertyValue); //update component with new property value
+            }
         }
     }
     ns.drawRectangles();
@@ -953,7 +958,9 @@ ns.constructProperties = function (component, callFrom) {
         }
         else {
             if (ns.selection !== null) {
-                var propertyNames = ns.properties[component];
+                console.log(ns.selection.getAddedComponents());
+                var propertyNames = ns.getPropertiesForSelection(ns.selection.getAddedComponents());
+
                 for (var i = 0; i < propertyNames.length; i++) {
                     var div = document.createElement('div');
                     div.className = 'param';
@@ -984,6 +991,8 @@ ns.constructProperties = function (component, callFrom) {
                             input.type = "text";
                             input.id = propertyNames[i]['name'];
                             input.name = propertyNames[i]['name'];
+                            if (ns.selection.getPropertyValue(propertyNames[i]["name"]) !== "not set")
+                                input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
                             input.className += "demo1";
                             if (ns.selection.getPropertyValue(propertyNames[i]["name"]) !== "not set")
                                 input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
@@ -994,10 +1003,67 @@ ns.constructProperties = function (component, callFrom) {
                             div.appendChild(input);
                             propertiesPanel.appendChild(div);
                             break;
+                        case "text":
+                            input.type = propertyNames[i]['type'];
+                            input.id = propertyNames[i]['name'];
+                            input.name = propertyNames[i]['name'];
+                            if (ns.selection.getPropertyValue(propertyNames[i]["name"]) !== "not set")
+                                input.value = ns.selection.getPropertyValue(propertyNames[i]["name"]);
+                            input.addEventListener('change', ns.textChanged, false);
+                            input.addEventListener('keypress', ns.textChanged, false);
+                            input.addEventListener('paste', ns.textChanged, false);
+                            input.addEventListener('input', ns.textChanged, false);
+                            div.appendChild(input);
+                            propertiesPanel.appendChild(div);
+                            break;
+                        case "font_face":
+                            var select = document.createElement('select');
+                            select.name = propertyNames[i]['name'];
+                            select.addEventListener('change', ns.selectionChanged, false);
+                            select.id = propertyNames[i]['name'];
+                            div.appendChild(select);
+                            for (var item in ns.font_face_list) {
+                                select.add(new Option(ns.font_face_list[item], ns.font_face_list[item]));
+                            }
+                            propertiesPanel.appendChild(div);
+                            break;
+                        case "font_type":
+                            var select = document.createElement('select');
+                            select.name = propertyNames[i]['name'];
+                            select.addEventListener('change', ns.selectionChanged, false);
+                            select.id = propertyNames[i]['name'];
+                            div.appendChild(select);
+                            for (var item in ns.font_type_list) {
+                                select.add(new Option(ns.font_type_list[item], ns.font_type_list[item]));
+                            }
+                            propertiesPanel.appendChild(div);
+                            break;
+                        case "font_size":
+                            var select = document.createElement('select');
+                            select.name = propertyNames[i]['name'];
+                            select.addEventListener('change', ns.selectionChanged, false);
+                            select.id = propertyNames[i]['name'];
+                            div.appendChild(select);
+                            for (var item in ns.font_size_list) {
+                                select.add(new Option(ns.font_size_list[item], ns.font_size_list[item]));
+                            }
+                            propertiesPanel.appendChild(div);
+                            break;
+                        case "line_style":
+                            var select = document.createElement('select');
+                            select.name = propertyNames[i]['name'];
+                            select.addEventListener('change', ns.selectionChanged, false);
+                            select.id = propertyNames[i]['name'];
+                            div.appendChild(select);
+                            for (var item in ns.line_style_list) {
+                                select.add(new Option(ns.line_style_list[item], ns.line_style_list[item]));
+                            }
+                            propertiesPanel.appendChild(div);
+                            break;
                     }
                 }
-
             }
+
         }
     }
     $('.demo1').colorpicker().on("changeColor", function (event) {
@@ -1029,6 +1095,72 @@ ns.constructProperties = function (component, callFrom) {
     });
 };
 //move the component to another position
+
+ns.firstBit = function (x) {
+    return Math.floor(Math.log(x | 0) / Math.log(2));
+};
+
+ns.getPropertiesForSelection = function (addedComponents) {
+    var firstComponent = 1 << ns.firstBit(addedComponents);
+    console.log("firstComponent: " + firstComponent);
+    var selectionProperties = [];
+    switch (firstComponent) {
+        case uiEditor.helpers.BUTTON_FLAG:
+            selectionProperties = ns.properties["button"];
+            break;
+        case uiEditor.helpers.DISPLAY_FLAG:
+            selectionProperties = ns.properties["display"];
+            break;
+        case uiEditor.helpers.IMAGE_FLAG:
+            selectionProperties = ns.properties["image"];
+            break;
+        case uiEditor.helpers.PANEL_FLAG:
+            selectionProperties = ns.properties["panel"];
+            break;
+        case uiEditor.helpers.SCREEN_CONTROL_FLAG:
+            selectionProperties = ns.properties["screenControl"];
+            break;
+        case uiEditor.helpers.SOURCE_FLAG:
+            selectionProperties = ns.properties["source"];
+            break;
+        case uiEditor.helpers.TEXT_FLAG:
+            selectionProperties = ns.properties["text"];
+            break;
+    }
+
+    if (selectionProperties.length > 0) {
+        if (addedComponents & uiEditor.helpers.BUTTON_FLAG) {
+            selectionProperties =
+                    ns.propertiesIntersection(selectionProperties, ns.properties["button"]);
+        }
+        if (addedComponents & uiEditor.helpers.DISPLAY_FLAG) {
+            selectionProperties =
+                    ns.propertiesIntersection(selectionProperties, ns.properties["display"]);
+        }
+        if (addedComponents & uiEditor.helpers.IMAGE_FLAG) {
+            selectionProperties =
+                    ns.propertiesIntersection(selectionProperties, ns.properties["image"]);
+        }
+        if (addedComponents & uiEditor.helpers.PANEL_FLAG) {
+            selectionProperties =
+                    ns.propertiesIntersection(selectionProperties, ns.properties["panel"]);
+        }
+        if (addedComponents & uiEditor.helpers.SCREEN_CONTROL_FLAG) {
+            selectionProperties =
+                    ns.propertiesIntersection(selectionProperties, ns.properties["screenControl"]);
+        }
+        if (addedComponents & uiEditor.helpers.SOURCE_FLAG) {
+            selectionProperties =
+                    ns.propertiesIntersection(selectionProperties, ns.properties["source"]);
+        }
+        if (addedComponents & uiEditor.helpers.TEXT_FLAG) {
+            selectionProperties =
+                    ns.propertiesIntersection(selectionProperties, ns.properties["text"]);
+        }
+    }
+    return selectionProperties;
+};
+
 ns.move = function (e) {
     if (ns.movingComponent) {
         console.log("****************************************");

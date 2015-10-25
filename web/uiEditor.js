@@ -46,6 +46,15 @@ uiEditor.helpers.getLineStyle = function (lineStyle) {
     return result;
 };
 
+uiEditor.helpers.NONE_FLAG = 0;
+uiEditor.helpers.BUTTON_FLAG = 1;
+uiEditor.helpers.TEXT_FLAG = 2;
+uiEditor.helpers.DISPLAY_FLAG = 4;
+uiEditor.helpers.PANEL_FLAG = 8;
+uiEditor.helpers.SCREEN_CONTROL_FLAG = 16;
+uiEditor.helpers.SOURCE_FLAG = 32;
+uiEditor.helpers.IMAGE_FLAG = 64;
+
 //TODO
 //save id's to project, or make id generation unique (guid)
 uiEditor.helpers.IdSpecifier = (function () {
@@ -138,9 +147,9 @@ uiEditor.components.ImageComponent = (function () {
         this.properties['width'] = w;
         this.properties['height'] = h;
         if (imageUrl === null)
-            this.properties['image_url'] = 'images/dummy-image.jpg';
+            this.properties['bg_image'] = 'images/dummy-image.jpg';
         else
-            this.properties['image_url'] = imageUrl;
+            this.properties['bg_image'] = imageUrl;
 
         if (typeof (z_index) === 'undefined' || z_index === null)
             this.properties['z_index'] = 0;
@@ -150,7 +159,7 @@ uiEditor.components.ImageComponent = (function () {
         this.selected = false;
         this.firstSelected = false;
         this.image = new Image();
-        this.image.src = this.properties['image_url'];
+        this.image.src = this.properties['bg_image'];
 
     }
 
@@ -168,7 +177,7 @@ uiEditor.components.ImageComponent = (function () {
         return this.properties['height'];
     };
     ImageComponent.prototype.getBackgroundImage = function () {
-        return this.properties['image_url'];
+        return this.properties['bg_image'];
     };
     ImageComponent.prototype.getID = function () {
         return this.properties["id"];
@@ -205,7 +214,7 @@ uiEditor.components.ImageComponent = (function () {
     };
     ImageComponent.prototype.setBackgroundImage = function (imageSource) {
         console.log(imageSource);
-        this.properties['image_url'] = imageSource;
+        this.properties['bg_image'] = imageSource;
         this.image.src = imageSource;
     };
     ImageComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
@@ -324,7 +333,7 @@ uiEditor.components.TextComponent = (function () {
             this.properties['bg_image'] = bg_image;
 
         if (typeof (bg_color) === 'undefined' || bg_color === null)
-            this.properties['bg_color'] = "#e4e4e4";
+            this.properties['bg_color'] = "#fff";
         else
             this.properties['bg_color'] = bg_color;
 
@@ -630,10 +639,10 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.getID = function () {
         return this.properties["id"];
     };
-    DisplayComponent.prototype.getNumberOfRows = function () {
+    DisplayComponent.prototype.getRows = function () {
         return this.properties["rows"];
     };
-    DisplayComponent.prototype.getNumberOfCols = function () {
+    DisplayComponent.prototype.getCols = function () {
         return this.properties["cols"];
     };
     DisplayComponent.prototype.getComponentType = function () {
@@ -680,10 +689,10 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.setHeight = function (h) {
         this.properties['height'] = h;
     };
-    DisplayComponent.prototype.setNumberOfColumns = function (numberOfColumns) {
+    DisplayComponent.prototype.setCols = function (numberOfColumns) {
         this.properties['cols'] = numberOfColumns;
     };
-    DisplayComponent.prototype.setNumberOfRows = function (numberOfRows) {
+    DisplayComponent.prototype.setRows = function (numberOfRows) {
         this.properties['rows'] = numberOfRows;
     };
     DisplayComponent.prototype.setPropertyValue = function (propertyName, propertyValue) {
@@ -748,8 +757,8 @@ uiEditor.components.DisplayComponent = (function () {
         this.setY(Number(this.getY()));
         this.setWidth(Number(this.getWidth()));
         this.setHeight(Number(this.getHeight()));
-        this.setNumberOfRows(Number(this.getNumberOfRows()));
-        this.setNumberOfColumns(Number(this.getNumberOfCols()));
+        this.setRows(Number(this.getRows()));
+        this.setCols(Number(this.getCols()));
         if (this.getSpacing() < 0)
             this.setSpacing(0);
 
@@ -761,8 +770,8 @@ uiEditor.components.DisplayComponent = (function () {
             ctx.setLineDash(lineDash);
 
         var spacing = this.getSpacing();
-        var itemW = (this.getWidth() - (this.getNumberOfCols() + 1) * spacing) / this.getNumberOfCols();
-        var itemH = (this.getHeight() - (this.getNumberOfRows() + 1) * spacing) / this.getNumberOfRows();
+        var itemW = (this.getWidth() - (this.getCols() + 1) * spacing) / this.getCols();
+        var itemH = (this.getHeight() - (this.getRows() + 1) * spacing) / this.getRows();
 
 
 
@@ -775,8 +784,8 @@ uiEditor.components.DisplayComponent = (function () {
             ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         ctx.strokeRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 
-        for (var i = 0; i < this.getNumberOfRows(); i++) {
-            for (var j = 0; j < this.getNumberOfCols(); j++) {
+        for (var i = 0; i < this.getRows(); i++) {
+            for (var j = 0; j < this.getCols(); j++) {
                 var x = this.getX() + (j + 1) * spacing + j * itemW;
                 var y = this.getY() + (i + 1) * spacing + i * itemH;
                 //ctx.fillRect(x, y, itemW, itemH);
@@ -1144,7 +1153,7 @@ uiEditor.components.PanelComponent = (function () {
                                 items.image[i].yPosition,
                                 items.image[i].width,
                                 items.image[i].height,
-                                items.image[i].image_url,
+                                items.image[i].bg_image,
                                 items.image[i].z_index));
             }
 
@@ -2072,7 +2081,32 @@ uiEditor.components.GroupSelection = (function () {
         this.bg_color = "not set";
         this.bg_image = "not set";
         this.z_index = "not set";
+
+        this.text = "not set";
+        this.font_color = "not set";
+        this.font_face = "not set";
+        this.font_type = "not set";
+        this.font_size = "not set";
+        this.second_image = "not set";
+        this.placeholder_text = "not set";
+        this.rows = "not set";
+        this.cols = "not set";
+        this.spacing = "not set";
+        this.line_style = "not set";
+        this.line_width = "not set";
+        this.headerText = "not set";
+        this.source = "not set";
+
         this.firstItem = null;
+
+        this.addedComponents = uiEditor.helpers.NONE_FLAG;
+        this.buttonCount = 0;
+        this.textCount = 0;
+        this.imageCount = 0;
+        this.panelCount = 0;
+        this.displayCount = 0;
+        this.screenCountrolCount = 0;
+        this.sourceCount = 0;
 //        this.verticalOffset = "not set";
 //        this.horizontalOffset = "not set";
     }
@@ -2101,6 +2135,62 @@ uiEditor.components.GroupSelection = (function () {
 
     GroupSelection.prototype.getZ_index = function () {
         return this.z_index;
+    };
+
+    GroupSelection.prototype.getFontColor = function () {
+        return this.font_color;
+    };
+
+    GroupSelection.prototype.getFontFace = function () {
+        return this.font_face;
+    };
+
+    GroupSelection.prototype.getFontType = function () {
+        return this.font_type;
+    };
+
+    GroupSelection.prototype.getFontSize = function () {
+        return this.font_size;
+    };
+
+    GroupSelection.prototype.getSecondImage = function () {
+        return this.second_image;
+    };
+
+    GroupSelection.prototype.getPlaceholderText = function () {
+        return this.placeholder_text;
+    };
+
+    GroupSelection.prototype.getRows = function () {
+        return this.rows;
+    };
+
+    GroupSelection.prototype.getCols = function () {
+        return this.cols;
+    };
+
+    GroupSelection.prototype.getSpacing = function () {
+        return this.spacing;
+    };
+
+    GroupSelection.prototype.getLineStyle = function () {
+        return this.line_style;
+    };
+
+    GroupSelection.prototype.getLineWidth = function () {
+        return this.line_width;
+    };
+
+    GroupSelection.prototype.getHeaderText = function () {
+        return this.headerText;
+    };
+
+    GroupSelection.prototype.getSource = function () {
+        return this.source;
+    };
+
+    GroupSelection.prototype.getAddedComponents = function () {
+        return this.addedComponents;
     };
 
 //    GroupSelection.prototype.getVerticalOffset = function () {
@@ -2172,6 +2262,174 @@ uiEditor.components.GroupSelection = (function () {
         }
     };
 
+    GroupSelection.prototype.setFontColor = function (fontColor, components) {
+        if (fontColor !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setFontColor(fontColor);
+                }
+            });
+            this.font_color = fontColor;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setFontFace = function (fontFace, components) {
+        if (fontFace !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setFontFace(fontFace);
+                }
+            });
+            this.font_face = fontFace;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setFontType = function (fontType, components) {
+        if (fontType !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setFontType(fontType);
+                }
+            });
+            this.font_type = fontType;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setFontSize = function (fontSize, components) {
+        if (fontSize !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setFontSize(fontSize);
+                }
+            });
+            this.font_size = fontSize;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setSecondImage = function (secondImage, components) {
+        if (secondImage !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setSecondImage(secondImage);
+                }
+            });
+            this.second_image = secondImage;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setPlaceholderText = function (text, components) {
+        if (text !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setPlaceholderText(text);
+                }
+            });
+            this.placeholder_text = text;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setRows = function (rows, components) {
+        if (rows !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setRows(rows);
+                }
+            });
+            this.rows = rows;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setCols = function (cols, components) {
+        if (cols !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setCols(cols);
+                }
+            });
+            this.cols = cols;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setSpacing = function (spacing, components) {
+        if (spacing !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setSpacing(spacing);
+                }
+            });
+            this.spacing = spacing;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setLineStyle = function (lineStyle, components) {
+        if (lineStyle !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setLineStyle(lineStyle);
+                }
+            });
+            this.line_style = lineStyle;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setLineWidth = function (lineWidth, components) {
+        if (lineWidth !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setLineWidth(lineWidth);
+                }
+            });
+            this.line_width = lineWidth;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setHeaderText = function (text, components) {
+        if (text !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setHeaderText(text);
+                }
+            });
+            this.headerText = text;
+            return components;
+        }
+    };
+
+    GroupSelection.prototype.setSource = function (source, components) {
+        if (source !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setSource(source);
+                }
+            });
+            this.source = source;
+            return components;
+        }
+    };
+    
+    GroupSelection.prototype.setText = function (text, components) {
+        if (text !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setText(text);
+                }
+            });
+            this.text = text;
+            return components;
+        }
+    };
+
 //    GroupSelection.prototype.setVerticalOffset = function (verticalOffset) {
 //
 //        this.selection.forEach(function(value, key))
@@ -2179,10 +2437,41 @@ uiEditor.components.GroupSelection = (function () {
     /***********************************************************/
 
     GroupSelection.prototype.addToSelection = function (componentID, components) {
+        var component = components.get(componentID);
+        switch (component.getComponentType()) {
+            case "button":
+                this.addedComponents |= uiEditor.helpers.BUTTON_FLAG;
+                this.buttonCount++;
+                break;
+            case "text":
+                this.addedComponents |= uiEditor.helpers.TEXT_FLAG;
+                this.textCount++;
+                break;
+            case "image":
+                this.addedComponents |= uiEditor.helpers.IMAGE_FLAG;
+                this.imageCount++;
+                break;
+            case "panel":
+                this.addedComponents |= uiEditor.helpers.PANEL_FLAG;
+                this.panelCount++;
+                break;
+            case "display":
+                this.addedComponents |= uiEditor.helpers.DISPLAY_FLAG;
+                this.displayCount++;
+                break;
+            case "screenControl":
+                this.addedComponents |= uiEditor.helpers.SCREEN_CONTROL_FLAG;
+                this.screenCountrolCount++;
+                break;
+            case "source":
+                this.addedComponents |= uiEditor.helpers.SOURCE_FLAG;
+                this.sourceCount++;
+                break;
+        }
         this.selection.set(componentID, componentID);
         components.get(componentID).select();
         if (this.firstItem === null) {
-            this.firstItem = components.get(componentID);
+            this.firstItem = component;
             this.firstItem.firstSelect();
         }
     };
@@ -2328,8 +2617,48 @@ uiEditor.components.GroupSelection = (function () {
     /**********************************************************************/
 
     GroupSelection.prototype.removeFromSelection = function (componentID, components) {
+        var component = components.get(componentID);
+
+        switch (component.getComponentType()) {
+            case "button":
+                this.buttonCount--;
+                if (this.buttonCount === 0)
+                    this.addedComponents &= ~uiEditor.helpers.BUTTON_FLAG;
+                break;
+            case "text":
+                this.textCount--;
+                if (this.textCount === 0)
+                    this.addedComponents &= ~uiEditor.helpers.TEXT_FLAG;
+                break;
+            case "image":
+                this.imageCount--;
+                if (this.imageCount === 0)
+                    this.addedComponents &= ~uiEditor.helpers.IMAGE_FLAG;
+                break;
+            case "panel":
+                this.panelCount--;
+                if (this.panelCount === 0)
+                    this.addedComponents &= ~uiEditor.helpers.PANEL_FLAG;
+                break;
+            case "display":
+                this.displayCount--;
+                if (this.displayCount === 0)
+                    this.addedComponents &= ~uiEditor.helpers.DISPLAY_FLAG;
+                break;
+            case "screenControl":
+                this.screenCountrolCount--;
+                if (this.screenCountrolCount === 0)
+                    this.addedComponents &= ~uiEditor.helpers.SCREEN_CONTROL_FLAG;
+                break;
+            case "source":
+                this.sourceCount--;
+                if (this.sourceCount === 0)
+                    this.addedComponents &= ~uiEditor.helpers.SOURCE_FLAG;
+                break;
+        }
+
         this.selection.delete(componentID);
-        components.get(componentID).deselect();
+        component.deselect();
     };
 
     GroupSelection.prototype.move = function (dx, dy, components) {
@@ -2389,6 +2718,52 @@ uiEditor.components.GroupSelection = (function () {
             case "z_index":
                 propertyValue = Number(propertyValue);
                 this.setZ_index(propertyValue, components);
+                break;
+            case "text":
+                this.setText(propertyValue, components);
+                break;
+            case "font_color":
+                this.setFontColor(propertyValue, components);
+                break;
+            case "font_face":
+                this.setFontFace(propertyValue, components);
+                break;
+            case "font_type":
+                this.setFontType(propertyValue, components);
+                break;
+            case "font_size":
+                this.setFontSize(propertyValue, components);
+                break;
+            case "second_image":
+                this.setSecondImage(propertyValue, components);
+                break;
+            case "placeholder_text":
+                this.setPlaceholderText(propertyValue, components);
+                break;
+            case "rows":
+                propertyValue = Number(propertyValue);
+                this.setRows(propertyValue, components);
+                break;
+            case "cols":
+                propertyValue = Number(propertyValue);
+                this.setCols(propertyValue, components);
+                break;
+            case "spacing":
+                propertyValue = Number(propertyValue);
+                this.setSpacing(propertyValue, components);
+                break;
+            case "line_style":
+                this.setLineStyle(propertyValue, components);
+                break;
+            case "line_width":
+                propertyValue = Number(propertyValue);
+                this.setLineWidth(propertyValue, components);
+                break;
+            case "headerText":
+                this.setHeaderText(propertyValue, components);
+                break;
+            case "source":
+                this.setSource(propertyValue, components);
                 break;
             default:
                 return undefined;
@@ -2521,7 +2896,7 @@ uiEditor.components.Group = (function () {
                                 items.image[i].yPosition,
                                 items.image[i].width,
                                 items.image[i].height,
-                                items.image[i].image_url,
+                                items.image[i].bg_image,
                                 items.image[i].z_index));
             }
 
