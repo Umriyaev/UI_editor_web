@@ -344,10 +344,10 @@ ns.loadProject = function (uiProject) {
     }
     var idSpecifier = uiProject.idSpecifier;
     if (uiProject.idSpecifier !== null && uiProject.idSpecifier !== undefined) {
-        ns.idSpecifier = new uiEditor.helpers.IdSpecifier(idSpecifier.buttonCount, idSpecifier.textboxCount,
-                idSpecifier.displayCount, idSpecifier.imageCount, idSpecifier.imageCount,
-                idSpecifier.panelCount, idSpecifier.screenControlCount,
-                idSpecifier.sourceCount, idSpecifier.groupCount);
+        ns.idSpecifier = new uiEditor.helpers.IdSpecifier(idSpecifier.buttonCount,
+                idSpecifier.textboxCount, idSpecifier.displayCount,
+                idSpecifier.imageCount, idSpecifier.panelCount,
+                idSpecifier.screenControlCount, idSpecifier.sourceCount, idSpecifier.groupCount);
     }
 };
 ns.getParameter = function (theParameter) {
