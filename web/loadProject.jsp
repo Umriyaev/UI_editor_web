@@ -30,7 +30,7 @@
                             <div class="panel-body text-center ">
                                 <div class='flexContainer'>
                                     <%
-                                        String path = "/ui/";
+                                        String path = "/json/";
                                         File directory = new File(path);
                                         File[] projects = directory.listFiles();
                                         for (File file : projects) {

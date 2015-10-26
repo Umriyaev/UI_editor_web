@@ -25,7 +25,7 @@
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss");
                 String nameOfFile = "";
                 if (fileName == null) {
-                    nameOfFile += "/ui/" + sdf.format(new Date()) + ".json";
+                    nameOfFile += "/json/" + sdf.format(new Date()) + ".json";
                 } else {
                     nameOfFile += fileName;
                 }
@@ -46,7 +46,7 @@
             <%
                 //String nameOfFolder = application.getRealPath("/")+"/ui/";
                 //String nameOfFolder = request.getServletContext().getRealPath("/")+"/ui/";
-                String nameOfFolder = "/ui/";
+                String nameOfFolder = "/json/";
                 File folder = new File(nameOfFolder);
                 File[] files = folder.listFiles();
                 for (File file : files) {
