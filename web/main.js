@@ -10,6 +10,7 @@ var ns = uiEditor.mainApp;
 ns.startX, ns.startY;
 ns.idSpecifier = new uiEditor.helpers.IdSpecifier(0, 0, 0, 0, 0, 0, 0, 0);
 ns.isDrawing = false;
+ns.isResizing = false;
 ns.currentDrawingComponent = {"panel": null, "component": null};
 ns.w, ns.h, ns.x, ns.y, ns.c, ns.ctx;
 ns.components = new Map();
@@ -366,7 +367,7 @@ ns.respondResize = function () {
     ns.c.width = $(".canvasPanel").width();
     ns.c.height = $(".canvasPanel").height();
     ns.drawRectangles();
-}
+};
 
 
 ns.contextMenuHandler = function (e) {
@@ -378,7 +379,7 @@ ns.deleteComponent = function () {
     var deleteScreenObjectComponents = false;
     if (ns.alteringComponent.component) {
 
-        if (ns.alteringComponent.component == "selection") {
+        if (ns.alteringComponent.component === "selection") {
             ns.selection.deleteSelection(ns.components);
             ns.selection = null;
         }
@@ -444,7 +445,7 @@ ns.keyPressHandler = function (e) {
             ns.deleteComponent();
             ns.isDrawing = false;
         }
-        else if (ns.chosenComponentType != null) {
+        else if (ns.chosenComponentType !== null) {
             ns.chosenComponentType = null;
         }
     }
@@ -640,6 +641,7 @@ ns.draw = function (e) {
     var hitTestResult = ns.hitTest(x, y);
     if (!e.ctrlKey) {
         if (hitTestResult.hit) {
+            console.log('hit');
             if (hitTestResult.panel !== null && hitTestResult.component !== null) {
                 //component inside the panel was hit
                 //start moving component  
@@ -722,6 +724,30 @@ ns.draw = function (e) {
                 ns.c.addEventListener('mouseup', ns.moveDone, false); //finish moving component
                 //TODO
                 //add logic for moving selection
+            }
+        }
+        else if (hitTestResult.resize) {
+            console.log('resize: ns.draw');
+            if (hitTestResult.panel !== null && hitTestResult.component !== null) {
+                ns.alteringComponent.panel = hitTestResult.panel;
+                ns.alteringComponent.component = hitTestResult.component;
+                ns.isResizing = true;
+                var panel = ns.components.get(ns.alteringComponent.panel);
+                var component = panel.getChild(ns.alteringComponent.component);
+                ns.startX = component.getX();
+                ns.startY = component.getY();
+                ns.c.addEventListener('mousemove', ns.mouseMoveResize, false);
+                ns.c.addEventListener('mouseup', ns.mouseUpResize, false);
+            }
+            else {
+                var component = ns.components.get(hitTestResult.component);
+                ns.startX = component.getX();
+                ns.startY = component.getY();
+                ns.isResizing = true;
+                ns.c.addEventListener('mousemove', ns.mouseMoveResize, false);
+                ns.c.addEventListener('mouseup', ns.mouseUpResize, false);
+                ns.alteringComponent.component = hitTestResult.component;
+                ns.alteringComponent.panel = null;
             }
         }
         else {
@@ -825,10 +851,10 @@ ns.createComponent = function (componentType, x, y) {
 };
 // check if component is clicked or not
 ns.hitTest = function (testX, testY) {
-    var result = {"hit": false, "component": null, "panel": null};
+    var result = {"hit": false, "component": null, "panel": null, "resize": false};
     ns.components.forEach(function (value, key) {
         var temp = value.hitTest(testX, testY);
-        if (temp.hit) {
+        if (temp.hit || temp.resize) {
             result = temp;
         }
 
@@ -1241,6 +1267,53 @@ ns.moveDone = function (e) {
     ns.movingComponent = undefined;
     ns.destinationPanel = undefined;
 };
+
+ns.mouseMoveResize = function (e) {
+    if (ns.isResizing) {
+        ns.x = e.layerX;
+        ns.y = e.layerY;
+
+        ns.x = Math.min(e.layerX, ns.startX);
+        ns.y = Math.min(e.layerY, ns.startY);
+
+        ns.w = Math.abs(e.layerX - ns.startX);
+        ns.h = Math.abs(e.layerY - ns.startY);
+
+        var r;
+        if (ns.alteringComponent.panel !== null) {
+            var panel = ns.components.get(ns.alteringComponent.panel);
+            r = panel.getChild(ns.alteringComponent.component);
+        }
+        else
+            r = ns.components.get(ns.alteringComponent.component);
+        // r.setX(ns.x);
+        //r.setY(ns.y);
+
+        if (ns.w < ns.componentSizes[r.getComponentType()].width) {
+            ns.w = ns.componentSizes[r.getComponentType()].width;
+        }
+
+        if (ns.h < ns.componentSizes[r.getComponentType()].height) {
+            ns.h = ns.componentSizes[r.getComponentType()].height;
+        }
+
+        r.setWidth(ns.w);
+        r.setHeight(ns.h);
+
+        ns.constructProperties(r, "resize component");
+
+        ns.drawRectangles();
+    }
+};
+
+ns.mouseUpResize = function (e) {
+    ns.isResizing = false;
+
+    ns.constructProperties(ns.components.get(ns.alteringComponent.component), "resize component");
+
+    ns.drawRectangles();
+};
+
 //mousemove event handler for creating new component
 ns.mouseMove = function (e) {
     if (ns.isDrawing) {
@@ -1267,13 +1340,13 @@ ns.mouseMove = function (e) {
         r.setX(ns.x);
         r.setY(ns.y);
         if (ns.w < ns.componentSizes[ns.chosenComponentType].width) {
-            ns.w = ns.componentSizes[ns.chosenComponentType].width
+            ns.w = ns.componentSizes[ns.chosenComponentType].width;
         }
-        ;
+
         if (ns.h < ns.componentSizes[ns.chosenComponentType].height) {
-            ns.h = ns.componentSizes[ns.chosenComponentType].height
+            ns.h = ns.componentSizes[ns.chosenComponentType].height;
         }
-        ;
+
         r.setWidth(ns.w);
         r.setHeight(ns.h);
         if (ns.drawingPanel === undefined) {

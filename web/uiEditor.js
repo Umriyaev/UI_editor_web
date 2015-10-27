@@ -30,6 +30,43 @@ uiEditor.helpers.drawSelection = function (ctx, componentX, componentY, componen
     ctx.restore();
 };
 
+uiEditor.helpers.resizeHitTest = function (componentX, componentY, componentWidth, componentHeight, testX, testY) {
+    var selectionWidth = 10;
+    var selectionHeight = 10;
+    var x1 = componentX - selectionWidth / 2;
+    var y1 = componentY - selectionHeight / 2;
+    var x2 = x1 + componentWidth;
+    var y2 = y1;
+    var x3 = x1;
+    var y3 = y1 + componentHeight;
+    var x4 = x2;
+    var y4 = y3;
+
+    var result = false;
+
+    if (testX >= x1 && testX <= x1 + selectionWidth &&
+            testY >= y1 && testY <= y1 + selectionHeight) {
+        result = true;
+    }
+
+    else if (testX >= x2 && testX <= x2 + selectionWidth &&
+            testY >= y2 && testY <= y2 + selectionHeight) {
+        result = true;
+    }
+
+    else if (testX >= x3 && testX <= x3 + selectionWidth &&
+            testY >= y3 && testY <= y3 + selectionHeight) {
+        result = true;
+    }
+
+    else if (testX >= x4 && testX <= x4 + selectionWidth &&
+            testY >= y4 && testY <= y4 + selectionHeight) {
+        result = true;
+    }
+
+    return result;
+};
+
 uiEditor.helpers.getLineStyle = function (lineStyle) {
     var result = null;
     switch (lineStyle) {
@@ -245,8 +282,12 @@ uiEditor.components.ImageComponent = (function () {
     };
 
     ImageComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": null};
-        if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+        var result = {"hit": false, "component": this.getID(), "panel": null, "resize": false};
+        if (uiEditor.helpers.resizeHitTest(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y)) {
+            result.resize = true;
+            console.log('resize');
+        }
+        else if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
             console.log(result);
@@ -464,8 +505,12 @@ uiEditor.components.TextComponent = (function () {
     };
 
     TextComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": null};
-        if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+        var result = {"hit": false, "component": this.getID(), "panel": null, "resize": false};
+        if (uiEditor.helpers.resizeHitTest(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y)) {
+            result.resize = true;
+            console.log('resize');
+        }
+        else if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
         }
@@ -739,8 +784,12 @@ uiEditor.components.DisplayComponent = (function () {
     };
 
     DisplayComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": null};
-        if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+        var result = {"hit": false, "component": this.getID(), "panel": null, "resize": false};
+        if (uiEditor.helpers.resizeHitTest(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y)) {
+            result.resize = true;
+            console.log('resize');
+        }
+        else if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
         }
@@ -988,10 +1037,15 @@ uiEditor.components.ButtonComponent = (function () {
     };
 
     ButtonComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": null};
-        if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+        var result = {"hit": false, "component": this.getID(), "panel": null, "resize": false};
+        if (uiEditor.helpers.resizeHitTest(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y)) {
+            result.resize = true;
+            console.log('resize');
+        }
+        else if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
+
         }
         return result;
     };
@@ -1323,25 +1377,38 @@ uiEditor.components.PanelComponent = (function () {
 
     PanelComponent.prototype.hitTest = function (x, y) {
         var result = this.headerHitTest(x, y);
-        if (!result.hit) {
+        var resize = uiEditor.helpers.resizeHitTest(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y);
+        if (resize) {
+            result = {"hit": false, "component": this.getID(), "panel": null, "resize": true};
+        }
+        else if (!result.hit) {
             result = this.bodyHitTest(x, y);
             if (result.hit) {
                 var temp = this.childHitTest(x, y);
-                if (temp.hit) {
+                if (temp.resize) {
+                    result.hit = false;
+                    result.resize = true;
                     result.component = temp.component;
                 }
+                else if (temp.hit) {
+                    result.component = temp.component;
+                }
+
             }
         }
         return result;
     };
     PanelComponent.prototype.childHitTest = function (x, y) {
-        var result = {"hit": false, "component": null, "panel": this.getID()};
+        var result = {"hit": false, "component": null, "panel": this.getID(), "resize": false};
         this.getChildren().forEach(function (value, key) {
             var temp = value.hitTest(x, y);
             if (temp.hit) {
                 result.hit = true;
                 result.component = temp.component;
-
+            }
+            else if(temp.resize){
+                result.resize = true;
+                result.component = temp.component;
             }
         });
         return result;
@@ -1684,8 +1751,12 @@ uiEditor.components.ScreenControlComponent = (function () {
     };
 
     ScreenControlComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": null};
-        if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+        var result = {"hit": false, "component": this.getID(), "panel": null, "resize": false};
+        if (uiEditor.helpers.resizeHitTest(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y)) {
+            result.resize = true;
+            console.log('resize');
+        }
+        else if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
         }
@@ -1944,8 +2015,12 @@ uiEditor.components.SourceComponent = (function () {
     };
 
     SourceComponent.prototype.hitTest = function (x, y) {
-        var result = {"hit": false, "component": this.getID(), "panel": null};
-        if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
+        var result = {"hit": false, "component": this.getID(), "panel": null, "resize": false};
+        if (uiEditor.helpers.resizeHitTest(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y)) {
+            result.resize = true;
+            console.log('resize');
+        }
+        else if (x >= this.getX() && x <= this.getX() + this.getWidth() &&
                 y >= this.getY() && y <= this.getY() + this.getHeight()) {
             result.hit = true;
         }
@@ -2417,7 +2492,7 @@ uiEditor.components.GroupSelection = (function () {
             return components;
         }
     };
-    
+
     GroupSelection.prototype.setText = function (text, components) {
         if (text !== "not set") {
             this.selection.forEach(function (value, key) {
