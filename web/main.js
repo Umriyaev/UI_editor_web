@@ -161,7 +161,7 @@ ns.properties = {
 };
 ns.font_face_list = ["Arial", "Verdana", "Times New Roman", "Courier New", "serif", "sans-serif"];
 ns.font_type_list = ["normal", "bold", "italic", "bolder", "lighter"];
-ns.font_size_list = ["20px", "22px", "24px", "26px", "28px", "30px", "50px", "100px"];
+ns.font_size_list = ["8px", "10px", "14px", "18px","20px", "22px", "24px", "26px", "28px", "30px", "50px", "100px"];
 ns.line_style_list = ["solid", "dotted", "dashed"];
 ns.componentSizes = {
     "image": {"width": 300, "height": 200},
@@ -951,9 +951,9 @@ ns.constructProperties = function (component, callFrom) {
                     select.name = propertyNames[i]['name'];
                     select.addEventListener('change', ns.selectionChanged, false);
                     select.id = propertyNames[i]['name'];
-                    select.add(new Option(component.getPropertyValue(propertyNames[i]['name']),
-                            component.getPropertyValue(propertyNames[i]['name'])));
-                    select.selectIndex = 0;
+//                    select.add(new Option(component.getPropertyValue(propertyNames[i]['name']),
+//                            component.getPropertyValue(propertyNames[i]['name'])));
+                    //select.selectIndex = 0;
                     div.appendChild(select);
                     var selectItemsArray = null;
                     switch (propertyNames[i]['type']) {
@@ -972,9 +972,10 @@ ns.constructProperties = function (component, callFrom) {
                     }
 
                     if (selectItemsArray !== null) {
-                        for (var item in selectItemsArray) {
-                            if (selectItemsArray[item] !== select.options[select.selectedIndex].value) {
-                                select.add(new Option(selectItemsArray[item], selectItemsArray[item]));
+                        for (var item in selectItemsArray) {      
+                            select.add(new Option(selectItemsArray[item], selectItemsArray[item]));
+                            if (selectItemsArray[item] === component.getPropertyValue(propertyNames[i]['name'])) {                                
+                                select.selectedIndex = item;
                             }
                         }
                     }
@@ -1289,13 +1290,6 @@ ns.mouseMoveResize = function (e) {
         // r.setX(ns.x);
         //r.setY(ns.y);
 
-        if (ns.w < ns.componentSizes[r.getComponentType()].width) {
-            ns.w = ns.componentSizes[r.getComponentType()].width;
-        }
-
-        if (ns.h < ns.componentSizes[r.getComponentType()].height) {
-            ns.h = ns.componentSizes[r.getComponentType()].height;
-        }
 
         r.setWidth(ns.w);
         r.setHeight(ns.h);
