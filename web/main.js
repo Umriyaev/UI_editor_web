@@ -74,88 +74,88 @@ ns.INITIAL_SCREEN_CONTROL_COLS = 3;
 //properties for constructing properties panel based on the type of component
 ns.properties = {
     "image": [
-        {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"},
-        {"name": "bg_image", "type": "file"},
-        {"name": "z_index", "type": "number"}
+        {"name": "width", "type": "number", "text": "Width"},
+        {"name": "height", "type": "number", "text": "Height"},
+        {"name": "bg_image", "type": "file", "text": "Background image"},
+        {"name": "z_index", "type": "number", "text": "Z-index:"}
     ],
     "button": [
-        {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"},
-        {"name": "text", "type": "text"},
-        {"name": "z_index", "type": "number"},
-        {"name": "bg_color", "type": "color"},
-        {"name": "font_color", "type": "color"},
-        {"name": "font_face", "type": "font_face"},
-        {"name": "font_type", "type": "font_type"},
-        {"name": "font_size", "type": "font_size"},
-        {"name": "bg_image", "type": "file"},
-        {"name": "second_image", "type": "file"}
+        {"name": "width", "type": "number", "text": "Width"},
+        {"name": "height", "type": "number", "text": "Height"},
+        {"name": "text", "type": "text", "text": "Text"},
+        {"name": "z_index", "type": "number", "text": "Z-index"},
+        {"name": "bg_color", "type": "color", "text": "Background color"},
+        {"name": "font_color", "type": "color", "text": "Font color"},
+        {"name": "font_face", "type": "font_face", "text": "Font face"},
+        {"name": "font_type", "type": "font_type", "text": "Font type"},
+        {"name": "font_size", "type": "font_size", "text": "Font size"},
+        {"name": "bg_image", "type": "file", "text": "Background image"},
+        {"name": "second_image", "type": "file", "text": "Second image"}
     ],
     "text": [
-        {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"},
-        {"name": "placeholder_text", "type": "text"},
-        {"name": "z_index", "type": "number"},
-        {"name": "font_color", "type": "color"},
-        {"name": "font_face", "type": "font_face"},
-        {"name": "font_type", "type": "font_type"},
-        {"name": "font_size", "type": "font_size"},
-        {"name": "bg_image", "type": "file"},
-        {"name": "bg_color", "type": "color"}
+        {"name": "width", "type": "number", "text": "Width"},
+        {"name": "height", "type": "number", "text": "Height"},
+        {"name": "placeholder_text", "type": "text", "text": "Placeholder text"},
+        {"name": "z_index", "type": "number", "text": "Z-index"},
+        {"name": "font_color", "type": "color", "text": "Font color"},
+        {"name": "font_face", "type": "font_face", "text": "Font face"},
+        {"name": "font_type", "type": "font_type", "text": "Font type"},
+        {"name": "font_size", "type": "font_size", "text": "Font size"},
+        {"name": "bg_image", "type": "file", "text": "Background image"},
+        {"name": "bg_color", "type": "color", "text": "Background color"}
     ],
     "display": [
-        {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"},
-        {"name": "rows", "type": "number"},
-        {"name": "cols", "type": "number"},
-        {"name": "bg_color", "type": "color"},
-        {"name": "spacing", "type": "number"},
-        {"name": "z_index", "type": "number"},
-        {"name": "line_style", "type": "line_style"},
-        {"name": "line_width", "type": "number"},
-        {"name": "bg_image", "type": "file"}
+        {"name": "width", "type": "number", "text": "Width"},
+        {"name": "height", "type": "number", "text": "Height"},
+        {"name": "rows", "type": "number", "text": "Number of rows"},
+        {"name": "cols", "type": "number", "text": "Number of columns"},
+        {"name": "bg_color", "type": "color", "text": "Background color"},
+        {"name": "spacing", "type": "number", "text": "Spacing"},
+        {"name": "z_index", "type": "number", "text": "Z-index"},
+        {"name": "line_style", "type": "line_style", "text": "Line style"},
+        {"name": "line_width", "type": "number", "text": "Line width"},
+        {"name": "bg_image", "type": "file", "text": "Background image"}
     ],
     "panel": [
-        {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"},
-        {"name": "headerText", "type": "text"},
-        {"name": "z_index", "type": "number"},
-        {"name": "bg_image", "type": "file"},
-        {"name": "bg_color", "type": "color"}
+        {"name": "width", "type": "number", "text": "Width"},
+        {"name": "height", "type": "number", "text": "Height"},
+        {"name": "headerText", "type": "text", "text": "Header text"},
+        {"name": "z_index", "type": "number", "text": "Z-index"},
+        {"name": "bg_image", "type": "file", "text": "Background image"},
+        {"name": "bg_color", "type": "color", "text": "Background color"}
     ],
     "screenControl": [
-        {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"},
-        {"name": "rows", "type": "number"},
-        {"name": "cols", "type": "number"},
-        {"name": "z_index", "type": "number"},
-        {"name": "bg_color", "type": "color"},
-        {"name": "font_color", "type": "color"},
-        {"name": "font_face", "type": "font_face"},
-        {"name": "font_type", "type": "font_type"},
-        {"name": "font_size", "type": "font_size"},
-        {"name": "bg_image", "type": "file"}
+        {"name": "width", "type": "number", "text": "Width"},
+        {"name": "height", "type": "number", "text": "Height"},
+        {"name": "rows", "type": "number", "text": "Number of rows"},
+        {"name": "cols", "type": "number", "text": "Number of columns"},
+        {"name": "z_index", "type": "number", "text": "Z-index"},
+        {"name": "bg_color", "type": "color", "text": "Background color"},
+        {"name": "font_color", "type": "color", "text": "Font color"},
+        {"name": "font_face", "type": "font_face", "text": "Font face"},
+        {"name": "font_type", "type": "font_type", "text": "Font type"},
+        {"name": "font_size", "type": "font_size", "text": "Font size"},
+        {"name": "bg_image", "type": "file", "text": "Background image"},
     ],
     "source": [
-        {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"},
-        {"name": "text", "type": "text"},
-        {"name": "source", "type": "text"},
-        {"name": "z_index", "type": "number"},
-        {"name": "bg_color", "type": "color"},
-        {"name": "font_color", "type": "color"},
-        {"name": "font_face", "type": "font_face"},
-        {"name": "font_type", "type": "font_type"},
-        {"name": "font_size", "type": "font_size"},
-        {"name": "bg_image", "type": "file"}
+        {"name": "width", "type": "number", "text": "Width"},
+        {"name": "height", "type": "number", "text": "Height"},
+        {"name": "text", "type": "text", "text": "Text"},
+        {"name": "source", "type": "text", "text": "Source"},
+        {"name": "z_index", "type": "number", "text": "Z-index"},
+        {"name": "bg_color", "type": "color", "text": "Background color"},
+        {"name": "font_color", "type": "color", "text": "Font color"},
+        {"name": "font_face", "type": "font_face", "text": "Font face"},
+        {"name": "font_type", "type": "font_type", "text": "Font type"},
+        {"name": "font_size", "type": "font_size", "text": "Font size"},
+        {"name": "bg_image", "type": "file", "text": "Background image"}
     ],
     "selection": [
-        {"name": "width", "type": "number"},
-        {"name": "height", "type": "number"},
-        {"name": "bg_color", "type": "color"},
-        {"name": "bg_image", "type": "file"},
-        {"name": "z_index", "type": "number"}
+        {"name": "width", "type": "number", "text": "Width"},
+        {"name": "height", "type": "number", "text": "Height"},
+        {"name": "bg_color", "type": "color", "text": "Background color"},
+        {"name": "bg_image", "type": "file", "text": "Background image"},
+        {"name": "z_index", "type": "number", "text": "Z-index"}
     ],
     "group": [{"name": "z_index", "type": "number"}]
 };
@@ -904,7 +904,7 @@ ns.constructProperties = function (component, callFrom) {
             for (var i = 0; i < propertyNames.length; i++) {
                 var div = document.createElement('div');
                 div.className = 'param';
-                div.appendChild(document.createTextNode(propertyNames[i]['name']));
+                div.appendChild(document.createTextNode(propertyNames[i]['text']));
                 div.innerHTML += '<br>';
                 var input, select;
                 if (propertyNames[i]['type'] !== 'font_face' &&
