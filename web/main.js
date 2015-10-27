@@ -1287,8 +1287,8 @@ ns.mouseMoveResize = function (e) {
         }
         else
             r = ns.components.get(ns.alteringComponent.component);
-        // r.setX(ns.x);
-        //r.setY(ns.y);
+        r.setX(ns.x);
+        r.setY(ns.y);
 
 
         r.setWidth(ns.w);
