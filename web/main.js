@@ -22,6 +22,10 @@ ns.drawingPanel = undefined;
 ns.destinationPanel = undefined;
 ns.movingChildComponent = {"panel": null, "component": null};
 ns.displayCreated = false;
+ns.sourceValues = [];
+ns.editor = {};
+ns.actions = [];
+ns.image = new Image();
 ns.sizeCreated = false;
 ns.selection = null;
 ns.fileName = null;
@@ -90,7 +94,8 @@ ns.properties = {
         {"name": "font_type", "type": "font_type", "text": "Font type"},
         {"name": "font_size", "type": "font_size", "text": "Font size"},
         {"name": "bg_image", "type": "file", "text": "Background image"},
-        {"name": "second_image", "type": "file", "text": "Second image"}
+        {"name": "second_image", "type": "file", "text": "Second image"},
+        {"name": "action", "type": "action", "text": "Action"}
     ],
     "text": [
         {"name": "width", "type": "number", "text": "Width"},
@@ -140,8 +145,7 @@ ns.properties = {
     "source": [
         {"name": "width", "type": "number", "text": "Width"},
         {"name": "height", "type": "number", "text": "Height"},
-        {"name": "text", "type": "text", "text": "Text"},
-        {"name": "source", "type": "text", "text": "Source"},
+        {"name": "source", "type": "source", "text": "Source"},
         {"name": "z_index", "type": "number", "text": "Z-index"},
         {"name": "bg_color", "type": "color", "text": "Background color"},
         {"name": "font_color", "type": "color", "text": "Font color"},
@@ -157,11 +161,17 @@ ns.properties = {
         {"name": "bg_image", "type": "file", "text": "Background image"},
         {"name": "z_index", "type": "number", "text": "Z-index"}
     ],
+    "editor": [
+        {"name": "screen_width", "type": "number", "text": "Width"},
+        {"name": "screen_height", "type": "number", "text": "Height"},
+        {"name": "bg_color", "type": "color", "text": "Background color"},
+        {"name": "bg_image", "type": "file", "text": "Background image"}
+    ],
     "group": [{"name": "z_index", "type": "number"}]
 };
 ns.font_face_list = ["Arial", "Verdana", "Times New Roman", "Courier New", "serif", "sans-serif"];
 ns.font_type_list = ["normal", "bold", "italic", "bolder", "lighter"];
-ns.font_size_list = ["8px", "10px", "14px", "18px","20px", "22px", "24px", "26px", "28px", "30px", "50px", "100px"];
+ns.font_size_list = ["8px", "10px", "14px", "18px", "20px", "22px", "24px", "26px", "28px", "30px", "50px", "100px"];
 ns.line_style_list = ["solid", "dotted", "dashed"];
 ns.componentSizes = {
     "image": {"width": 300, "height": 200},
@@ -174,6 +184,25 @@ ns.componentSizes = {
 };
 //initial setting of event handlers
 ns.init = function () {
+    console.log("test");
+    ns.sourceValues.push("not set");
+    ns.actions.push("not set");
+    ns.editor.screen_width = 800;
+    ns.editor.screen_height = 600;
+    ns.editor.bg_color = '#fff';
+    ns.editor.bg_image = 'not set';
+
+    $.getJSON("http://lion.konkuk.ac.kr:8080/ui.conf", function (data) {
+        for (var item in data.actions) {
+            ns.actions.push(item);
+            console.log(item + " - " + data.actions[item]);
+        }
+
+        for (var item in data.sources) {
+            ns.sourceValues.push(item);
+            console.log(item + " - " + data.sources[item]);
+        }
+    });
     Notify.init({
         "selector": ".bb-alert"
     });
@@ -209,8 +238,12 @@ ns.init = function () {
         propertiesColumn.appendChild(properties);
     }
 
+
 };
 ns.loadProject = function (uiProject) {
+    if(typeof(uiProject.editor)!=='undefined' && uiProject.editor!==null){
+        ns.editor = uiProject.editor;
+    }
     for (var i = 0; i < uiProject.button.length; i++) {
         ns.components.set(uiProject.button[i].id,
                 new uiEditor.components.ButtonComponent(uiProject.button[i].id,
@@ -225,7 +258,8 @@ ns.loadProject = function (uiProject) {
                         uiProject.button[i].font_color,
                         uiProject.button[i].font_face,
                         uiProject.button[i].font_type,
-                        uiProject.button[i].font_size));
+                        uiProject.button[i].font_size,
+                        uiProject.button[i].action));
     }
 
     for (var i = 0; i < uiProject.image.length; i++) {
@@ -481,7 +515,7 @@ ns.keyPressHandler = function (e) {
 //update properties of the components after changing values on properties panel
 ns.textChanged = function (e) {
     console.log(e.target.name);
-    if (ns.alteringComponent.component !== "selection") {
+    if (ns.alteringComponent.component !== "selection" && ns.alteringComponent.component!=='editor') {
         var input = e.target; //target which fired the event
         var propertyName = input.name; //get the name of property
         var propertyValue = input.value; //get value of property
@@ -496,6 +530,12 @@ ns.textChanged = function (e) {
                 ns.components.get(ns.alteringComponent.component).setPropertyValue(propertyName, propertyValue); //update component with new property value
             }
         }
+    }
+    else if(ns.alteringComponent.component==='editor'){
+        var input = e.target; //target which fired the event
+        var propertyName = input.name; //get the name of property
+        var propertyValue = input.value; //get value of property
+        ns.editor[propertyName]=propertyValue;
     }
     else {
         var input = e.target; //target which fired the event
@@ -633,6 +673,7 @@ ns.clearSelection = function () {
     }
 };
 ns.draw = function (e) {
+    console.log('draw function: chosenComponent: '+ns.chosenComponentType);
 
     var x = e.layerX;
     var y = e.layerY;
@@ -773,6 +814,11 @@ ns.draw = function (e) {
                     ns.alteringComponent.panel = null;
                 }
             }
+            else{
+                ns.alteringComponent.component='editor';
+                ns.alteringComponent.panel = null;
+                ns.constructProperties(ns.alteringComponent.component, 'ns.draw: canvas');
+            }
         }
     }
     else {
@@ -843,7 +889,7 @@ ns.createComponent = function (componentType, x, y) {
             if (ns.displayCreated === true) {
                 component.id = ns.idSpecifier.getIdForComponent("source");
                 component.component = new uiEditor.components.SourceComponent(component.id, x, y,
-                        ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, "not set", "");
+                        ns.componentSizes[componentType].width, ns.componentSizes[componentType].height, "not set", "not set");
             }
             break;
     }
@@ -890,6 +936,8 @@ ns.hitToPanelTest = function (testX, testY, testComponent) {
 };
 //construct properties panel
 ns.constructProperties = function (component, callFrom) {
+    console.log(ns.actions);
+    console.log(component);
     console.log("Construct properties: call from " + callFrom);
     var propertiesPanel = document.getElementById('properties');
     //clear properties panel
@@ -897,7 +945,7 @@ ns.constructProperties = function (component, callFrom) {
         propertiesPanel.removeChild(propertiesPanel.firstChild);
     }
     if (component !== undefined) {
-        if (component !== "selection") {
+        if (component !== "selection" && component!=='editor') {
             //get property names for the selected component
             var propertyNames = ns.properties[component.getComponentType()];
             //create div and input controls for every property
@@ -910,7 +958,9 @@ ns.constructProperties = function (component, callFrom) {
                 if (propertyNames[i]['type'] !== 'font_face' &&
                         propertyNames[i]['type'] !== 'font_size' &&
                         propertyNames[i]['type'] !== 'font_type' &&
-                        propertyNames[i]['type'] !== 'line_style')
+                        propertyNames[i]['type'] !== 'line_style' &&
+                        propertyNames[i]['type'] !== 'action' &&
+                        propertyNames[i]['type'] !== 'source')
                 {
                     input = document.createElement('input');
                     input.type = propertyNames[i]['type'];
@@ -947,6 +997,7 @@ ns.constructProperties = function (component, callFrom) {
                     }
                 }
                 else {
+                    console.log(propertyNames[i]['type']);
                     select = document.createElement('select');
                     select.name = propertyNames[i]['name'];
                     select.addEventListener('change', ns.selectionChanged, false);
@@ -969,12 +1020,18 @@ ns.constructProperties = function (component, callFrom) {
                         case 'line_style':
                             selectItemsArray = ns.line_style_list;
                             break;
+                        case 'action':
+                            selectItemsArray = ns.actions;
+                            break;
+                        case 'source':
+                            selectItemsArray = ns.sourceValues;
+                            break;
                     }
 
                     if (selectItemsArray !== null) {
-                        for (var item in selectItemsArray) {      
+                        for (var item in selectItemsArray) {
                             select.add(new Option(selectItemsArray[item], selectItemsArray[item]));
-                            if (selectItemsArray[item] === component.getPropertyValue(propertyNames[i]['name'])) {                                
+                            if (selectItemsArray[item] === component.getPropertyValue(propertyNames[i]['name'])) {
                                 select.selectedIndex = item;
                             }
                         }
@@ -983,7 +1040,7 @@ ns.constructProperties = function (component, callFrom) {
                 propertiesPanel.appendChild(div);
             }
         }
-        else {
+        else if (component === "selection") {
             if (ns.selection !== null) {
                 console.log(ns.selection.getAddedComponents());
                 var propertyNames = ns.getPropertiesForSelection(ns.selection.getAddedComponents());
@@ -1087,10 +1144,79 @@ ns.constructProperties = function (component, callFrom) {
                             }
                             propertiesPanel.appendChild(div);
                             break;
+                        case "action":
+                            var select = document.createElement('select');
+                            select.name = propertyNames[i]['name'];
+                            select.addEventListener('change', ns.selectionChanged, false);
+                            select.id = propertyNames[i]['name'];
+                            div.appendChild(select);
+                            for (var item in ns.actions) {
+                                select.add(new Option(ns.actions[item], ns.actions[item]));
+                            }
+                            propertiesPanel.appendChild(div);
+                            break;
+                        case "source":
+                            var select = document.createElement('select');
+                            select.name = propertyNames[i]['name'];
+                            select.addEventListener('change', ns.selectionChanged, false);
+                            select.id = propertyNames[i]['name'];
+                            div.appendChild(select);
+                            for (var item in ns.sourceValues) {
+                                select.add(new Option(ns.sourceValues[item], ns.sourceValues[item]));
+                            }
+                            propertiesPanel.appendChild(div);
+                            break;
+
                     }
                 }
             }
 
+        }
+        else if (component === "editor") {
+            console.log('canvas is component');
+            var cnvProperties = ns.properties["editor"];            
+            for (var i = 0; i < cnvProperties.length; i++) {
+                var div = document.createElement('div');
+                div.className = "param";
+                div.appendChild(document.createTextNode(cnvProperties[i]['text']));
+                div.innerHTML += "<br>";
+                switch (cnvProperties[i]['type']) {
+                    case 'number':
+                        var input = document.createElement('input');
+                        input.id = cnvProperties[i]['name'];
+                        input.name = cnvProperties[i]['name'];
+                        input.value = ns.editor[cnvProperties[i]['name']];
+                        input.addEventListener('change', ns.textChanged, false);
+                        input.addEventListener('keypress', ns.textChanged, false);
+                        input.addEventListener('paste', ns.textChanged, false);
+                        input.addEventListener('input', ns.textChanged, false);
+                        div.appendChild(input);
+                        propertiesPanel.appendChild(div);
+                        break;
+                    case 'file':
+                        var input = document.createElement('input');
+                        input.type = cnvProperties[i]['type'];
+                        input.id = cnvProperties[i]['name'];
+                        input.name = cnvProperties[i]['name'];
+                        div.appendChild(input);
+                        propertiesPanel.appendChild(div);
+                        break;
+                    case 'color':
+                        var input = document.createElement('input');
+                        input.className='demo1';
+                        input.type = "text";
+                        input.id = cnvProperties[i]['name'];
+                        input.name = cnvProperties[i]['name'];
+                        input.value = ns.editor[cnvProperties[i]['name']];
+                        input.addEventListener('change', ns.textChanged, false);
+                        input.addEventListener('keypress', ns.textChanged, false);
+                        input.addEventListener('paste', ns.textChanged, false);
+                        input.addEventListener('input', ns.textChanged, false);
+                        div.appendChild(input);
+                        propertiesPanel.appendChild(div);
+                        break;
+                }
+            }
         }
     }
     $('.demo1').colorpicker().on("changeColor", function (event) {
@@ -1102,6 +1228,10 @@ ns.constructProperties = function (component, callFrom) {
             console.log(response.toString().trim());
             if (ns.alteringComponent.component === "selection") {
                 ns.selection.setBackgroundImage(response.toString().trim(), ns.components);
+                ns.drawRectangles();
+            }
+            else if(ns.alteringComponent.component==='editor'){
+                ns.editor.bg_image=response.toString().trim();
                 ns.drawRectangles();
             }
             else {
@@ -1355,8 +1485,20 @@ ns.mouseMove = function (e) {
 };
 //used to draw all the components {needs to rename}
 ns.drawRectangles = function () {
-
+console.log(ns.editor);
+console.log(ns.editor.bg_color);
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
+    if(ns.editor.bg_image!=='not set'){
+        ns.image.src = ns.editor.bg_image;
+        ns.ctx.drawImage(ns.image, 0, 0, ns.c.width, ns.c.height);
+    }
+    else{
+        console.log('coloring bg')
+        ns.ctx.save();
+        ns.ctx.fillStyle = ns.editor.bg_color;
+        ns.ctx.fillRect(0,0,ns.c.width, ns.c.height);
+        ns.ctx.restore();
+    }
     var buf = [];
     ns.components.forEach(function (value, key) {
         buf.push(value);
@@ -1391,6 +1533,9 @@ ns.mouseUp = function (e) {
     ns.drawRectangles();
     if (ns.alteringComponent.component === "selection") {
         ns.constructProperties(ns.alteringComponent.component, "mouseUp_selection");
+    }
+    else if(ns.alteringComponent.component==="editor"){
+         ns.constructProperties(ns.alteringComponent.component, "mouseUp_canvas");
     }
     else if (ns.alteringComponent.panel === null) {
         ns.constructProperties(ns.components.get(ns.alteringComponent.component), "mouseUp_panel=null");
@@ -1442,6 +1587,7 @@ ns.saveToJson = function () {
     });
     obj.screenObject = screenObject.getPropertiesForJSON();
     obj.idSpecifier = ns.idSpecifier.getPropertiesForJSON();
+    obj.editor = ns.editor;
     var jsonData = JSON.stringify(obj, null, 5);
     var params = "jsonFile=" + encodeURIComponent(jsonData);
     if (ns.fileName === null) {

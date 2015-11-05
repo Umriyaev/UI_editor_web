@@ -856,7 +856,7 @@ uiEditor.components.DisplayComponent = (function () {
 
 /*********************Button component************************/
 uiEditor.components.ButtonComponent = (function () {
-    function ButtonComponent(id, x, y, w, h, z_index, bg_color, bg_image, second_image, font_color, font_face, font_type, font_size) {
+    function ButtonComponent(id, x, y, w, h, z_index, bg_color, bg_image, second_image, font_color, font_face, font_type, font_size, action) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -869,6 +869,7 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['height'] = h;
         this.properties['text'] = id;
         this.properties['radius'] = 10;
+        this.properties['action'] = "not set";
 
         if (typeof (z_index) === 'undefined' || z_index === null)
             this.properties['z_index'] = 0;
@@ -909,6 +910,11 @@ uiEditor.components.ButtonComponent = (function () {
             this.properties['font_size'] = '20px';
         else
             this.properties['font_size'] = font_size;
+
+        if (typeof (action) === 'undefined' || action === null)
+            this.properties['action'] = 'not set';
+        else
+            this.properties['action'] = action;
         this.selected = false;
         this.firstSelected = false;
         this.image = new Image();
@@ -970,6 +976,9 @@ uiEditor.components.ButtonComponent = (function () {
     ButtonComponent.prototype.getSecondImage = function () {
         return this.properties['second_image'];
     };
+    ButtonComponent.prototype.getAction = function () {
+        return this.properties['action'];
+    };
     /*************************************************/
 
 
@@ -1016,6 +1025,9 @@ uiEditor.components.ButtonComponent = (function () {
     };
     ButtonComponent.prototype.setSecondImage = function (image_url) {
         this.properties['second_image'] = image_url;
+    };
+    ButtonComponent.prototype.setAction = function (action) {
+        this.properties['action'] = action;
     };
     /*************************************************/
     ButtonComponent.prototype.getPropertiesForJSON = function () {
@@ -1180,7 +1192,8 @@ uiEditor.components.PanelComponent = (function () {
                                 items.button[i].font_color,
                                 items.button[i].font_face,
                                 items.button[i].font_type,
-                                items.button[i].font_size));
+                                items.button[i].font_size,
+                                items.button[i].action));
             }
 
             for (var i = 0; i < items.text.length; i++) {
@@ -1226,15 +1239,15 @@ uiEditor.components.PanelComponent = (function () {
             }
 
             for (var i = 0; i < items.group.length; i++) {
-                this.properties['children'].set(items.button[i].id,
+                this.properties['children'].set(items.group[i].id,
                         new uiEditor.components.Group(items.group[i].id,
                                 null,
                                 null,
                                 true,
-                                items.button[i].xPosition,
-                                items.button[i].yPosition,
-                                items.button[i].width,
-                                items.button[i].height,
+                                items.group[i].xPosition,
+                                items.group[i].yPosition,
+                                items.group[i].width,
+                                items.group[i].height,
                                 items.group[i].items));
             }
 
@@ -1406,7 +1419,7 @@ uiEditor.components.PanelComponent = (function () {
                 result.hit = true;
                 result.component = temp.component;
             }
-            else if(temp.resize){
+            else if (temp.resize) {
                 result.resize = true;
                 result.component = temp.component;
             }
@@ -1853,7 +1866,7 @@ uiEditor.components.SourceComponent = (function () {
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
-        this.properties['text'] = text;
+        this.properties['text'] = source;
         this.properties['source'] = source;
 
         if (typeof (z_index) === 'undefined' || z_index === null)
@@ -2058,7 +2071,7 @@ uiEditor.components.SourceComponent = (function () {
         ctx.closePath();
         ctx.fillStyle = this.getFontColor();
         ctx.font = this.getFontType() + " " + this.getFontSize() + " " + this.getFontFace();
-        ctx.fillText(this.getText(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
+        ctx.fillText(this.getSource(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
 
         ctx.restore();
 
@@ -2171,7 +2184,8 @@ uiEditor.components.GroupSelection = (function () {
         this.line_width = "not set";
         this.headerText = "not set";
         this.source = "not set";
-
+        this.action = "not set";
+        
         this.firstItem = null;
 
         this.addedComponents = uiEditor.helpers.NONE_FLAG;
@@ -2182,6 +2196,7 @@ uiEditor.components.GroupSelection = (function () {
         this.displayCount = 0;
         this.screenCountrolCount = 0;
         this.sourceCount = 0;
+        
 //        this.verticalOffset = "not set";
 //        this.horizontalOffset = "not set";
     }
@@ -2267,6 +2282,9 @@ uiEditor.components.GroupSelection = (function () {
     GroupSelection.prototype.getAddedComponents = function () {
         return this.addedComponents;
     };
+    GroupSelection.prototype.getAction = function () {
+        return this.action;
+    }
 
 //    GroupSelection.prototype.getVerticalOffset = function () {
 //        return this.verticalOffset;
@@ -2502,6 +2520,15 @@ uiEditor.components.GroupSelection = (function () {
             });
             this.text = text;
             return components;
+        }
+    };
+    GroupSelection.prototype.setAction = function (action, components) {
+        if (action !== "not set") {
+            this.selection.forEach(function (value, key) {
+                if (components.get(value).getComponentType() !== "group") {
+                    components.get(value).setAction(action);
+                }
+            });
         }
     };
 
@@ -2840,6 +2867,9 @@ uiEditor.components.GroupSelection = (function () {
             case "source":
                 this.setSource(propertyValue, components);
                 break;
+            case "action":
+                this.setAction(propertyValue, components);
+                break;
             default:
                 return undefined;
         }
@@ -2944,7 +2974,8 @@ uiEditor.components.Group = (function () {
                                 items.button[i].font_color,
                                 items.button[i].font_face,
                                 items.button[i].font_type,
-                                items.button[i].font_size));
+                                items.button[i].font_size,
+                                items.button[i].action));
             }
 
             for (var i = 0; i < items.text.length; i++) {
