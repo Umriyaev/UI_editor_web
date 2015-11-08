@@ -108,6 +108,7 @@ body{
 
 .canvasPanel {
     height: 870px;
+    text-align: center;
 }
 
 /*#myCanvas{

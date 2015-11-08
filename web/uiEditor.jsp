@@ -123,7 +123,7 @@
                             </div>
                             <div class="panel-body canvasPanel">
                                 <div>
-                                    <canvas id="myCanvas" width="1210" height="762" style="border: 1px solid #d3d3d3"></canvas>
+                                    <canvas id="myCanvas" width="1210" height="762" style="border: 1px solid #d3d3d3;"></canvas>
                                 </div>                                
                             </div>
                         </div>

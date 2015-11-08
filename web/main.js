@@ -187,8 +187,8 @@ ns.init = function () {
     console.log("test");
     ns.sourceValues.push("not set");
     ns.actions.push("not set");
-    ns.editor.screen_width = 800;
-    ns.editor.screen_height = 600;
+    ns.editor.screen_width = 1214;
+    ns.editor.screen_height = 840;
     ns.editor.bg_color = '#fff';
     ns.editor.bg_image = 'not set';
 
@@ -216,9 +216,15 @@ ns.init = function () {
     ns.c.addEventListener("mousemove", function (e) {
         ns.mouseMove(e);
     }, false);
+    ns.c.addEventListener("mousemove", ns.moveFromPanel, false);
+    ns.c.addEventListener("mousemove", ns.move, false);
+    ns.c.addEventListener("mousemove", ns.mouseMoveResize, false);
     ns.c.addEventListener("mouseup", function (e) {
         ns.mouseUp(e);
     }, false);
+    ns.c.addEventListener("mouseup", ns.moveFromPanelDone, false);
+    ns.c.addEventListener("mouseup", ns.moveDone, false);
+    ns.c.addEventListener("mouseup", ns.mouseUpResize, false);
     ns.c.addEventListener('contextmenu', ns.contextMenuHandler, false);
     window.addEventListener("keydown", ns.keyPressHandler, false);
     if (document.getElementById('json')) {
@@ -241,7 +247,7 @@ ns.init = function () {
 
 };
 ns.loadProject = function (uiProject) {
-    if(typeof(uiProject.editor)!=='undefined' && uiProject.editor!==null){
+    if (typeof (uiProject.editor) !== 'undefined' && uiProject.editor !== null) {
         ns.editor = uiProject.editor;
     }
     for (var i = 0; i < uiProject.button.length; i++) {
@@ -515,7 +521,7 @@ ns.keyPressHandler = function (e) {
 //update properties of the components after changing values on properties panel
 ns.textChanged = function (e) {
     console.log(e.target.name);
-    if (ns.alteringComponent.component !== "selection" && ns.alteringComponent.component!=='editor') {
+    if (ns.alteringComponent.component !== "selection" && ns.alteringComponent.component !== 'editor') {
         var input = e.target; //target which fired the event
         var propertyName = input.name; //get the name of property
         var propertyValue = input.value; //get value of property
@@ -531,11 +537,11 @@ ns.textChanged = function (e) {
             }
         }
     }
-    else if(ns.alteringComponent.component==='editor'){
+    else if (ns.alteringComponent.component === 'editor') {
         var input = e.target; //target which fired the event
         var propertyName = input.name; //get the name of property
         var propertyValue = input.value; //get value of property
-        ns.editor[propertyName]=propertyValue;
+        ns.editor[propertyName] = propertyValue;
     }
     else {
         var input = e.target; //target which fired the event
@@ -673,7 +679,7 @@ ns.clearSelection = function () {
     }
 };
 ns.draw = function (e) {
-    console.log('draw function: chosenComponent: '+ns.chosenComponentType);
+    console.log('draw function: chosenComponent: ' + ns.chosenComponentType);
 
     var x = e.layerX;
     var y = e.layerY;
@@ -699,8 +705,8 @@ ns.draw = function (e) {
                 child.select();
                 child.firstSelect();
                 ns.constructProperties(child, "draw_component inside the panel was hit");
-                ns.c.addEventListener('mousemove', ns.moveFromPanel, false);
-                ns.c.addEventListener('mouseup', ns.moveFromPanelDone, false);
+                //ns.c.addEventListener('mousemove', ns.moveFromPanel, false);
+                //ns.c.addEventListener('mouseup', ns.moveFromPanelDone, false);
             }
             else if (hitTestResult.panel !== null) {
                 //panel's main body was hit
@@ -713,8 +719,8 @@ ns.draw = function (e) {
 
                 ns.clearSelection();
                 if (ns.chosenComponentType !== null) {
-                    ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
-                    ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
+                    // ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
+                    // ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
                     ns.w = ns.INITIAL_WIDTH; //initial width (global var)
                     ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
 
@@ -761,8 +767,8 @@ ns.draw = function (e) {
                 }
                 ns.moveX = x;
                 ns.moveY = y;
-                ns.c.addEventListener('mousemove', ns.move, false); //event handler for changing component's position (move component)
-                ns.c.addEventListener('mouseup', ns.moveDone, false); //finish moving component
+                // ns.c.addEventListener('mousemove', ns.move, false); //event handler for changing component's position (move component)
+                //ns.c.addEventListener('mouseup', ns.moveDone, false); //finish moving component
                 //TODO
                 //add logic for moving selection
             }
@@ -777,16 +783,16 @@ ns.draw = function (e) {
                 var component = panel.getChild(ns.alteringComponent.component);
                 ns.startX = component.getX();
                 ns.startY = component.getY();
-                ns.c.addEventListener('mousemove', ns.mouseMoveResize, false);
-                ns.c.addEventListener('mouseup', ns.mouseUpResize, false);
+                //ns.c.addEventListener('mousemove', ns.mouseMoveResize, false);
+                // ns.c.addEventListener('mouseup', ns.mouseUpResize, false);
             }
             else {
                 var component = ns.components.get(hitTestResult.component);
                 ns.startX = component.getX();
                 ns.startY = component.getY();
                 ns.isResizing = true;
-                ns.c.addEventListener('mousemove', ns.mouseMoveResize, false);
-                ns.c.addEventListener('mouseup', ns.mouseUpResize, false);
+                //ns.c.addEventListener('mousemove', ns.mouseMoveResize, false);
+                // ns.c.addEventListener('mouseup', ns.mouseUpResize, false);
                 ns.alteringComponent.component = hitTestResult.component;
                 ns.alteringComponent.panel = null;
             }
@@ -801,8 +807,8 @@ ns.draw = function (e) {
 
             ns.clearSelection();
             if (ns.chosenComponentType !== null) {
-                ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
-                ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
+                //ns.c.addEventListener('mousemove', ns.mouseMove, false); //event handler for changing size of component which is being drawn
+                // ns.c.addEventListener('mouseup', ns.mouseUp, false); //finish component creation
                 ns.w = ns.INITIAL_WIDTH; //initial width (global var)
                 ns.h = ns.INITIAL_HEIGHT; //initial height (global var)
 
@@ -814,8 +820,8 @@ ns.draw = function (e) {
                     ns.alteringComponent.panel = null;
                 }
             }
-            else{
-                ns.alteringComponent.component='editor';
+            else {
+                ns.alteringComponent.component = 'editor';
                 ns.alteringComponent.panel = null;
                 ns.constructProperties(ns.alteringComponent.component, 'ns.draw: canvas');
             }
@@ -945,7 +951,7 @@ ns.constructProperties = function (component, callFrom) {
         propertiesPanel.removeChild(propertiesPanel.firstChild);
     }
     if (component !== undefined) {
-        if (component !== "selection" && component!=='editor') {
+        if (component !== "selection" && component !== 'editor') {
             //get property names for the selected component
             var propertyNames = ns.properties[component.getComponentType()];
             //create div and input controls for every property
@@ -1174,7 +1180,7 @@ ns.constructProperties = function (component, callFrom) {
         }
         else if (component === "editor") {
             console.log('canvas is component');
-            var cnvProperties = ns.properties["editor"];            
+            var cnvProperties = ns.properties["editor"];
             for (var i = 0; i < cnvProperties.length; i++) {
                 var div = document.createElement('div');
                 div.className = "param";
@@ -1203,7 +1209,7 @@ ns.constructProperties = function (component, callFrom) {
                         break;
                     case 'color':
                         var input = document.createElement('input');
-                        input.className='demo1';
+                        input.className = 'demo1';
                         input.type = "text";
                         input.id = cnvProperties[i]['name'];
                         input.name = cnvProperties[i]['name'];
@@ -1230,8 +1236,8 @@ ns.constructProperties = function (component, callFrom) {
                 ns.selection.setBackgroundImage(response.toString().trim(), ns.components);
                 ns.drawRectangles();
             }
-            else if(ns.alteringComponent.component==='editor'){
-                ns.editor.bg_image=response.toString().trim();
+            else if (ns.alteringComponent.component === 'editor') {
+                ns.editor.bg_image = response.toString().trim();
                 ns.drawRectangles();
             }
             else {
@@ -1431,11 +1437,17 @@ ns.mouseMoveResize = function (e) {
 };
 
 ns.mouseUpResize = function (e) {
-    ns.isResizing = false;
+    if (ns.isResizing) {
+        ns.isResizing = false;
 
-    ns.constructProperties(ns.components.get(ns.alteringComponent.component), "resize component");
-
-    ns.drawRectangles();
+        if (ns.selection !== null)
+        {
+            ns.alteringComponent.component = "selection";
+            ns.alteringComponent.panel = null;
+        }
+        ns.constructProperties(ns.components.get(ns.alteringComponent.component), "resize component");
+        ns.drawRectangles();
+    }
 };
 
 //mousemove event handler for creating new component
@@ -1485,20 +1497,24 @@ ns.mouseMove = function (e) {
 };
 //used to draw all the components {needs to rename}
 ns.drawRectangles = function () {
-console.log(ns.editor);
-console.log(ns.editor.bg_color);
+    console.log(ns.editor);
+    console.log(ns.editor.bg_color);
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
-    if(ns.editor.bg_image!=='not set'){
+    if (ns.editor.bg_image !== 'not set') {
         ns.image.src = ns.editor.bg_image;
         ns.ctx.drawImage(ns.image, 0, 0, ns.c.width, ns.c.height);
     }
-    else{
+    else {
         console.log('coloring bg')
         ns.ctx.save();
         ns.ctx.fillStyle = ns.editor.bg_color;
-        ns.ctx.fillRect(0,0,ns.c.width, ns.c.height);
+        ns.ctx.fillRect(0, 0, ns.c.width, ns.c.height);
         ns.ctx.restore();
     }
+    ns.editor.screen_height = Number(ns.editor.screen_height);
+    ns.editor.screen_width = Number(ns.editor.screen_width);
+    ns.c.width = ns.editor.screen_width;
+    ns.c.height = ns.editor.screen_height;
     var buf = [];
     ns.components.forEach(function (value, key) {
         buf.push(value);
@@ -1534,8 +1550,8 @@ ns.mouseUp = function (e) {
     if (ns.alteringComponent.component === "selection") {
         ns.constructProperties(ns.alteringComponent.component, "mouseUp_selection");
     }
-    else if(ns.alteringComponent.component==="editor"){
-         ns.constructProperties(ns.alteringComponent.component, "mouseUp_canvas");
+    else if (ns.alteringComponent.component === "editor") {
+        ns.constructProperties(ns.alteringComponent.component, "mouseUp_canvas");
     }
     else if (ns.alteringComponent.panel === null) {
         ns.constructProperties(ns.components.get(ns.alteringComponent.component), "mouseUp_panel=null");
