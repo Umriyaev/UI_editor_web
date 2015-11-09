@@ -187,8 +187,8 @@ ns.init = function () {
     console.log("test");
     ns.sourceValues.push("not set");
     ns.actions.push("not set");
-    ns.editor.screen_width = 1214;
-    ns.editor.screen_height = 840;
+    ns.editor.screen_width = $(".canvasPanel").width();    
+    ns.editor.screen_height = $(".canvasPanel").height();
     ns.editor.bg_color = '#fff';
     ns.editor.bg_image = 'not set';
 
@@ -207,12 +207,14 @@ ns.init = function () {
         "selector": ".bb-alert"
     });
     ns.c = document.getElementById("myCanvas");
+
     ns.ctx = ns.c.getContext("2d");
     ns.c.addEventListener("mousedown", function (e) {
         ns.draw(e);
     }, false);
     $(window).resize(ns.respondResize);
     ns.respondResize();
+
     ns.c.addEventListener("mousemove", function (e) {
         ns.mouseMove(e);
     }, false);
@@ -1500,6 +1502,11 @@ ns.drawRectangles = function () {
     console.log(ns.editor);
     console.log(ns.editor.bg_color);
     ns.ctx.clearRect(0, 0, ns.c.width, ns.c.height);
+    ns.editor.screen_height = Number(ns.editor.screen_height);
+    ns.editor.screen_width = Number(ns.editor.screen_width);
+
+    ns.c.width = ns.editor.screen_width;
+    ns.c.height = ns.editor.screen_height;
     if (ns.editor.bg_image !== 'not set') {
         ns.image.src = ns.editor.bg_image;
         ns.ctx.drawImage(ns.image, 0, 0, ns.c.width, ns.c.height);
@@ -1511,10 +1518,7 @@ ns.drawRectangles = function () {
         ns.ctx.fillRect(0, 0, ns.c.width, ns.c.height);
         ns.ctx.restore();
     }
-    ns.editor.screen_height = Number(ns.editor.screen_height);
-    ns.editor.screen_width = Number(ns.editor.screen_width);
-    ns.c.width = ns.editor.screen_width;
-    ns.c.height = ns.editor.screen_height;
+
     var buf = [];
     ns.components.forEach(function (value, key) {
         buf.push(value);
