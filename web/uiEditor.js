@@ -270,6 +270,10 @@ uiEditor.components.ImageComponent = (function () {
     ImageComponent.prototype.select = function () {
         this.selected = true;
     };
+    
+    ImageComponent.prototype.isSelected = function(){
+        return this.selected;
+    };
 
     ImageComponent.prototype.firstSelect = function () {
         this.firstSelected = true;
@@ -492,6 +496,10 @@ uiEditor.components.TextComponent = (function () {
 
     TextComponent.prototype.select = function () {
         this.selected = true;
+    };
+    
+    TextComponent.prototype.isSelected = function(){
+        return this.selected;
     };
 
     TextComponent.prototype.firstSelect = function () {
@@ -776,6 +784,10 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.firstSelect = function () {
         this.firstSelected = true;
     };
+    
+    DisplayComponent.prototype.isSelected = function(){
+        return this.selected;
+    };
 
     DisplayComponent.prototype.deselect = function () {
         this.selected = false;
@@ -1040,6 +1052,10 @@ uiEditor.components.ButtonComponent = (function () {
 
     ButtonComponent.prototype.firstSelect = function () {
         this.firstSelected = true;
+    };
+    
+    ButtonComponent.prototype.isSelected = function(){
+        return this.selected;
     };
 
     ButtonComponent.prototype.deselect = function () {
@@ -1376,6 +1392,10 @@ uiEditor.components.PanelComponent = (function () {
 
     PanelComponent.prototype.select = function () {
         this.selected = true;
+    };
+    
+    PanelComponent.prototype.isSelected = function(){
+        return this.selected;
     };
 
     PanelComponent.prototype.firstSelect = function () {
@@ -1756,6 +1776,10 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.firstSelect = function () {
         this.firstSelected = true;
     };
+    
+    ScreenControlComponent.prototype.isSelected = function(){
+        return this.selected;
+    };
 
     ScreenControlComponent.prototype.deselect = function () {
         this.selected = false;
@@ -2015,6 +2039,10 @@ uiEditor.components.SourceComponent = (function () {
 
     SourceComponent.prototype.select = function () {
         this.selected = true;
+    };
+    
+    SourceComponent.prototype.isSelected = function(){
+        return this.selected;
     };
 
     SourceComponent.prototype.firstSelect = function () {
@@ -2892,7 +2920,7 @@ uiEditor.components.GroupSelection = (function () {
     };
 
     GroupSelection.prototype.isEmpty = function () {
-        return this.selection.size == 0;
+        return this.selection.size === 0;
     }
 
 
@@ -3109,6 +3137,10 @@ uiEditor.components.Group = (function () {
 
     Group.prototype.firstSelect = function () {
         this.firstSelected = true;
+    };
+    
+    Group.prototype.isSelected = function(){
+        return this.selected;
     };
 
     Group.prototype.deselect = function () {

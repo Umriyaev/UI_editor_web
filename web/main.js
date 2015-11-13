@@ -11,6 +11,13 @@ ns.startX, ns.startY;
 ns.idSpecifier = new uiEditor.helpers.IdSpecifier(0, 0, 0, 0, 0, 0, 0, 0);
 ns.isDrawing = false;
 ns.isResizing = false;
+
+//selection related properties
+ns.isSelecting = false;
+ns.selectionRectangle = {x: 0, y: 0, width: 0, height: 0};
+ns.selection = null;
+/*****************************/
+
 ns.currentDrawingComponent = {"panel": null, "component": null};
 ns.w, ns.h, ns.x, ns.y, ns.c, ns.ctx;
 ns.components = new Map();
@@ -27,7 +34,7 @@ ns.editor = {};
 ns.actions = [];
 ns.image = new Image();
 ns.sizeCreated = false;
-ns.selection = null;
+
 ns.fileName = null;
 /*  startX, startY - initial coordinates where the drawing of component is started
  * idSpecifier - class which sets ids of newly created components
@@ -577,7 +584,7 @@ ns.selectionChanged = function (e) {
         }
     }
     ns.drawRectangles();
-}
+};
 
 ns.promptSizes = function (e) {
     var result = [];
@@ -823,6 +830,19 @@ ns.draw = function (e) {
                 }
             }
             else {
+                //selection related operations
+                ns.selectionRectangle.x = x;
+                ns.selectionRectangle.y = y;
+                ns.selectionRectangle.width = 0;
+                ns.selectionRectangle.height = 0;
+                ns.isSelecting=true;
+                ns.clearSelection();
+                ns.x = x;
+                ns.y = y;
+                ns.startX=x;
+                ns.startY = y;
+                /*****************************/
+                
                 ns.alteringComponent.component = 'editor';
                 ns.alteringComponent.panel = null;
                 ns.constructProperties(ns.alteringComponent.component, 'ns.draw: canvas');
@@ -1496,6 +1516,32 @@ ns.mouseMove = function (e) {
 
         ns.drawRectangles();
     }
+    else if(ns.isSelecting){     
+        ns.x = e.layerX;
+        ns.y = e.layerY;
+        
+        ns.x = Math.min(e.layerX, ns.startX);
+        ns.y = Math.min(e.layerY, ns.startY);
+        console.log(ns.selectionRectangle.x);
+        console.log(ns.selectionRectangle.y);
+        
+        ns.w = Math.abs(e.layerX - ns.startX);
+        ns.h = Math.abs(e.layerY - ns.startY);
+        
+        ns.selectionRectangle.x = ns.x;
+        ns.selectionRectangle.y = ns.y;
+        ns.selectionRectangle.width = ns.w;
+        ns.selectionRectangle.height = ns.h;
+        
+        ns.components.forEach(function(value, key){
+            if(ns.isComponentInsideSelection(value)){
+                if(!value.isSelected())                    
+                    value.select();
+            }
+        });        
+        
+        ns.drawRectangles();
+    }
 };
 //used to draw all the components {needs to rename}
 ns.drawRectangles = function () {
@@ -1535,6 +1581,14 @@ ns.drawRectangles = function () {
             buf[i].draw(ns.ctx);
         }
     }
+    
+    if(ns.isSelecting){
+        ns.ctx.save();
+        ns.ctx.fillStyle="#71dee8";
+        ns.ctx.globalAlpha = 0.2;
+        ns.ctx.fillRect(ns.selectionRectangle.x, ns.selectionRectangle.y, ns.selectionRectangle.width, ns.selectionRectangle.height);
+        ns.ctx.restore();
+    }
 
 };
 //Remove unnecessary components, which are created by mistake
@@ -1548,7 +1602,29 @@ ns.cleanUp = function () {
 };
 //set variables, which are used to create new component, to their initial values
 ns.mouseUp = function (e) {
-    ns.isDrawing = false;
+    //selection related operations
+    
+    if(ns.selection===null){
+        ns.selection=new uiEditor.components.GroupSelection();
+    }
+    
+    if(ns.isSelecting){
+        ns.isSelecting=false;
+        var addedComponents = 0;
+        ns.components.forEach(function(value, key){
+            if(value.isSelected()){
+                ns.selection.addToSelection(key, ns.components);
+                addedComponents++;
+            }
+        });
+        if(addedComponents>0){
+            ns.alteringComponent.component = "selection";
+            ns.alteringComponent.panel = null;
+        }        
+    }
+    /*****************************/
+    
+    ns.isDrawing = false;    
     ns.drawingPanel = undefined;
     ns.drawRectangles();
     if (ns.alteringComponent.component === "selection") {
@@ -1724,6 +1800,42 @@ ns.alignIntervalsVertical = function () {
 ns.redirect = function (url) {
     window.location = url;
 };
+
+ns.isComponentInsideSelection = function (testComponent) {
+        var x = ns.selectionRectangle.x;
+        var y = ns.selectionRectangle.y;
+        var h = ns.selectionRectangle.height;
+        var w = ns.selectionRectangle.width;
+
+        var X = testComponent.getX();
+        var Y = testComponent.getY();
+        var W = testComponent.getWidth();
+        var H = testComponent.getHeight();
+
+
+        if (X < x || Y < y) {
+            return false;
+        }
+        w += x;
+        W += X;
+        if (W <= X) {
+            if (w >= x || W > w)
+                return false;
+        } else {
+            if (w >= x && W > w)
+                return false;
+        }
+        h += y;
+        H += Y;
+        if (H <= Y) {
+            if (h >= y || H > h)
+                return false;
+        } else {
+            if (h >= y && H > h)
+                return false;
+        }
+        return true;
+    };
 /******************************************************************/
 
 
