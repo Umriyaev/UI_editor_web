@@ -194,7 +194,7 @@ ns.init = function () {
     console.log("test");
     ns.sourceValues.push("not set");
     ns.actions.push("not set");
-    ns.editor.screen_width = $(".canvasPanel").width();    
+    ns.editor.screen_width = $(".canvasPanel").width();
     ns.editor.screen_height = $(".canvasPanel").height();
     ns.editor.bg_color = '#fff';
     ns.editor.bg_image = 'not set';
@@ -835,14 +835,14 @@ ns.draw = function (e) {
                 ns.selectionRectangle.y = y;
                 ns.selectionRectangle.width = 0;
                 ns.selectionRectangle.height = 0;
-                ns.isSelecting=true;
+                ns.isSelecting = true;
                 ns.clearSelection();
                 ns.x = x;
                 ns.y = y;
-                ns.startX=x;
+                ns.startX = x;
                 ns.startY = y;
                 /*****************************/
-                
+
                 ns.alteringComponent.component = 'editor';
                 ns.alteringComponent.panel = null;
                 ns.constructProperties(ns.alteringComponent.component, 'ns.draw: canvas');
@@ -997,6 +997,15 @@ ns.constructProperties = function (component, callFrom) {
                     div.appendChild(input);
                     if (propertyNames[i]['type'] === 'file') {
                         input.filename = component.getPropertyValue(propertyNames[i]['name']);
+
+                        var fileName = component.getPropertyValue(propertyNames[i]['name']);
+                        if (fileName !== 'not set') {
+                            var removeImage = document.createElement('a');
+                            removeImage.className = 'boxclose';
+                            removeImage.id = 'boxclose';
+                            removeImage.name = propertyNames[i]['name'];
+                            div.appendChild(removeImage);
+                        }
                         //add event listener for file uploader
                         //input.addEventListener('change', ns.fileChanged, false);
                     }
@@ -1096,6 +1105,16 @@ ns.constructProperties = function (component, callFrom) {
                             input.type = propertyNames[i]['type'];
                             input.id = propertyNames[i]['name'];
                             input.name = propertyNames[i]['name'];
+
+                            var fileName = ns.selection.getPropertyValue(propertyNames[i]['name']);
+                            if (fileName !== 'not set') {
+                                var removeImage = document.createElement('a');
+                                removeImage.className = 'boxclose';
+                                removeImage.id = 'boxclose';
+                                removeImage.name = propertyNames[i]['name'];
+                                div.appendChild(removeImage);
+                            }
+
                             div.appendChild(input);
                             propertiesPanel.appendChild(div);
                             break;
@@ -1226,6 +1245,13 @@ ns.constructProperties = function (component, callFrom) {
                         input.type = cnvProperties[i]['type'];
                         input.id = cnvProperties[i]['name'];
                         input.name = cnvProperties[i]['name'];
+                        if (ns.editor[cnvProperties[i]['name']] !== 'not set') {
+                            var removeImage = document.createElement('a');
+                            removeImage.className = 'boxclose';
+                            removeImage.id = 'boxclose';
+                            removeImage.name = cnvProperties[i]['name'];
+                            div.appendChild(removeImage);
+                        }
                         div.appendChild(input);
                         propertiesPanel.appendChild(div);
                         break;
@@ -1250,6 +1276,35 @@ ns.constructProperties = function (component, callFrom) {
     $('.demo1').colorpicker().on("changeColor", function (event) {
         ns.textChanged(event);
     });
+
+    $('.boxclose').click(function () {
+        if (ns.alteringComponent.component === 'editor') {
+            ns.editor.bg_image = 'not set';
+            ns.constructProperties(ns.alteringComponent.component, 'boxclose click handler');
+        }
+        else if(ns.alteringComponent.component==='selection'){
+            console.log('selection  ' + this.name);
+            ns.selection.setPropertyValue(this.name, 'not set', ns.components);
+            ns.constructProperties(ns.alteringComponent.component, 'boxclose click handler');
+        }
+        else {
+            if (ns.alteringComponent.component) {
+                if (ns.alteringComponent.panel) {
+                    var panel = ns.components.get(ns.alteringComponent.panel);
+                    var child = panel.getChild(ns.alteringComponent.component);
+                    child.setPropertyValue(this.name, 'not set');
+                    ns.constructProperties(child, 'boxclose click handler');
+                }
+                else {
+                    var component = ns.components.get(ns.alteringComponent.component);
+                    component.setPropertyValue(this.name, 'not set');
+                    ns.constructProperties(component, 'boxclose click handler');
+                }
+            }
+        }
+        ns.drawRectangles();
+    });
+
     $('input[type="file"]').ajaxfileupload({
         'action': 'saveImage.jsp',
         'onComplete': function (response) {
@@ -1516,30 +1571,30 @@ ns.mouseMove = function (e) {
 
         ns.drawRectangles();
     }
-    else if(ns.isSelecting){     
+    else if (ns.isSelecting) {
         ns.x = e.layerX;
         ns.y = e.layerY;
-        
+
         ns.x = Math.min(e.layerX, ns.startX);
         ns.y = Math.min(e.layerY, ns.startY);
         console.log(ns.selectionRectangle.x);
         console.log(ns.selectionRectangle.y);
-        
+
         ns.w = Math.abs(e.layerX - ns.startX);
         ns.h = Math.abs(e.layerY - ns.startY);
-        
+
         ns.selectionRectangle.x = ns.x;
         ns.selectionRectangle.y = ns.y;
         ns.selectionRectangle.width = ns.w;
         ns.selectionRectangle.height = ns.h;
-        
-        ns.components.forEach(function(value, key){
-            if(ns.isComponentInsideSelection(value)){
-                if(!value.isSelected())                    
+
+        ns.components.forEach(function (value, key) {
+            if (ns.isComponentInsideSelection(value)) {
+                if (!value.isSelected())
                     value.select();
             }
-        });        
-        
+        });
+
         ns.drawRectangles();
     }
 };
@@ -1581,10 +1636,10 @@ ns.drawRectangles = function () {
             buf[i].draw(ns.ctx);
         }
     }
-    
-    if(ns.isSelecting){
+
+    if (ns.isSelecting) {
         ns.ctx.save();
-        ns.ctx.fillStyle="#71dee8";
+        ns.ctx.fillStyle = "#71dee8";
         ns.ctx.globalAlpha = 0.2;
         ns.ctx.fillRect(ns.selectionRectangle.x, ns.selectionRectangle.y, ns.selectionRectangle.width, ns.selectionRectangle.height);
         ns.ctx.restore();
@@ -1603,28 +1658,28 @@ ns.cleanUp = function () {
 //set variables, which are used to create new component, to their initial values
 ns.mouseUp = function (e) {
     //selection related operations
-    
-    if(ns.selection===null){
-        ns.selection=new uiEditor.components.GroupSelection();
+
+    if (ns.selection === null) {
+        ns.selection = new uiEditor.components.GroupSelection();
     }
-    
-    if(ns.isSelecting){
-        ns.isSelecting=false;
+
+    if (ns.isSelecting) {
+        ns.isSelecting = false;
         var addedComponents = 0;
-        ns.components.forEach(function(value, key){
-            if(value.isSelected()){
+        ns.components.forEach(function (value, key) {
+            if (value.isSelected()) {
                 ns.selection.addToSelection(key, ns.components);
                 addedComponents++;
             }
         });
-        if(addedComponents>0){
+        if (addedComponents > 0) {
             ns.alteringComponent.component = "selection";
             ns.alteringComponent.panel = null;
-        }        
+        }
     }
     /*****************************/
-    
-    ns.isDrawing = false;    
+
+    ns.isDrawing = false;
     ns.drawingPanel = undefined;
     ns.drawRectangles();
     if (ns.alteringComponent.component === "selection") {
@@ -1802,40 +1857,40 @@ ns.redirect = function (url) {
 };
 
 ns.isComponentInsideSelection = function (testComponent) {
-        var x = ns.selectionRectangle.x;
-        var y = ns.selectionRectangle.y;
-        var h = ns.selectionRectangle.height;
-        var w = ns.selectionRectangle.width;
+    var x = ns.selectionRectangle.x;
+    var y = ns.selectionRectangle.y;
+    var h = ns.selectionRectangle.height;
+    var w = ns.selectionRectangle.width;
 
-        var X = testComponent.getX();
-        var Y = testComponent.getY();
-        var W = testComponent.getWidth();
-        var H = testComponent.getHeight();
+    var X = testComponent.getX();
+    var Y = testComponent.getY();
+    var W = testComponent.getWidth();
+    var H = testComponent.getHeight();
 
 
-        if (X < x || Y < y) {
+    if (X < x || Y < y) {
+        return false;
+    }
+    w += x;
+    W += X;
+    if (W <= X) {
+        if (w >= x || W > w)
             return false;
-        }
-        w += x;
-        W += X;
-        if (W <= X) {
-            if (w >= x || W > w)
-                return false;
-        } else {
-            if (w >= x && W > w)
-                return false;
-        }
-        h += y;
-        H += Y;
-        if (H <= Y) {
-            if (h >= y || H > h)
-                return false;
-        } else {
-            if (h >= y && H > h)
-                return false;
-        }
-        return true;
-    };
+    } else {
+        if (w >= x && W > w)
+            return false;
+    }
+    h += y;
+    H += Y;
+    if (H <= Y) {
+        if (h >= y || H > h)
+            return false;
+    } else {
+        if (h >= y && H > h)
+            return false;
+    }
+    return true;
+};
 /******************************************************************/
 
 

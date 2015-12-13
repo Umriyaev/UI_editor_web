@@ -198,5 +198,29 @@ body{
 
 
 
+/*experiment*/
+a.boxclose{
+    float:right;
+    margin-top:-25px;
+    margin-right:1px;
+    cursor:pointer;
+    color: #fff;
+    border: 1px solid #AEAEAE;
+    border-radius: 20px;
+    background: #605F61;
+    font-size: 20px;
+    display: inline-block;
+    line-height: 0px;
+    padding: 11px 3px;       
+}
+
+.boxclose:before {
+    content: "×";
+
+}
+
+
+
+
 
 

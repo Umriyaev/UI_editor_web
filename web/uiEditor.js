@@ -270,8 +270,8 @@ uiEditor.components.ImageComponent = (function () {
     ImageComponent.prototype.select = function () {
         this.selected = true;
     };
-    
-    ImageComponent.prototype.isSelected = function(){
+
+    ImageComponent.prototype.isSelected = function () {
         return this.selected;
     };
 
@@ -497,8 +497,8 @@ uiEditor.components.TextComponent = (function () {
     TextComponent.prototype.select = function () {
         this.selected = true;
     };
-    
-    TextComponent.prototype.isSelected = function(){
+
+    TextComponent.prototype.isSelected = function () {
         return this.selected;
     };
 
@@ -784,8 +784,8 @@ uiEditor.components.DisplayComponent = (function () {
     DisplayComponent.prototype.firstSelect = function () {
         this.firstSelected = true;
     };
-    
-    DisplayComponent.prototype.isSelected = function(){
+
+    DisplayComponent.prototype.isSelected = function () {
         return this.selected;
     };
 
@@ -1053,8 +1053,8 @@ uiEditor.components.ButtonComponent = (function () {
     ButtonComponent.prototype.firstSelect = function () {
         this.firstSelected = true;
     };
-    
-    ButtonComponent.prototype.isSelected = function(){
+
+    ButtonComponent.prototype.isSelected = function () {
         return this.selected;
     };
 
@@ -1393,8 +1393,8 @@ uiEditor.components.PanelComponent = (function () {
     PanelComponent.prototype.select = function () {
         this.selected = true;
     };
-    
-    PanelComponent.prototype.isSelected = function(){
+
+    PanelComponent.prototype.isSelected = function () {
         return this.selected;
     };
 
@@ -1776,8 +1776,8 @@ uiEditor.components.ScreenControlComponent = (function () {
     ScreenControlComponent.prototype.firstSelect = function () {
         this.firstSelected = true;
     };
-    
-    ScreenControlComponent.prototype.isSelected = function(){
+
+    ScreenControlComponent.prototype.isSelected = function () {
         return this.selected;
     };
 
@@ -2040,8 +2040,8 @@ uiEditor.components.SourceComponent = (function () {
     SourceComponent.prototype.select = function () {
         this.selected = true;
     };
-    
-    SourceComponent.prototype.isSelected = function(){
+
+    SourceComponent.prototype.isSelected = function () {
         return this.selected;
     };
 
@@ -2213,7 +2213,7 @@ uiEditor.components.GroupSelection = (function () {
         this.headerText = "not set";
         this.source = "not set";
         this.action = "not set";
-        
+
         this.firstItem = null;
 
         this.addedComponents = uiEditor.helpers.NONE_FLAG;
@@ -2224,7 +2224,7 @@ uiEditor.components.GroupSelection = (function () {
         this.displayCount = 0;
         this.screenCountrolCount = 0;
         this.sourceCount = 0;
-        
+
 //        this.verticalOffset = "not set";
 //        this.horizontalOffset = "not set";
     }
@@ -2360,7 +2360,7 @@ uiEditor.components.GroupSelection = (function () {
     };
 
     GroupSelection.prototype.setBackgroundImage = function (image_url, components) {
-        if (image_url !== "not set") {
+        //if (image_url !== "not set") {
             this.selection.forEach(function (value, key) {
                 if (components.get(value).getComponentType() !== "group") {
                     components.get(value).setBackgroundImage(image_url);
@@ -2368,7 +2368,7 @@ uiEditor.components.GroupSelection = (function () {
             });
             this.bg_image = image_url;
             return components;
-        }
+        //}
     };
 
     GroupSelection.prototype.setZ_index = function (z_index, components) {
@@ -2824,6 +2824,60 @@ uiEditor.components.GroupSelection = (function () {
             case "height":
                 return this.height;
                 break;
+            case "bg_color":
+                return this.bg_color;
+                break;
+            case "bg_image":
+                return this.bg_image;
+                break;
+            case "z_index":
+                return this.z_index;
+                break;
+            case "text":
+                return this.text;
+                break;
+            case "font_color":
+                return this.font_color;
+                break;
+            case "font_face":
+                return this.font_face;
+                break;
+            case "font_type":
+                return this.font_type;
+                break;
+            case "font_size":
+                return this.font_size;
+                break;
+            case "second_image":
+                return this.second_image;
+                break;
+            case "placeholder_text":
+                return this.placeholder_text;
+                break;
+            case "rows":
+                return this.rows;
+                break;
+            case "cols":
+                return this.cols;
+                break;
+            case "spacing":
+                return this.spacing;
+                break;
+            case "line_style":
+                return this.line_style;
+                break;
+            case "line_width":
+                return this.line_width;
+                break;
+            case "headerText":
+                return this.headerText;
+                break;
+            case "source":
+                return this.source;
+                break;
+            case "action":
+                return this.action;
+                break;
             default:
                 return undefined;
         }
@@ -3138,8 +3192,8 @@ uiEditor.components.Group = (function () {
     Group.prototype.firstSelect = function () {
         this.firstSelected = true;
     };
-    
-    Group.prototype.isSelected = function(){
+
+    Group.prototype.isSelected = function () {
         return this.selected;
     };
 

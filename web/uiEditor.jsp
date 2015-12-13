@@ -83,7 +83,7 @@
                             <div class="panel-body toolboxPanel">
                                 <div class="panel-group" id="accordion">
                                     <div class="panel panel-default">
-                                        <div class="panel-heading">
+                                        <div class="panel-heading">                                            
                                             <h4 class="panel-title">
                                                 Common controls
                                             </h4>
