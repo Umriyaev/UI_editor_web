@@ -691,13 +691,13 @@ ns.clearSelection = function () {
 ns.getMousePos = function (e) {
     var rect = ns.c.getBoundingClientRect();
     return {
-        layerX: Math.floor( e.clientX - rect.left),
-        layerY: Math.floor( e.clientY - rect.top)
+        layerX: Math.floor(e.clientX - rect.left),
+        layerY: Math.floor(e.clientY - rect.top)
     };
 }
 ns.draw = function (e) {
     console.log('draw function: chosenComponent: ' + ns.chosenComponentType);
-    
+
     var mousePos = ns.getMousePos(e);
 
     var x = mousePos.layerX;
@@ -936,13 +936,27 @@ ns.createComponent = function (componentType, x, y) {
 // check if component is clicked or not
 ns.hitTest = function (testX, testY) {
     var result = {"hit": false, "component": null, "panel": null, "resize": false};
+
+    var buf = [];
     ns.components.forEach(function (value, key) {
-        var temp = value.hitTest(testX, testY);
+        buf.push(value);
+    });
+
+    buf.sort(function (a, b) {
+        if (a.getZ_index() < b.getZ_index())
+            return -1;
+        else if (a.getZ_index() > b.getZ_index())
+            return 1;
+        return 0;
+    });
+    
+    for(var i=0; i<buf.length; i++){
+        var temp = buf[i].hitTest(testX, testY);
         if (temp.hit || temp.resize) {
             result = temp;
         }
+    }
 
-    });
     if (result.hit && result.panel === null) {
         if (ns.selection !== null) {
             if (ns.selection.isInSelection(result.component)) {
@@ -1439,7 +1453,7 @@ ns.move = function (e) {
 };
 ns.moveFromPanel = function (e) {
     if (ns.movingChildComponent.component && ns.movingChildComponent.panel) {
-        var mousePos = ns.getMousePos(e);        
+        var mousePos = ns.getMousePos(e);
         ns.x = mousePos.layerX;
         ns.y = mousePos.layerY;
         var dx = ns.x - ns.moveX;
@@ -1546,7 +1560,7 @@ ns.mouseMove = function (e) {
     if (ns.isDrawing) {
 
 // get mouse position
-        
+
         ns.x = mousePos.layerX;
         ns.y = mousePos.layerY;
         //alter mouse position
