@@ -687,11 +687,21 @@ ns.clearSelection = function () {
         }
     }
 };
+
+ns.getMousePos = function (e) {
+    var rect = ns.c.getBoundingClientRect();
+    return {
+        layerX: Math.floor( e.clientX - rect.left),
+        layerY: Math.floor( e.clientY - rect.top)
+    };
+}
 ns.draw = function (e) {
     console.log('draw function: chosenComponent: ' + ns.chosenComponentType);
+    
+    var mousePos = ns.getMousePos(e);
 
-    var x = e.layerX;
-    var y = e.layerY;
+    var x = mousePos.layerX;
+    var y = mousePos.layerY;
     ns.startX = x;
     ns.startY = y;
     var hitTestResult = ns.hitTest(x, y);
@@ -1282,7 +1292,7 @@ ns.constructProperties = function (component, callFrom) {
             ns.editor.bg_image = 'not set';
             ns.constructProperties(ns.alteringComponent.component, 'boxclose click handler');
         }
-        else if(ns.alteringComponent.component==='selection'){
+        else if (ns.alteringComponent.component === 'selection') {
             console.log('selection  ' + this.name);
             ns.selection.setPropertyValue(this.name, 'not set', ns.components);
             ns.constructProperties(ns.alteringComponent.component, 'boxclose click handler');
@@ -1407,8 +1417,9 @@ ns.move = function (e) {
         console.log('moving component: ' + ns.movingComponent);
         console.log("altering component: " + ns.alteringComponent);
         console.log("*******************************************");
-        ns.x = e.layerX;
-        ns.y = e.layerY;
+        var mousePos = ns.getMousePos(e);
+        ns.x = mousePos.layerX;
+        ns.y = mousePos.layerY;
         var dx = ns.x - ns.moveX;
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
@@ -1428,8 +1439,9 @@ ns.move = function (e) {
 };
 ns.moveFromPanel = function (e) {
     if (ns.movingChildComponent.component && ns.movingChildComponent.panel) {
-        ns.x = e.layerX;
-        ns.y = e.layerY;
+        var mousePos = ns.getMousePos(e);        
+        ns.x = mousePos.layerX;
+        ns.y = mousePos.layerY;
         var dx = ns.x - ns.moveX;
         var dy = ns.y - ns.moveY;
         ns.moveX = ns.x;
@@ -1484,14 +1496,15 @@ ns.moveDone = function (e) {
 
 ns.mouseMoveResize = function (e) {
     if (ns.isResizing) {
-        ns.x = e.layerX;
-        ns.y = e.layerY;
+        var mousePos = ns.getMousePos(e);
+        ns.x = mousePos.layerX;
+        ns.y = mousePos.layerY;
 
-        ns.x = Math.min(e.layerX, ns.startX);
-        ns.y = Math.min(e.layerY, ns.startY);
+        ns.x = Math.min(mousePos.layerX, ns.startX);
+        ns.y = Math.min(mousePos.layerY, ns.startY);
 
-        ns.w = Math.abs(e.layerX - ns.startX);
-        ns.h = Math.abs(e.layerY - ns.startY);
+        ns.w = Math.abs(mousePos.layerX - ns.startX);
+        ns.h = Math.abs(mousePos.layerY - ns.startY);
 
         var r;
         if (ns.alteringComponent.panel !== null) {
@@ -1529,18 +1542,20 @@ ns.mouseUpResize = function (e) {
 
 //mousemove event handler for creating new component
 ns.mouseMove = function (e) {
+    var mousePos = ns.getMousePos(e);
     if (ns.isDrawing) {
 
 // get mouse position
-        ns.x = e.layerX;
-        ns.y = e.layerY;
+        
+        ns.x = mousePos.layerX;
+        ns.y = mousePos.layerY;
         //alter mouse position
         //in case if direction of rectangle was changed, i.e. top left corner become different corner
-        ns.x = Math.min(e.layerX, ns.startX);
-        ns.y = Math.min(e.layerY, ns.startY);
+        ns.x = Math.min(mousePos.layerX, ns.startX);
+        ns.y = Math.min(mousePos.layerY, ns.startY);
         //calculate width and height
-        ns.w = Math.abs(e.layerX - ns.startX);
-        ns.h = Math.abs(e.layerY - ns.startY);
+        ns.w = Math.abs(mousePos.layerX - ns.startX);
+        ns.h = Math.abs(mousePos.layerY - ns.startY);
         //set width and height of current rectangle to the calculated value
 
         var r;
@@ -1572,16 +1587,16 @@ ns.mouseMove = function (e) {
         ns.drawRectangles();
     }
     else if (ns.isSelecting) {
-        ns.x = e.layerX;
-        ns.y = e.layerY;
+        ns.x = mousePos.layerX;
+        ns.y = mousePos.layerY;
 
-        ns.x = Math.min(e.layerX, ns.startX);
-        ns.y = Math.min(e.layerY, ns.startY);
+        ns.x = Math.min(mousePos.layerX, ns.startX);
+        ns.y = Math.min(mousePos.layerY, ns.startY);
         console.log(ns.selectionRectangle.x);
         console.log(ns.selectionRectangle.y);
 
-        ns.w = Math.abs(e.layerX - ns.startX);
-        ns.h = Math.abs(e.layerY - ns.startY);
+        ns.w = Math.abs(mousePos.layerX - ns.startX);
+        ns.h = Math.abs(mousePos.layerY - ns.startY);
 
         ns.selectionRectangle.x = ns.x;
         ns.selectionRectangle.y = ns.y;
