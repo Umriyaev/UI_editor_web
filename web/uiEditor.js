@@ -876,7 +876,7 @@ uiEditor.components.DisplayComponent = (function () {
 
 /*********************Button component************************/
 uiEditor.components.ButtonComponent = (function () {
-    function ButtonComponent(id, x, y, w, h, z_index, bg_color, bg_image, second_image, font_color, font_face, font_type, font_size, action, radius) {
+    function ButtonComponent(id, x, y, w, h, z_index, bg_color, bg_image, second_image, font_color, font_face, font_type, font_size, action, radius, text) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -887,8 +887,13 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
-        this.properties['text'] = id;
+        
         this.properties['action'] = "not set";
+        
+        if(typeof(text) === 'undefined' || text === null)
+            this.properties['text'] = id;
+        else
+            this.properties['text'] = text;
 
         if (typeof (radius) === 'undefined' || radius === null) {
             this.properties['radius'] = 10;
@@ -1231,7 +1236,8 @@ uiEditor.components.PanelComponent = (function () {
                                 items.button[i].font_type,
                                 items.button[i].font_size,
                                 items.button[i].action,
-                                items.button[i].radius));
+                                items.button[i].radius,
+                                items.button[i].text));
             }
 
             for (var i = 0; i < items.text.length; i++) {
@@ -3136,7 +3142,8 @@ uiEditor.components.Group = (function () {
                                 items.button[i].font_type,
                                 items.button[i].font_size,
                                 items.button[i].action,
-                                items.button[i].radius));
+                                items.button[i].radius,
+                                items.button[i].text));
             }
 
             for (var i = 0; i < items.text.length; i++) {

@@ -279,7 +279,8 @@ ns.loadProject = function (uiProject) {
                         uiProject.button[i].font_type,
                         uiProject.button[i].font_size,
                         uiProject.button[i].action,
-                        uiProject.button[i].radius));
+                        uiProject.button[i].radius,
+                        uiProject.button[i].text));
     }
 
     for (var i = 0; i < uiProject.image.length; i++) {
