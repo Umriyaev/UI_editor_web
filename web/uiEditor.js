@@ -30,6 +30,53 @@ uiEditor.helpers.drawSelection = function (ctx, componentX, componentY, componen
     ctx.restore();
 };
 
+uiEditor.helpers.wrapText = function(ctx, text, componentX, componentY, maxWidth, maxHeight, lineHeight){
+    var words = text.split(' ');
+        var line = '';
+        var numberOfLines = 1;
+        var testHeight = 0;
+        var x = componentX + maxWidth / 2;
+        var y = componentY;
+        
+        for(var n = 0; n < words.length; n++) {
+          var testLine = line + words[n] + ' ';
+          var metrics = ctx.measureText(testLine);
+          var testWidth = metrics.width;
+          if (testWidth > maxWidth && n > 0) {
+            numberOfLines++;
+            line = words[n] + ' ';
+            testHeight += lineHeight;
+            
+            if(testHeight > maxHeight)
+                break;
+          }
+          else {
+            line = testLine;
+          }
+        }
+        
+        line = '';
+        y += (maxHeight - testHeight) / 2;
+        
+
+        for(var n = 0; n < words.length; n++) {
+          var testLine = line + words[n] + ' ';
+          var metrics = ctx.measureText(testLine);
+          var testWidth = metrics.width;
+          if (testWidth > maxWidth && n > 0) {
+            ctx.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+            if(y > maxHeight)
+                break;
+          }
+          else {
+            line = testLine;
+          }
+        }
+        ctx.fillText(line, x, y);
+}
+
 uiEditor.helpers.resizeHitTest = function (componentX, componentY, componentWidth, componentHeight, testX, testY) {
     var selectionWidth = 10;
     var selectionHeight = 10;
@@ -1161,7 +1208,8 @@ uiEditor.components.ButtonComponent = (function () {
             ctx.fillStyle = this.getFontColor();
             ctx.font = this.getFontType() + " " + this.getFontSize() + " " + this.getFontFace();
             ctx.textAlign = "center";
-            ctx.fillText(this.getText(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
+            //ctx.fillText(this.getText(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
+            uiEditor.helpers.wrapText(ctx, this.getText(), this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20);
             ctx.restore();
         }
         ctx.restore();
