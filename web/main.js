@@ -93,6 +93,7 @@ ns.properties = {
     "button": [
         {"name": "width", "type": "number", "text": "Width"},
         {"name": "height", "type": "number", "text": "Height"},
+        {"name": "radius", "type": "number", "text": "Border radius"},
         {"name": "text", "type": "text", "text": "Text"},
         {"name": "z_index", "type": "number", "text": "Z-index"},
         {"name": "bg_color", "type": "color", "text": "Background color"},
@@ -107,6 +108,7 @@ ns.properties = {
     "text": [
         {"name": "width", "type": "number", "text": "Width"},
         {"name": "height", "type": "number", "text": "Height"},
+        {"name": "radius", "type": "number", "text": "Border radius"},
         {"name": "placeholder_text", "type": "text", "text": "Placeholder text"},
         {"name": "z_index", "type": "number", "text": "Z-index"},
         {"name": "font_color", "type": "color", "text": "Font color"},
@@ -139,6 +141,7 @@ ns.properties = {
     "screenControl": [
         {"name": "width", "type": "number", "text": "Width"},
         {"name": "height", "type": "number", "text": "Height"},
+        {"name": "radius", "type": "number", "text": "Border radius"},
         {"name": "rows", "type": "number", "text": "Number of rows"},
         {"name": "cols", "type": "number", "text": "Number of columns"},
         {"name": "z_index", "type": "number", "text": "Z-index"},
@@ -152,6 +155,7 @@ ns.properties = {
     "source": [
         {"name": "width", "type": "number", "text": "Width"},
         {"name": "height", "type": "number", "text": "Height"},
+        {"name": "radius", "type": "number", "text": "Border radius"},
         {"name": "source", "type": "source", "text": "Source"},
         {"name": "z_index", "type": "number", "text": "Z-index"},
         {"name": "bg_color", "type": "color", "text": "Background color"},
@@ -274,7 +278,8 @@ ns.loadProject = function (uiProject) {
                         uiProject.button[i].font_face,
                         uiProject.button[i].font_type,
                         uiProject.button[i].font_size,
-                        uiProject.button[i].action));
+                        uiProject.button[i].action,
+                        uiProject.button[i].radius));
     }
 
     for (var i = 0; i < uiProject.image.length; i++) {
@@ -302,7 +307,8 @@ ns.loadProject = function (uiProject) {
                         uiProject.text[i].font_type,
                         uiProject.text[i].font_size,
                         uiProject.text[i].bg_image,
-                        uiProject.text[i].bg_color));
+                        uiProject.text[i].bg_color,
+                        uiProject.text[i].radius));
     }
 
     var screenObject = uiProject.screenObject;
@@ -340,7 +346,8 @@ ns.loadProject = function (uiProject) {
                             screenObject.size[i].font_face,
                             screenObject.size[i].font_type,
                             screenObject.size[i].font_size,
-                            screenObject.size[i].bg_image));
+                            screenObject.size[i].bg_image,
+                            screenObject.size[i].radius));
         }
     }
 
@@ -360,7 +367,8 @@ ns.loadProject = function (uiProject) {
                             screenObject.source[i].font_face,
                             screenObject.source[i].font_type,
                             screenObject.source[i].font_size,
-                            screenObject.source[i].bg_image));
+                            screenObject.source[i].bg_image,
+                            screenObject.source[i].radius));
         }
     }
 
@@ -487,7 +495,13 @@ ns.deleteComponent = function () {
 ns.keyPressHandler = function (e) {
 
     if (e.keyCode === ns.DELETE_BUTTON) {
-        ns.deleteComponent();
+        var hasFocus = false;
+        $('#properties').find('*').each(function () {
+            if ($(this).is(":focus"))
+                hasFocus = true;
+        })
+        if (!hasFocus)
+            ns.deleteComponent();
     }
     else if (e.keyCode === ns.ESC_BUTTON) {
         if (ns.isDrawing) {
@@ -695,7 +709,16 @@ ns.getMousePos = function (e) {
         layerY: Math.floor(e.clientY - rect.top)
     };
 }
+
+ns.unfocusInputs = function () {
+    $('#properties').find("*").each(function () {
+        if ($(this).is(":focus"))
+            $(this).blur();
+    });
+};
+
 ns.draw = function (e) {
+    ns.unfocusInputs();
     console.log('draw function: chosenComponent: ' + ns.chosenComponentType);
 
     var mousePos = ns.getMousePos(e);
@@ -949,8 +972,8 @@ ns.hitTest = function (testX, testY) {
             return 1;
         return 0;
     });
-    
-    for(var i=0; i<buf.length; i++){
+
+    for (var i = 0; i < buf.length; i++) {
         var temp = buf[i].hitTest(testX, testY);
         if (temp.hit || temp.resize) {
             result = temp;
@@ -1788,6 +1811,11 @@ ns.saveToJson = function () {
             window.open('saveFile.jsp', '_blank');
         }
     });
+};
+
+ns.saveAs = function () {
+    ns.fileName = prompt("Please, enter project name");
+    ns.saveToJson();
 };
 /* Event handler for toolbox buttons
  * It will set chosenComponentType to the corresponding value coming from clicked button

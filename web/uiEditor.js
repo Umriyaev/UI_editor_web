@@ -330,17 +330,21 @@ uiEditor.components.ImageComponent = (function () {
 
 /*******************Text component class********************/
 uiEditor.components.TextComponent = (function () {
-    function TextComponent(id, x, y, w, h, z_index, placeholder_text, font_color, font_face, font_type, font_size, bg_image, bg_color) {
+    function TextComponent(id, x, y, w, h, z_index, placeholder_text, font_color, font_face, font_type, font_size, bg_image, bg_color, radius) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
         this.properties["id"] = id;
         this.properties["componentType"] = "text";
-        this.properties['xPosition'] = x;
-        this.properties['radius'] = 10;
+        this.properties['xPosition'] = x;        
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
+        
+        if(typeof(radius) === 'undefined' || radius === null)
+            this.properties['radius'] = 10;
+        else
+            this.properties['radius']=radius;
 
         if (typeof (z_index) === 'undefined' || z_index === null)
             this.properties['z_index'] = 0;
@@ -445,6 +449,9 @@ uiEditor.components.TextComponent = (function () {
 
     /****************Setters**************************/
     TextComponent.prototype.setRadius = function (radius) {
+        radius = Number(radius);
+        if(radius < 0)
+            radius = 0;
         this.properties["radius"] = radius;
     };
     TextComponent.prototype.setX = function (x) {
@@ -531,6 +538,7 @@ uiEditor.components.TextComponent = (function () {
     };
 
     TextComponent.prototype.draw = function (ctx) {
+        this.setRadius(this.getRadius());
         this.setX(Number(this.getX()));
         this.setY(Number(this.getY()));
         this.setWidth(Number(this.getWidth()));
@@ -868,7 +876,7 @@ uiEditor.components.DisplayComponent = (function () {
 
 /*********************Button component************************/
 uiEditor.components.ButtonComponent = (function () {
-    function ButtonComponent(id, x, y, w, h, z_index, bg_color, bg_image, second_image, font_color, font_face, font_type, font_size, action) {
+    function ButtonComponent(id, x, y, w, h, z_index, bg_color, bg_image, second_image, font_color, font_face, font_type, font_size, action, radius) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -880,8 +888,14 @@ uiEditor.components.ButtonComponent = (function () {
         this.properties['width'] = w;
         this.properties['height'] = h;
         this.properties['text'] = id;
-        this.properties['radius'] = 10;
         this.properties['action'] = "not set";
+
+        if (typeof (radius) === 'undefined' || radius === null) {
+            this.properties['radius'] = 10;
+        }
+        else {
+            this.properties['radius'] = radius;
+        }
 
         if (typeof (z_index) === 'undefined' || z_index === null)
             this.properties['z_index'] = 0;
@@ -996,6 +1010,12 @@ uiEditor.components.ButtonComponent = (function () {
 
 
     /****************Setters**************************/
+    ButtonComponent.prototype.setRadius = function (radius) {
+        radius = Number(radius);
+        if (radius < 0)
+            radius = 0;
+        this.properties['radius'] = Number(radius);
+    };
     ButtonComponent.prototype.setX = function (x) {
         this.properties['xPosition'] = x;
     };
@@ -1084,6 +1104,7 @@ uiEditor.components.ButtonComponent = (function () {
     };
 
     ButtonComponent.prototype.draw = function (ctx) {
+        this.setRadius(this.getRadius());
         this.setX(Number(this.getX()));
         this.setY(Number(this.getY()));
         this.setWidth(Number(this.getWidth()));
@@ -1209,7 +1230,8 @@ uiEditor.components.PanelComponent = (function () {
                                 items.button[i].font_face,
                                 items.button[i].font_type,
                                 items.button[i].font_size,
-                                items.button[i].action));
+                                items.button[i].action,
+                                items.button[i].radius));
             }
 
             for (var i = 0; i < items.text.length; i++) {
@@ -1226,7 +1248,8 @@ uiEditor.components.PanelComponent = (function () {
                                 items.text[i].font_type,
                                 items.text[i].font_size,
                                 items.text[i].bg_image,
-                                items.text[i].bg_color));
+                                items.text[i].bg_color,
+                                items.text[i].radius));
             }
 
             for (var i = 0; i < items.image.length; i++) {
@@ -1604,7 +1627,7 @@ uiEditor.components.PanelComponent = (function () {
 
 /*******************************Screen control*********************************************/
 uiEditor.components.ScreenControlComponent = (function () {
-    function ScreenControlComponent(id, x, y, w, h, rows, cols, z_index, bg_color, font_color, font_face, font_type, font_size, bg_image) {
+    function ScreenControlComponent(id, x, y, w, h, rows, cols, z_index, bg_color, font_color, font_face, font_type, font_size, bg_image, radius) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -1614,9 +1637,13 @@ uiEditor.components.ScreenControlComponent = (function () {
         this.properties['yPosition'] = y;
         this.properties['width'] = w;
         this.properties['height'] = h;
-        this.properties['radius'] = 10;
         this.properties['rows'] = rows;
         this.properties['cols'] = cols;
+
+        if (typeof (radius) === 'undefined' || radius === null)
+            this.properties['radius'] = 10;
+        else
+            this.properties['radius'] = radius;
 
         if (typeof (z_index) === 'undefined' || z_index === null)
             this.properties['z_index'] = 0;
@@ -1722,6 +1749,12 @@ uiEditor.components.ScreenControlComponent = (function () {
 
 
     /****************Setters**************************/
+    ScreenControlComponent.prototype.setRadius = function (radius) {
+        radius = Number(radius);
+        if (radius < 0)
+            radius = 0;
+        this.properties['radius'] = radius;
+    };
     ScreenControlComponent.prototype.setX = function (x) {
         this.properties['xPosition'] = x;
     };
@@ -1806,6 +1839,7 @@ uiEditor.components.ScreenControlComponent = (function () {
     };
 
     ScreenControlComponent.prototype.draw = function (ctx) {
+        this.setRadius(this.getRadius());
         this.setX(Number(this.getX()));
         this.setY(Number(this.getY()));
         this.setWidth(Number(this.getWidth()));
@@ -1859,7 +1893,7 @@ uiEditor.components.ScreenControlComponent = (function () {
         ctx.restore();
 
         ctx.save();
-        ctx.fillStyle = this.getFontColor()
+        ctx.fillStyle = this.getFontColor();
         ctx.font = this.getFontType() + " " + this.getFontSize() + " " + this.getFontFace();
         ctx.textAlign = "center";
         ctx.fillText(this.getRows().toString() + " x " + this.getCols().toString(), this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2 + 5);
@@ -1880,7 +1914,7 @@ uiEditor.components.ScreenControlComponent = (function () {
 
 /*********************************Display source component*********************************/
 uiEditor.components.SourceComponent = (function () {
-    function SourceComponent(id, x, y, w, h, text, source, z_index, bg_color, font_color, font_face, font_type, font_size, bg_image) {
+    function SourceComponent(id, x, y, w, h, text, source, z_index, bg_color, font_color, font_face, font_type, font_size, bg_image, radius) {
         this.horizontalAlignment = null; //"center" | "right" | "left"
         this.verticalAlignment = null; //"top" | "bottom" | "center"
         this.properties = {};
@@ -1892,6 +1926,11 @@ uiEditor.components.SourceComponent = (function () {
         this.properties['height'] = h;
         this.properties['text'] = source;
         this.properties['source'] = source;
+
+        if (typeof (radius) === 'undefined' || radius === null)
+            this.properties['radius'] = 10;
+        else
+            this.properties['radius'] = radius;
 
         if (typeof (z_index) === 'undefined' || z_index === null)
             this.properties['z_index'] = 0;
@@ -1934,6 +1973,9 @@ uiEditor.components.SourceComponent = (function () {
     }
 
     /*****************Getters************************/
+    SourceComponent.prototype.getRadius = function () {
+        return this.properties['radius'];
+    };
     SourceComponent.prototype.getX = function () {
         return this.properties['xPosition'];
     };
@@ -1990,6 +2032,13 @@ uiEditor.components.SourceComponent = (function () {
 
 
     /****************Setters**************************/
+    SourceComponent.prototype.setRadius = function (radius) {
+        radius = Number(radius);
+        if (radius < 0)
+            radius = 0;
+        this.properties['radius'] = radius;
+    };
+    
     SourceComponent.prototype.setX = function (x) {
         this.properties['xPosition'] = x;
     };
@@ -2074,6 +2123,7 @@ uiEditor.components.SourceComponent = (function () {
     };
 
     SourceComponent.prototype.draw = function (ctx) {
+        this.setRadius(this.getRadius());
         this.setX(Number(this.getX()));
         this.setY(Number(this.getY()));
         this.setWidth(Number(this.getWidth()));
@@ -2085,8 +2135,36 @@ uiEditor.components.SourceComponent = (function () {
         ctx.textAlign = "center";
 
         ctx.beginPath();
-        ctx.rect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        ctx.moveTo(this.getX() + this.getRadius(),
+                this.getY());
+        ctx.lineTo(this.getX() + this.getWidth() -
+                this.getRadius(),
+                this.getY());
+        ctx.quadraticCurveTo(this.getX() + this.getWidth(),
+                this.getY(),
+                this.getX() + this.getWidth(),
+                this.getY() + this.getRadius());
+        ctx.lineTo(this.getX() + this.getWidth(),
+                this.getY() + this.getHeight() - this.getRadius());
+        ctx.quadraticCurveTo(this.getX() + this.getWidth(),
+                this.getY() + this.getHeight(),
+                this.getX() + this.getWidth() - this.getRadius(),
+                this.getY() + this.getHeight());
+        ctx.lineTo(this.getX() + this.getRadius(),
+                this.getY() + this.getHeight());
+        ctx.quadraticCurveTo(this.getX(),
+                this.getY() + this.getHeight(),
+                this.getX(),
+                this.getY() + this.getHeight() - this.getRadius());
+        ctx.lineTo(this.getX(),
+                this.getY() + this.getRadius());
+        ctx.quadraticCurveTo(this.getX(),
+                this.getY(),
+                this.getX() + this.getRadius(),
+                this.getY());
+        ctx.closePath();
         ctx.stroke();
+        ctx.fill();
         if (this.getBackgroundImage() !== "not set") {
             this.image.src = this.getBackgroundImage();
             ctx.save();
@@ -2361,13 +2439,13 @@ uiEditor.components.GroupSelection = (function () {
 
     GroupSelection.prototype.setBackgroundImage = function (image_url, components) {
         //if (image_url !== "not set") {
-            this.selection.forEach(function (value, key) {
-                if (components.get(value).getComponentType() !== "group") {
-                    components.get(value).setBackgroundImage(image_url);
-                }
-            });
-            this.bg_image = image_url;
-            return components;
+        this.selection.forEach(function (value, key) {
+            if (components.get(value).getComponentType() !== "group") {
+                components.get(value).setBackgroundImage(image_url);
+            }
+        });
+        this.bg_image = image_url;
+        return components;
         //}
     };
 
@@ -3057,7 +3135,8 @@ uiEditor.components.Group = (function () {
                                 items.button[i].font_face,
                                 items.button[i].font_type,
                                 items.button[i].font_size,
-                                items.button[i].action));
+                                items.button[i].action,
+                                items.button[i].radius));
             }
 
             for (var i = 0; i < items.text.length; i++) {
@@ -3074,7 +3153,8 @@ uiEditor.components.Group = (function () {
                                 items.text[i].font_type,
                                 items.text[i].font_size,
                                 items.text[i].bg_image,
-                                items.text[i].bg_color));
+                                items.text[i].bg_color,
+                                items.text[i].radius));
             }
 
             for (var i = 0; i < items.image.length; i++) {

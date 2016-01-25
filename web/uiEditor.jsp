@@ -37,7 +37,7 @@
                                     <li><a class=dropdown-toggle" data-toggle="dropdown" onclick="ns.redirect('uiEditor.jsp')">New project</a></li>
                                     <li><a class=dropdown-toggle" data-toggle="dropdown" onclick="ns.redirect('loadProject.jsp')">Open</a></li>
                                     <li><a class=dropdown-toggle" data-toggle="dropdown" onclick="ns.saveToJson()">Save</a></li>
-                                    <li><a class=dropdown-toggle" data-toggle="dropdown">Save as</a></li>
+                                    <li><a class=dropdown-toggle" data-toggle="dropdown" onclick="ns.saveAs()">Save as</a></li>
                                 </ul>
                             </li>
                             <li class="dropdown"><a>Edit</a>
